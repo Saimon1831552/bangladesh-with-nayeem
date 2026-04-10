@@ -51,7 +51,7 @@ export default function Tour() {
 
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto mb-20 md:mb-24">
-          <div className="flex items-center justify-center gap-3 pt-8 mb-6">
+          <div className="flex items-center justify-center gap-3 mb-6">
             <span className="w-12 h-0.5 bg-amber-500 rounded-full"></span>
             <span className="text-sm font-extrabold tracking-widest text-green-800 uppercase">Choose Your Adventure</span>
             <span className="w-12 h-0.5 bg-amber-500 rounded-full"></span>
