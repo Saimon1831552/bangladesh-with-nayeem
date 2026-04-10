@@ -17,7 +17,7 @@ export default function GuideProfile() {
           <div className="relative group shrink-0">
             <div className="bg-white p-4 pb-6 shadow-md transform -rotate-3 w-64 transition-all duration-500 ease-out group-hover:rotate-2 group-hover:scale-105 group-hover:shadow-xl border border-stone-200 rounded-sm">
               <img 
-                src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80" 
+                src="https://i.ibb.co.com/wN3B0nsT/46463372-2343868569174862-5457719980747390976-n-jpg-1.jpg" 
                 alt="Naim - Local Guide" 
                 className="w-full h-auto object-cover aspect-square grayscale-[20%] group-hover:grayscale-0 transition-all duration-500"
               />
