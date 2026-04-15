@@ -1,12 +1,21 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TourCard } from '@/app/tours/tours';
 
 
-export default  function FeaturedTours({ tours }) {
+export default function DayTour() {
+    const [tours, setTours] = useState([]);
 
+    useEffect(() => {
+        const fetchTours = async () => {
+            const res = await fetch("http://localhost:5000/api/tours");
+            const json = await res.json();
+            setTours(json.data || []);
+        };
+        fetchTours();
+    }, []);
   return (
     <div style={{ background: '#f8f6f1', padding: '72px 32px 80px' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
@@ -28,7 +37,7 @@ export default  function FeaturedTours({ tours }) {
             lineHeight: 1.1,
             marginBottom: 12,
           }}>
-            Featured <em style={{ color: '#15803d', fontStyle: 'italic' }}>Tours</em>
+            Day <em style={{ color: '#15803d', fontStyle: 'italic' }}>Tours</em>
           </h2>
           <p style={{ fontSize: 15, color: '#888', maxWidth: 480, margin: '0 auto', lineHeight: 1.75 }}>
             Carefully curated experiences designed for international travelers seeking authenticity and unforgettable memories.
@@ -42,8 +51,8 @@ export default  function FeaturedTours({ tours }) {
           gap: 32,
         }}>
           {
-            tours.filter((tour) => tour.isFeatured).map((tour) => (
-              <TourCard key={tour.id} tour={tour} />
+            tours.filter((tour) => tour.tour_type === 'day').map((tour) => (
+               <TourCard key={tour.id} tour={tour} />
             ))
           }
         </div>

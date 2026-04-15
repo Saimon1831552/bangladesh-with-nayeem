@@ -1,12 +1,12 @@
 import React from 'react'
-import Tour from './tours'
+import FeaturedTours from './featuredTours';
 
-export default async function page() {
 
-  let tours = [];
+export default async function ToursData() {
+    let tours = [];
 
-  try {
-    const res = await fetch("http://localhost:5000/api/tours", {
+  try { 
+    const res = await fetch("http://localhost:5000/api/tours?isFeatured=true", {
       cache: 'no-store'
     });
     if (res.ok) {
@@ -19,8 +19,8 @@ export default async function page() {
 
   return (
     <div>
-        <Tour tours={tours} />
+      <FeaturedTours key={tours} tours={tours} />
+      
     </div>
   )
 }
-

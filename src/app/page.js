@@ -1,7 +1,9 @@
-import FeaturedTours from "@/components/shared/featured-tours/featuredTours";
+import DayTour from "@/components/shared/day-tour/day-tour";
+import ToursData from "@/components/shared/featured-tours/toursData";
 import GuideProfile from "@/components/shared/Guide-profile/guide-profile";
 import Hero from "@/components/shared/Hero/hero";
 import SpeechDraft from "@/components/shared/landing-page-speech/speech-draft";
+import Multiday from "@/components/shared/multiday-tour/multiday-tour";
 import Testimonials from "@/components/shared/testimonials/testimonials";
 import Gallery from "@/components/shared/tours-gallary/gallary";
 
@@ -11,10 +13,12 @@ export default function Home() {
     <section >
          <Hero></Hero>
          <GuideProfile></GuideProfile>
-         <FeaturedTours></FeaturedTours>
+         <ToursData></ToursData>
          <SpeechDraft></SpeechDraft>
          <Gallery></Gallery>
+         <DayTour></DayTour>
          <Testimonials></Testimonials>
+         <Multiday></Multiday>
     </section>
   );
 }

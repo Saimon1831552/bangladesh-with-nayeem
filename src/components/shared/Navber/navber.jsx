@@ -1,9 +1,9 @@
-"use client"; // Required if using Next.js App Router
+"use client"; 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
-import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons'; // Import hamburger and close icons
+import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons'; 
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,21 +16,18 @@ export default function Navbar() {
     <div className='sticky top-0 z-50 bg-green-800/70 backdrop-blur-md border-b border-white/10'>
       <div className='flex flex-row justify-between items-center px-4 md:px-10 py-3'>
         
-        {/* Logo - Slightly smaller on mobile */}
         <img className='h-8 md:h-10 rounded-lg' src="https://i.ibb.co.com/4wMWwjGV/Bangladesh-With-Naim-Logo.png" alt="Bangladesh with Naim" />
 
-        {/* Desktop Navigation (Hidden on Mobile/Tablet) */}
         <nav className='hidden md:block'>
           <ul className='flex flex-row justify-center gap-6 items-center list-none m-0 p-0'>
             <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/">Home</Link></li>
             <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/tours">Tours</Link></li>
             <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/blogs">Blogs</Link></li>
             <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/review">Review</Link></li>
-            <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/contact">Contact Us</Link></li>
+            <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/contact">Contact</Link></li>
           </ul>
         </nav>
 
-        {/* Desktop WhatsApp CTA (Hidden on Mobile/Tablet) */}
         <div className='hidden md:flex flex-row gap-3.5 items-center bg-green-600 hover:bg-green-500 px-5 py-2 rounded-full transition-all cursor-pointer'>
           <a 
             href="https://wa.me/8801783377429" 
@@ -53,7 +50,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+     
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-green-900/95 backdrop-blur-md border-b border-white/10 px-4 py-6 shadow-xl transition-all duration-300">
           <nav>

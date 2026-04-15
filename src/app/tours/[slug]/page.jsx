@@ -1,79 +1,195 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faLocationDot, faClock, faUserGroup, faCheck, faXmark,
   faChevronLeft, faStar, faCalendarDays, faShieldHalved, faRoute,
-  faLeaf, faWater, faBinoculars
+  faLeaf, faWater, faBinoculars, faSpinner, faTriangleExclamation,
+  faImage
 } from '@fortawesome/free-solid-svg-icons';
 
-const IMAGES = [
-  "https://images.unsplash.com/photo-1585060544812-6b45742d762f?q=80&w=2000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=2000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1549366021-9f761d450615?q=80&w=2000&auto=format&fit=crop",
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-const STATS = [
-  { icon: faClock,        label: "Duration",   value: "3 Days, 2 Nights" },
-  { icon: faUserGroup,    label: "Group Size", value: "Private (2–6)"    },
-  { icon: faLeaf,         label: "Meals",      value: "All Included"     },
-  { icon: faShieldHalved, label: "Security",   value: "Armed Guard"      },
-];
+async function fetchTour(slug) {
+  const res = await fetch(`${API_BASE}/tours/${slug}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Tour not found (${res.status})`);
+  const json = await res.json();
+  return json.data;
+}
 
-const INCLUDED = [
-  "English-speaking expert guide",
-  "All meals & mineral water",
-  "Private cabin accommodation",
-  "Forest permits & armed guard",
-];
+// Fetch gallery images linked to this tour
+async function fetchGallery(tourId) {
+  try {
+    const res = await fetch(`${API_BASE}/gallery?tour_id=${tourId}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch {
+    return [];
+  }
+}
 
-const EXCLUDED = [
-  "International flights",
-  "Personal expenses & tipping",
-  "Travel insurance",
-];
+// Fetch reviews for this tour
+async function fetchReviews(tourId) {
+  try {
+    const res = await fetch(`${API_BASE}/reviews?tour_id=${tourId}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch {
+    return [];
+  }
+}
 
-const ITINERARY = [
-  {
-    day: 1, color: "#d97706",
-    title: "Arrival & Boarding",
-    desc: "Arrive in Khulna early morning. Board our premium private cruiser. Enjoy a traditional Bengali breakfast as we set sail towards the forest. Afternoon creek exploration on a small wooden boat.",
-    icon: faWater,
-  },
-  {
-    day: 2, color: "#15803d",
-    title: "Deep Forest Safari",
-    desc: "Full day exploring Kotka and Jamtola beach. Jungle walk to the observation tower. High chance of spotting deer, monkeys, and rare birds. BBQ dinner on the deck under the stars.",
-    icon: faBinoculars,
-  },
-  {
-    day: 3, color: "#15803d",
-    title: "Koromjol & Departure",
-    desc: "Morning visit to Koromjol Wildlife Rescue Center. See the crocodile breeding program. Sail back to Khulna port after a farewell lunch onboard. Tour concludes.",
-    icon: faLeaf,
-  },
-];
+// ── Helpers ───────────────────────────────────────────────────────────────────
+// Parse numeric price from "$299" or 299
+const parsePrice = (p) => {
+  if (!p) return 0;
+  if (typeof p === 'number') return p;
+  return parseFloat(String(p).replace(/[^0-9.]/g, '')) || 0;
+};
 
+const formatPrice = (p) => {
+  if (!p) return '—';
+  if (typeof p === 'number') return `$${p}`;
+  return String(p).startsWith('$') ? p : `$${p}`;
+};
+
+// Build itinerary from tour data — uses a simple heuristic based on duration
+function buildItinerary(tour) {
+  // If the API returns an itinerary array, use it directly
+  if (Array.isArray(tour.itinerary) && tour.itinerary.length > 0) return tour.itinerary;
+
+  // Otherwise synthesize day-by-day from duration string
+  const durationStr = tour.duration || '1 Day';
+  const dayMatch = durationStr.match(/(\d+)\s*day/i);
+  const days = dayMatch ? parseInt(dayMatch[1]) : 1;
+  const dayColors = ['#d97706', '#15803d', '#1d4ed8', '#7c3aed', '#b91c1c'];
+
+  return Array.from({ length: days }, (_, i) => ({
+    day: i + 1,
+    color: dayColors[i % dayColors.length],
+    title: i === 0 ? 'Arrival & Orientation' : i === days - 1 ? 'Farewell & Departure' : `Exploration Day ${i + 1}`,
+    desc: `Day ${i + 1} of your ${tour.title} experience. Your expert guide will lead you through the highlights of this incredible destination.`,
+    icon: i === 0 ? faWater : i === days - 1 ? faLeaf : faBinoculars,
+  }));
+}
+
+// Build stats from tour fields
+function buildStats(tour) {
+  const stats = [];
+  if (tour.duration)   stats.push({ icon: faClock,        label: 'Duration',   value: tour.duration });
+  if (tour.group_size) stats.push({ icon: faUserGroup,    label: 'Group Size', value: tour.group_size });
+  stats.push({ icon: faLeaf,         label: 'Meals',      value: 'Included' });
+  stats.push({ icon: faShieldHalved, label: 'Security',   value: 'Expert Guide' });
+  return stats;
+}
+
+// ── Loading skeleton ──────────────────────────────────────────────────────────
+function PageSkeleton() {
+  return (
+    <>
+      <style>{`
+        @keyframes skShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+        .sk{background:linear-gradient(90deg,#e8e4da 25%,#f0ece2 50%,#e8e4da 75%);background-size:200% 100%;animation:skShimmer 1.4s ease infinite;border-radius:12px;}
+      `}</style>
+      <div style={{ height: '92vh' }} className="sk" />
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 40px', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 60 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {[90, 40, 60, 200, 300].map((h, i) => <div key={i} className="sk" style={{ height: h }} />)}
+        </div>
+        <div className="sk" style={{ height: 480, borderRadius: 28 }} />
+      </div>
+    </>
+  );
+}
+
+// ── Error page ────────────────────────────────────────────────────────────────
+function ErrorPage({ msg }) {
+  return (
+    <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, textAlign: 'center' }}>
+      <FontAwesomeIcon icon={faTriangleExclamation} style={{ fontSize: 48, color: '#ef4444', marginBottom: 20 }} />
+      <h2 style={{ fontSize: 24, fontWeight: 700, color: '#333', marginBottom: 8 }}>Tour Not Found</h2>
+      <p style={{ color: '#888', marginBottom: 28 }}>{msg}</p>
+      <Link href="/tours" style={{ padding: '12px 28px', borderRadius: 12, background: '#16a34a', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+        ← Back to Tours
+      </Link>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 export default function TourDetails({ params }) {
+  const resolvedParams = use(params);
+  const slug = resolvedParams.slug;
+  // ...
+
+
+  const [tour,     setTour]     = useState(null);
+  const [gallery,  setGallery]  = useState([]);
+  const [reviews,  setReviews]  = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState(null);
   const [activeImg, setActiveImg] = useState(0);
-  const [guests, setGuests] = useState(2);
+  const [guests,   setGuests]   = useState(2);
   const heroRef = useRef(null);
 
-  // Slow parallax on hero
+  // Load tour data
+  useEffect(() => {
+    if (!slug) return;
+    (async () => {
+      setLoading(true);
+      try {
+        const tourData = await fetchTour(slug);
+        setTour(tourData);
+
+        // Load gallery + reviews in parallel
+        const [galleryData, reviewsData] = await Promise.all([
+          fetchGallery(tourData.id),
+          fetchReviews(tourData.id),
+        ]);
+        setGallery(galleryData);
+        setReviews(reviewsData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [slug]);
+
+  // Parallax hero
   useEffect(() => {
     const hero = heroRef.current;
     if (!hero) return;
-    const onScroll = () => {
-      const y = window.scrollY;
-      hero.style.transform = `translateY(${y * 0.3}px)`;
-    };
+    const onScroll = () => { hero.style.transform = `translateY(${window.scrollY * 0.3}px)`; };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const total = 299 * guests;
+  if (loading) return <PageSkeleton />;
+  if (error || !tour) return <ErrorPage msg={error || 'Tour data unavailable.'} />;
+
+  // ── Derived data ──────────────────────────────────────────────────────────
+  // Images: prefer gallery images, then tour's own image_url, then fallbacks
+  const images = gallery.length > 0
+    ? gallery.map(g => g.image_url)
+    : tour.image_url
+      ? [tour.image_url]
+      : ['https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=2000&q=80'];
+
+  const priceNum  = parsePrice(tour.price);
+  const priceFmt  = formatPrice(tour.price);
+  const total     = priceNum * guests;
+  const stats     = buildStats(tour);
+  const itinerary = buildItinerary(tour);
+  const rating    = tour.rating || 0;
+  const fullStars = Math.floor(rating);
+
+  // Tour type tags
+  const typeTags = (tour.tour_type || '').split(',').map(t => t.trim()).filter(Boolean);
 
   return (
     <>
@@ -83,7 +199,6 @@ export default function TourDetails({ params }) {
         .page-wrap { font-family: 'DM Sans', sans-serif; background: #f8f6f1; min-height: 100vh; color: #1c1c1c; }
         .display-font { font-family: 'Cormorant Garamond', serif; }
 
-        /* Hero */
         .hero { position: relative; height: 92vh; overflow: hidden; }
         .hero-img-wrap { position: absolute; inset: 0; overflow: hidden; }
         .hero-img { width: 100%; height: 110%; object-fit: cover; }
@@ -93,13 +208,11 @@ export default function TourDetails({ params }) {
         .back-btn:hover { background: rgba(255,255,255,0.22); }
         .top-rated { display: flex; align-items: center; gap: 6px; background: #d97706; color: #fff; padding: 10px 18px; border-radius: 100px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 
-        /* Thumbnail strip */
         .thumb-strip { position: absolute; right: 40px; bottom: 120px; display: flex; flex-direction: column; gap: 10px; z-index: 20; }
         .thumb { width: 64px; height: 48px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 2px solid transparent; opacity: 0.55; transition: opacity 0.25s, border-color 0.25s, transform 0.2s; }
         .thumb.active { opacity: 1; border-color: #d97706; transform: scale(1.08); }
         .thumb:hover { opacity: 0.85; }
 
-        /* Hero content */
         .hero-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 0 40px 56px; z-index: 10; max-width: 820px; }
         .hero-tags { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
         .hero-tag { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); color: #d97706; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 14px; border-radius: 8px; }
@@ -107,21 +220,17 @@ export default function TourDetails({ params }) {
         .hero-title em { color: #d97706; font-style: italic; }
         .hero-sub { color: rgba(255,255,255,0.75); font-size: 16px; font-weight: 400; line-height: 1.7; max-width: 560px; }
 
-        /* Stars row */
         .stars-row { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
         .star-icon { color: #d97706; font-size: 13px; }
         .rating-text { font-size: 13px; font-weight: 600; color: #fff; }
         .review-text { font-size: 12px; color: rgba(255,255,255,0.5); }
 
-        /* Image counter */
         .img-counter { position: absolute; bottom: 56px; right: 40px; font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; z-index: 10; }
 
-        /* Main layout */
         .main { max-width: 1280px; margin: 0 auto; padding: 64px 40px 80px; display: grid; grid-template-columns: 1fr 380px; gap: 60px; align-items: start; }
         @media(max-width: 1024px){ .main { grid-template-columns: 1fr; } }
         @media(max-width: 640px){ .main { padding: 40px 20px 60px; } .hero-content{ padding: 0 20px 40px; } .hero-top{ padding: 20px; } .thumb-strip{ display: none; } }
 
-        /* Stats bento */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 56px; }
         @media(max-width: 640px){ .stats-grid { grid-template-columns: repeat(2,1fr); } }
         .stat-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; transition: transform 0.2s, box-shadow 0.2s; cursor: default; }
@@ -130,22 +239,18 @@ export default function TourDetails({ params }) {
         .stat-label { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.1em; }
         .stat-value { font-size: 14px; font-weight: 700; color: #1c1c1c; }
 
-        /* Section headings */
         .section-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #d97706; margin-bottom: 8px; }
         .section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 700; color: #1c1c1c; line-height: 1.1; margin-bottom: 28px; }
 
-        /* Overview */
         .overview-block { background: #fff; border: 1px solid #ede9e0; border-radius: 28px; padding: 44px; margin-bottom: 56px; }
         .overview-block p { font-size: 16px; line-height: 1.85; color: #555; margin-bottom: 16px; }
         .overview-block p:last-child { margin-bottom: 0; }
 
-        /* Gallery strip inside overview */
         .gallery-strip { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 28px; border-radius: 16px; overflow: hidden; height: 220px; }
         .gallery-strip img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
         .gallery-strip img:hover { transform: scale(1.04); }
         .gallery-right { display: grid; grid-template-rows: 1fr 1fr; gap: 12px; }
 
-        /* Itinerary */
         .itinerary { margin-bottom: 56px; }
         .timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
         .timeline::before { content: ''; position: absolute; left: 23px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #d97706, #15803d, #15803d); border-radius: 2px; }
@@ -158,7 +263,6 @@ export default function TourDetails({ params }) {
         .timeline-card p { font-size: 14px; line-height: 1.75; color: #666; }
         .day-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #d97706; margin-bottom: 4px; }
 
-        /* Included/Excluded */
         .inc-exc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
         @media(max-width: 640px){ .inc-exc-grid { grid-template-columns: 1fr; } }
         .inc-card { background: #fff; border: 1px solid #d1fae5; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; }
@@ -169,7 +273,11 @@ export default function TourDetails({ params }) {
         .inc-list li, .exc-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: #444; font-weight: 400; line-height: 1.5; }
         .check-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 10px; }
 
-        /* Booking widget */
+        /* Reviews section */
+        .reviews-section { margin-bottom: 56px; }
+        .review-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 28px; margin-bottom: 14px; }
+        .review-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+
         .booking-widget { background: #1c1c1a; border-radius: 28px; padding: 36px; color: #fff; position: sticky; top: 24px; }
         .widget-price { font-family: 'Cormorant Garamond', serif; font-size: 3.2rem; font-weight: 700; color: #fff; line-height: 1; }
         .widget-pp { font-size: 14px; color: rgba(255,255,255,0.45); font-weight: 400; }
@@ -196,7 +304,6 @@ export default function TourDetails({ params }) {
         .reserve-btn:hover { background: #b45309; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(217,119,6,0.35); }
         .secure-badge { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; margin-top: 16px; letter-spacing: 0.04em; }
 
-        /* Fade-in animation */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
         .fade-up { animation: fadeUp 0.7s ease both; }
         .fade-up-1 { animation-delay: 0.1s; }
@@ -209,48 +316,64 @@ export default function TourDetails({ params }) {
         {/* ── HERO ── */}
         <div className="hero">
           <div className="hero-img-wrap">
-            <img ref={heroRef} className="hero-img" src={IMAGES[activeImg]} alt="Sundarbans" />
+            <img ref={heroRef} className="hero-img" src={images[activeImg]} alt={tour.title}
+              onError={e => { e.target.src = 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=2000&q=80'; }} />
           </div>
           <div className="hero-gradient" />
 
           {/* Top bar */}
           <div className="hero-top">
             <Link href="/tours" className="back-btn">
-              <FontAwesomeIcon icon={faChevronLeft} />
-              Back to Tours
+              <FontAwesomeIcon icon={faChevronLeft} /> Back to Tours
             </Link>
-            <div className="top-rated">
-              <FontAwesomeIcon icon={faStar} />
-              Top Rated
+            {rating >= 4.5 && (
+              <div className="top-rated">
+                <FontAwesomeIcon icon={faStar} /> Top Rated
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnail strip — only show if we have multiple images */}
+          {images.length > 1 && (
+            <div className="thumb-strip">
+              {images.slice(0, 5).map((src, i) => (
+                <img key={i} src={src} alt="" className={`thumb ${activeImg === i ? 'active' : ''}`}
+                  onClick={() => setActiveImg(i)}
+                  onError={e => { e.target.style.display = 'none'; }} />
+              ))}
             </div>
-          </div>
+          )}
 
-          {/* Thumbnail strip */}
-          <div className="thumb-strip">
-            {IMAGES.map((src, i) => (
-              <img key={i} src={src} alt="" className={`thumb ${activeImg === i ? 'active' : ''}`} onClick={() => setActiveImg(i)} />
-            ))}
-          </div>
-
-          {/* Image counter */}
-          <div className="img-counter">{activeImg + 1} / {IMAGES.length}</div>
+          {/* Counter */}
+          {images.length > 1 && (
+            <div className="img-counter">{activeImg + 1} / {images.length}</div>
+          )}
 
           {/* Hero content */}
           <div className="hero-content">
             <div className="stars-row fade-up fade-up-1">
-              {[1,2,3,4,5].map(i => <FontAwesomeIcon key={i} icon={faStar} className="star-icon" />)}
-              <span className="rating-text">4.9</span>
-              <span className="review-text">· 124 reviews</span>
+              {[1,2,3,4,5].map(i => (
+                <FontAwesomeIcon key={i} icon={faStar} className="star-icon"
+                  style={{ color: i <= fullStars ? '#d97706' : 'rgba(255,255,255,0.25)' }} />
+              ))}
+              <span className="rating-text">{rating}</span>
+              <span className="review-text">· {tour.review_count} reviews</span>
             </div>
             <div className="hero-tags fade-up fade-up-1">
-              <span className="hero-tag"><FontAwesomeIcon icon={faLocationDot} /> Khulna, Bangladesh</span>
-              <span className="hero-tag"><FontAwesomeIcon icon={faRoute} /> Wildlife Safari</span>
+              <span className="hero-tag"><FontAwesomeIcon icon={faLocationDot} /> {tour.location}</span>
+              {typeTags.slice(0, 2).map(t => (
+                <span key={t} className="hero-tag"><FontAwesomeIcon icon={faRoute} /> {t}</span>
+              ))}
             </div>
             <h1 className="hero-title fade-up fade-up-2">
-              Sundarbans<br /><em>Wildlife Safari</em>
+              {/* Split title at first space for two-line display */}
+              {tour.title.includes(' ')
+                ? <>{tour.title.split(' ').slice(0, Math.ceil(tour.title.split(' ').length / 2)).join(' ')}<br /><em>{tour.title.split(' ').slice(Math.ceil(tour.title.split(' ').length / 2)).join(' ')}</em></>
+                : tour.title
+              }
             </h1>
             <p className="hero-sub fade-up fade-up-3">
-              Journey deep into the world's largest mangrove forest and track the elusive Royal Bengal Tiger in ultimate comfort.
+              {tour.description || `Journey through ${tour.location} on this exclusive private tour, crafted for travelers who demand comfort, authenticity, and unforgettable memories.`}
             </p>
           </div>
         </div>
@@ -263,7 +386,7 @@ export default function TourDetails({ params }) {
 
             {/* Stats bento */}
             <div className="stats-grid">
-              {STATS.map((s, i) => (
+              {stats.map((s, i) => (
                 <div key={i} className="stat-card">
                   <div className="stat-icon-wrap">
                     <FontAwesomeIcon icon={s.icon} style={{ fontSize: 18, color: '#15803d' }} />
@@ -279,17 +402,19 @@ export default function TourDetails({ params }) {
               <div className="section-eyebrow">About This Tour</div>
               <div className="section-title">Experience Overview</div>
 
-              {/* 3-image gallery */}
-              <div className="gallery-strip">
-                <img src={IMAGES[0]} alt="Sundarbans view 1" />
-                <div className="gallery-right">
-                  <img src={IMAGES[1]} alt="Sundarbans view 2" />
-                  <img src={IMAGES[2]} alt="Sundarbans view 3" />
+              {/* Gallery strip — dynamic from gallery API */}
+              {images.length >= 2 && (
+                <div className="gallery-strip">
+                  <img src={images[0]} alt={`${tour.title} view 1`} onError={e => e.target.style.display='none'} />
+                  <div className="gallery-right">
+                    <img src={images[1] || images[0]} alt={`${tour.title} view 2`} onError={e => e.target.style.display='none'} />
+                    {images[2] && <img src={images[2]} alt={`${tour.title} view 3`} onError={e => e.target.style.display='none'} />}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <p>Embark on an unforgettable journey into the heart of the Sundarbans, the largest contiguous mangrove forest in the world. This private tour is meticulously designed to give you an intimate, authentic experience with raw nature while maintaining premium comfort.</p>
-              <p>Navigate narrow, mist-covered creeks on a silent wooden country boat, walk on untouched pristine islands, and keep your eyes peeled for the elusive Royal Bengal Tiger, spotted deer, and saltwater crocodiles.</p>
+              <p>{tour.description || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.`}</p>
+              <p>Your expert guide will lead you through the highlights of this remarkable destination, ensuring every moment is memorable and every detail is taken care of.</p>
             </div>
 
             {/* Itinerary */}
@@ -297,7 +422,7 @@ export default function TourDetails({ params }) {
               <div className="section-eyebrow">Day by Day</div>
               <div className="section-title">Tour Itinerary</div>
               <div className="timeline">
-                {ITINERARY.map((item) => (
+                {itinerary.map((item) => (
                   <div key={item.day} className="timeline-item">
                     <div className="day-bubble" style={{ background: item.color }}>{item.day}</div>
                     <div className="timeline-card">
@@ -316,7 +441,12 @@ export default function TourDetails({ params }) {
                 <div className="corner-blob" style={{ background: '#d1fae5' }} />
                 <h3>What's Included</h3>
                 <ul className="inc-list">
-                  {INCLUDED.map((item, i) => (
+                  {(tour.included || [
+                    'English-speaking expert guide',
+                    'All meals & mineral water',
+                    'Private accommodation',
+                    'All permits & entrance fees',
+                  ]).map((item, i) => (
                     <li key={i}>
                       <span className="check-dot" style={{ background: '#dcfce7', color: '#16a34a' }}>
                         <FontAwesomeIcon icon={faCheck} />
@@ -330,7 +460,11 @@ export default function TourDetails({ params }) {
                 <div className="corner-blob" style={{ background: '#fee2e2' }} />
                 <h3>What's Excluded</h3>
                 <ul className="exc-list">
-                  {EXCLUDED.map((item, i) => (
+                  {(tour.excluded || [
+                    'International flights',
+                    'Personal expenses & tipping',
+                    'Travel insurance',
+                  ]).map((item, i) => (
                     <li key={i}>
                       <span className="check-dot" style={{ background: '#fee2e2', color: '#ef4444' }}>
                         <FontAwesomeIcon icon={faXmark} />
@@ -342,6 +476,39 @@ export default function TourDetails({ params }) {
               </div>
             </div>
 
+            {/* Dynamic Reviews section */}
+            {reviews.length > 0 && (
+              <div className="reviews-section">
+                <div className="section-eyebrow">What Travelers Say</div>
+                <div className="section-title">Guest Reviews</div>
+                {reviews.map(r => (
+                  <div key={r.id} className="review-card">
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                      <div className="review-avatar" style={{ background: r.bg_hex || '#EAF3DE', color: r.color_hex || '#3B6D11' }}>
+                        {r.initials || r.name?.charAt(0) || 'A'}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <div>
+                            <span style={{ fontWeight: 700, fontSize: 15, color: '#1c1c1c' }}>{r.name}</span>
+                            {r.country && <span style={{ fontSize: 12, color: '#999', marginLeft: 8 }}>{r.country}</span>}
+                          </div>
+                          <div style={{ display: 'flex', gap: 2 }}>
+                            {[1,2,3,4,5].map(i => (
+                              <FontAwesomeIcon key={i} icon={faStar} style={{ fontSize: 12, color: i <= r.rating ? '#d97706' : '#e5e7eb' }} />
+                            ))}
+                          </div>
+                        </div>
+                        {r.title && <p style={{ fontWeight: 600, fontSize: 14, color: '#333', marginBottom: 6 }}>{r.title}</p>}
+                        <p style={{ fontSize: 14, color: '#666', lineHeight: 1.7 }}>{r.body}</p>
+                        <p style={{ fontSize: 11, color: '#bbb', marginTop: 8 }}>{r.review_date}{r.is_verified ? ' · ✓ Verified' : ''}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
           </div>
 
           {/* ── BOOKING WIDGET ── */}
@@ -352,7 +519,7 @@ export default function TourDetails({ params }) {
                 <span className="widget-pp">From</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
-                <span className="widget-price">$299</span>
+                <span className="widget-price">{priceFmt}</span>
                 <span className="widget-pp">/ person</span>
               </div>
 
@@ -377,23 +544,26 @@ export default function TourDetails({ params }) {
                 <div className="guest-controls">
                   <button className="guest-btn" onClick={() => setGuests(g => Math.max(1, g - 1))}>−</button>
                   <span style={{ color: '#fff', fontWeight: 600, minWidth: 16, textAlign: 'center' }}>{guests}</span>
-                  <button className="guest-btn" onClick={() => setGuests(g => Math.min(6, g + 1))}>+</button>
+                  <button className="guest-btn" onClick={() => setGuests(g => Math.min(12, g + 1))}>+</button>
                 </div>
               </div>
 
-              <div className="price-row">
-                <span className="price-row-label">$299 × {guests} persons</span>
-                <span className="price-row-val">${(299 * guests).toLocaleString()}</span>
-              </div>
-              <div className="price-row">
-                <span className="price-row-label">Taxes & fees</span>
-                <span className="price-row-val">$0</span>
-              </div>
-
-              <div className="total-row">
-                <span className="total-label">Total (USD)</span>
-                <span className="total-val">${total.toLocaleString()}</span>
-              </div>
+              {priceNum > 0 && (
+                <>
+                  <div className="price-row">
+                    <span className="price-row-label">{priceFmt} × {guests} persons</span>
+                    <span className="price-row-val">${total.toLocaleString()}</span>
+                  </div>
+                  <div className="price-row">
+                    <span className="price-row-label">Taxes & fees</span>
+                    <span className="price-row-val">$0</span>
+                  </div>
+                  <div className="total-row">
+                    <span className="total-label">Total (USD)</span>
+                    <span className="total-val">${total.toLocaleString()}</span>
+                  </div>
+                </>
+              )}
 
               <button className="reserve-btn">Reserve Now</button>
 

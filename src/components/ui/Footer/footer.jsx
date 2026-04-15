@@ -79,13 +79,75 @@ export default function Footer() {
               <li>
                 <Link href="/about" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Gallary
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Quick Links */}
+          <div>
+            <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Guest Support</h4>
+            <ul className="space-y-4">
+              <li>
+                <Link href="/refund-policy" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/payment-policy" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Payment Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/cancellation-policy" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Cancellation Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/responsible-travel" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Responsible Travel
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: Quick Links */}
+          <div>
+            <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Know More</h4>
+            <ul className="space-y-4">
+              <li>
+                <Link href="/privacy-policy" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms-conditions" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link href="/faqs" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  FAQs
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                   About Us
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Contact Info */}
+        
           <div>
             <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Contact Us</h4>
             <ul className="space-y-5">

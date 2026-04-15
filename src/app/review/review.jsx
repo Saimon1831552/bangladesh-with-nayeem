@@ -1,95 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faStarHalfAlt, faThumbsUp, faCheckCircle, faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
-import { faStar as faStarEmpty } from '@fortawesome/free-regular-svg-icons';
-
-const REVIEWS = [
-  {
-    id: 1,
-    name: "Sarah Mitchell",
-    country: "United Kingdom",
-    initials: "SM",
-    color: "#3B6D11",
-    bg: "#EAF3DE",
-    date: "March 2025",
-    rating: 5,
-    title: "An absolutely magical experience",
-    body: "Words cannot describe how extraordinary this journey was. Our guide Karim knew every corner of the Sundarbans like his own backyard. We spotted a Royal Bengal Tiger on day two — I cried tears of joy. The private cruiser was impeccably clean and the food was outstanding.",
-    tour: "Sundarbans Wildlife Safari",
-    helpful: 34,
-    verified: true,
-  },
-  {
-    id: 2,
-    name: "Hiroshi Tanaka",
-    country: "Japan",
-    initials: "HT",
-    color: "#854F0B",
-    bg: "#FAEEDA",
-    date: "February 2025",
-    rating: 5,
-    title: "Perfect in every detail",
-    body: "I've done wildlife tours in 12 countries. This was the most intimate and authentic. Small group size made all the difference. The sunrise over the mangroves on day 3 is something I'll carry with me forever. Nayeem's team handled every logistics perfectly.",
-    tour: "Sundarbans Wildlife Safari",
-    helpful: 28,
-    verified: true,
-  },
-  {
-    id: 3,
-    name: "Amara Osei",
-    country: "Canada",
-    initials: "AO",
-    color: "#185FA5",
-    bg: "#E6F1FB",
-    date: "January 2025",
-    rating: 4.5,
-    title: "Exceeded all expectations",
-    body: "The Sylhet tea garden tour was breathtaking. Rolling hills of emerald green as far as the eye can see. The waterfall hike was challenging but absolutely worth it. Only minor note — the road to the first garden is bumpy, but that's nature, not the tour operator's fault!",
-    tour: "Sylhet Tea Gardens & Waterfalls",
-    helpful: 19,
-    verified: true,
-  },
-  {
-    id: 4,
-    name: "Elena Vasquez",
-    country: "Spain",
-    initials: "EV",
-    color: "#993556",
-    bg: "#FBEAF0",
-    date: "December 2024",
-    rating: 5,
-    title: "Old Dhaka stole my heart",
-    body: "The heritage walk was nothing like I expected — in the best possible way. Our guide took us through streets tourists never find. The Nawab's palace, the Armenian church, the rickshaw-pullers' district. We ate the most incredible street food. I felt like a local for a day.",
-    tour: "Old Dhaka Heritage Walk",
-    helpful: 41,
-    verified: true,
-  },
-  {
-    id: 5,
-    name: "Marcus Webb",
-    country: "Australia",
-    initials: "MW",
-    color: "#0F6E56",
-    bg: "#E1F5EE",
-    date: "November 2024",
-    rating: 5,
-    title: "Worth every penny and more",
-    body: "Booked the Sundarbans tour as a solo traveller and was paired with a lovely couple from France. The armed forest guard added a thrilling edge. Saw spotted deer, monitor lizards, kingfishers, and yes — tiger paw prints fresh in the mud. Goosebumps.",
-    tour: "Sundarbans Wildlife Safari",
-    helpful: 22,
-    verified: true,
-  },
-];
-
-const RATING_BREAKDOWN = [
-  { stars: 5, count: 98, pct: 79 },
-  { stars: 4, count: 18, pct: 15 },
-  { stars: 3, count: 6,  pct: 5  },
-  { stars: 2, count: 1,  pct: 1  },
-  { stars: 1, count: 1,  pct: 1  },
-];
+import React, { useState, useMemo } from 'react';
+import { Star, StarHalf, ThumbsUp, CheckCircle, Quote } from 'lucide-react';
 
 function StarRow({ rating, size = 14 }) {
   return (
@@ -97,13 +9,10 @@ function StarRow({ rating, size = 14 }) {
       {[1, 2, 3, 4, 5].map(i => {
         const full = i <= Math.floor(rating);
         const half = !full && i - 0.5 === rating;
-        return (
-          <FontAwesomeIcon
-            key={i}
-            icon={full ? faStar : half ? faStarHalfAlt : faStarEmpty}
-            style={{ fontSize: size, color: full || half ? '#d97706' : '#d1d5db' }}
-          />
-        );
+        
+        if (full) return <Star key={i} size={size} fill="#d97706" color="#d97706" />;
+        if (half) return <StarHalf key={i} size={size} fill="#d97706" color="#d97706" />;
+        return <Star key={i} size={size} color="#d1d5db" />;
       })}
     </span>
   );
@@ -123,13 +32,50 @@ function Avatar({ initials, color, bg, size = 48 }) {
   );
 }
 
-export default function Review() {
+export default function Review({ reviews = [] }) {
   const [helpfulClicked, setHelpfulClicked] = useState({});
   const [filter, setFilter] = useState('All');
 
-  const tours = ['All', 'Sundarbans Wildlife Safari', 'Sylhet Tea Gardens & Waterfalls', 'Old Dhaka Heritage Walk'];
+  // Ensure reviews is actually an array to prevent mapping errors
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
 
-  const filtered = filter === 'All' ? REVIEWS : REVIEWS.filter(r => r.tour === filter);
+  // 1. Dynamically calculate overall statistics
+  const stats = useMemo(() => {
+    const total = safeReviews.length;
+    if (total === 0) return { avg: 0, breakdown: [], total: 0, label: "No Reviews" };
+
+    let sum = 0;
+    const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+
+    safeReviews.forEach(r => {
+      const rating = r?.rating || 5;
+      sum += rating;
+      if (counts[rating] !== undefined) counts[rating]++;
+    });
+
+    const avg = (sum / total).toFixed(1);
+    const breakdown = [5, 4, 3, 2, 1].map(stars => ({
+      stars,
+      count: counts[stars],
+      pct: Math.round((counts[stars] / total) * 100)
+    }));
+
+    let label = "Good";
+    if (avg >= 4.8) label = "Exceptional";
+    else if (avg >= 4.0) label = "Very Good";
+    else if (avg >= 3.0) label = "Average";
+
+    return { avg, breakdown, total, label };
+  }, [safeReviews]);
+
+  // 2. Extract unique tour names for the filter tabs
+  const tours = useMemo(() => {
+    const uniqueTours = Array.from(new Set(safeReviews.map(r => r?.tour_name).filter(Boolean)));
+    return ['All', ...uniqueTours];
+  }, [safeReviews]);
+
+  // 3. Filter the reviews based on the active tab
+  const filtered = filter === 'All' ? safeReviews : safeReviews.filter(r => r?.tour_name === filter);
 
   const toggleHelpful = (id) => {
     setHelpfulClicked(prev => ({ ...prev, [id]: !prev[id] }));
@@ -147,7 +93,7 @@ export default function Review() {
         .rv-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 4vw, 3.2rem); font-weight: 700; color: #1c1c1a; line-height: 1.1; margin-bottom: 0; }
         .rv-title em { color: #15803d; font-style: italic; }
 
-        .rv-summary { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center; background: #fff; border: 1px solid #ede9e0; border-radius: 24px; padding: 36px 40px; margin-bottom: 40px; }
+        .rv-summary { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center; background: rgb(255, 255, 255); border: 1px solid #ede9e0; border-radius: 24px; padding: 36px 40px; margin-bottom: 40px; }
         @media(max-width:640px){ .rv-summary { grid-template-columns: 1fr; gap: 28px; padding: 28px; } }
         .rv-big-score { display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .rv-score-num { font-family: 'Cormorant Garamond', serif; font-size: 5rem; font-weight: 700; color: #1c1c1a; line-height: 1; }
@@ -179,11 +125,10 @@ export default function Review() {
         .rv-card-body { font-size: 14px; line-height: 1.8; color: #555; margin-bottom: 20px; }
         .rv-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid #f0ece4; }
         .rv-verified { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #15803d; }
-        .rv-helpful-btn { display: flex; align-items: center; gap-6px; gap: 6px; font-size: 12px; color: #999; background: none; border: 1px solid #e5e5e5; border-radius: 100px; padding: 6px 14px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+        .rv-helpful-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #999; background: none; border: 1px solid #e5e5e5; border-radius: 100px; padding: 6px 14px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
         .rv-helpful-btn:hover { border-color: #d97706; color: #d97706; }
         .rv-helpful-btn.clicked { border-color: #d97706; color: #d97706; background: #FAEEDA; }
         .rv-quote-icon { position: absolute; top: 24px; right: 28px; font-size: 40px; color: #f0ece4; pointer-events: none; }
-        .rv-date { font-size: 11px; color: #bbb; }
       `}</style>
 
       <div className="rv-wrap">
@@ -197,13 +142,13 @@ export default function Review() {
           {/* Summary bar */}
           <div className="rv-summary">
             <div className="rv-big-score">
-              <span className="rv-score-num">4.9</span>
-              <StarRow rating={4.9} size={16} />
-              <span className="rv-score-label">Exceptional</span>
-              <span className="rv-score-count">124 reviews</span>
+              <span className="rv-score-num">{stats.avg}</span>
+              <StarRow rating={Number(stats.avg)} size={16} />
+              <span className="rv-score-label">{stats.label}</span>
+              <span className="rv-score-count">{stats.total} reviews</span>
             </div>
             <div className="rv-bars">
-              {RATING_BREAKDOWN.map(r => (
+              {stats.breakdown.map(r => (
                 <div key={r.stars} className="rv-bar-row">
                   <span className="rv-bar-label">{r.stars} ★</span>
                   <div className="rv-bar-track">
@@ -226,40 +171,53 @@ export default function Review() {
 
           {/* Review cards */}
           <div className="rv-cards">
-            {filtered.map(r => (
-              <div key={r.id} className="rv-card">
-                <FontAwesomeIcon icon={faQuoteLeft} className="rv-quote-icon" />
+            {filtered.length === 0 && (
+              <p style={{ color: '#888', textAlign: 'center', padding: '40px 0' }}>No reviews found.</p>
+            )}
+        
+            {filtered.map((r, index) => (
+              <div key={r?.id || index} className="rv-card">
+                <Quote className="rv-quote-icon" size={40} />
 
                 <div className="rv-card-top">
                   <div className="rv-card-user">
-                    <Avatar initials={r.initials} color={r.color} bg={r.bg} size={48} />
+                    <Avatar initials={r?.initials || 'U'} color={r?.color_hex || '#000'} bg={r?.bg_hex || '#eee'} size={48} />
                     <div className="rv-user-info">
-                      <span className="rv-user-name">{r.name}</span>
-                      <span className="rv-user-meta">{r.country} · {r.date}</span>
+                      <span className="rv-user-name">{r?.name || 'Anonymous'}</span>
+                      <span className="rv-user-meta">{r?.country || 'Unknown'} · {r?.review_date}</span>
                     </div>
                   </div>
-                  <span className="rv-tour-tag">{r.tour.split(' ').slice(0, 2).join(' ')}</span>
+                  {/* Strictly check that tour_name is a string before splitting */}
+                  {r?.tour_name && typeof r.tour_name === 'string' && (
+                    <span className="rv-tour-tag">{r.tour_name.split(' ').slice(0, 2).join(' ')}</span>
+                  )}
                 </div>
 
                 <div className="rv-card-rating">
-                  <StarRow rating={r.rating} size={13} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#1c1c1a' }}>{r.rating.toFixed(1)}</span>
+                  <StarRow rating={r?.rating || 5} size={13} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#1c1c1a' }}>{(r?.rating || 5).toFixed(1)}</span>
                 </div>
 
-                <div className="rv-card-title">{r.title}</div>
-                <div className="rv-card-body">{r.body}</div>
+                <div className="rv-card-title">{r?.title || 'Review'}</div>
+                <div className="rv-card-body">{r?.body || ''}</div>
 
                 <div className="rv-card-footer">
                   <div className="rv-verified">
-                    <FontAwesomeIcon icon={faCheckCircle} style={{ fontSize: 13 }} />
-                    Verified traveller
+                    {r?.is_verified === 1 ? (
+                      <>
+                        <CheckCircle size={13} />
+                        Verified traveller
+                      </>
+                    ) : (
+                      <span style={{ color: '#aaa', fontWeight: 500 }}>Unverified</span>
+                    )}
                   </div>
                   <button
                     className={`rv-helpful-btn ${helpfulClicked[r.id] ? 'clicked' : ''}`}
                     onClick={() => toggleHelpful(r.id)}
                   >
-                    <FontAwesomeIcon icon={faThumbsUp} style={{ fontSize: 11 }} />
-                    Helpful ({helpfulClicked[r.id] ? r.helpful + 1 : r.helpful})
+                    <ThumbsUp size={11} />
+                    Helpful ({helpfulClicked[r.id] ? r.helpful_votes + 1 : r.helpful_votes})
                   </button>
                 </div>
               </div>

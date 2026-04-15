@@ -26,11 +26,8 @@ export default function SpeechDraft() {
                 </div>
 
                 <div className="order-1 lg:order-2">
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight mb-8 text-center md:text-left">
-                        Why travellers keep faith in <br className="hidden md:block"/> 
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-green-500">
-                            Bangladesh with Nayeem
-                        </span>
+                    <h2 className="text-3xl md:text-4xl lg:text-[28px] font-extrabold text-gray-900 leading-tight mb-8 text-center md:text-left">
+                        Why Travellers Keep Fait IN<p className='text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-green-500'>NAIM</p>
                     </h2>
 
                     {/* Features List */}

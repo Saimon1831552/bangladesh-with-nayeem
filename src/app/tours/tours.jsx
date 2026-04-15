@@ -1,83 +1,30 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faClock, faUserGroup, faStar, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import {
+  faLocationDot, faClock, faUserGroup, faStar, faArrowRight,
+  faSpinner, faTriangleExclamation, faSliders, faMagnifyingGlass
+} from '@fortawesome/free-solid-svg-icons';
 
-const tours = [
-  {
-    id: 1,
-    slug: "sundarbans-safari",
-    title: "Sundarbans Wildlife Safari",
-    image: "https://i.ibb.co.com/B51QQ7Dh/813.jpg",
-    location: "Khulna, Bangladesh",
-    duration: "3 Days, 2 Nights",
-    groupSize: "2 - 6 People",
-    price: "$299",
-    rating: 4.9,
-    reviews: 124,
-  },
-  {
-    id: 2,
-    slug: "sylhet-tea-gardens",
-    title: "Sylhet Tea Gardens & Waterfalls",
-    image: "https://i.ibb.co.com/G4s2z73j/41413.jpg",
-    location: "Sylhet, Bangladesh",
-    duration: "2 Days, 1 Night",
-    groupSize: "2 - 8 People",
-    price: "$180",
-    rating: 4.8,
-    reviews: 89,
-  },
-  {
-    id: 3,
-    slug: "old-dhaka-heritage",
-    title: "Old Dhaka Heritage Walk",
-    image: "https://i.ibb.co.com/N6LG9xNp/19899.jpg",
-    location: "Dhaka, Bangladesh",
-    duration: "Full Day",
-    groupSize: "1 - 4 People",
-    price: "$85",
-    rating: 5.0,
-    reviews: 210,
-  },
-];
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-export default function Tour() {
-  return (
-    <div className="bg-slate-50 min-h-screen py-24 md:py-32 font-sans text-gray-800">
-      <div className="max-w-7xl  mx-auto px-4 sm:px-6 lg:px-8">
-
-        {/* Page Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20 md:mb-24">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="w-12 h-0.5 bg-amber-500 rounded-full"></span>
-            <span className="text-sm font-extrabold tracking-widest text-green-800 uppercase">Choose Your Adventure</span>
-            <span className="w-12 h-0.5 bg-amber-500 rounded-full"></span>
-          </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-8 tracking-tight leading-tight">
-            Our Exclusive <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-green-500">Private Tours</span>
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mb-8 mx-auto">
-            Carefully curated experiences designed for international travelers seeking authenticity, comfort, and unforgettable memories.
-          </p>
-        </div>
-
-        {/* Tour Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10 lg:gap-10">
-          {tours.map((tour) => (
-            <TourCard key={tour.id} tour={tour} />
-          ))}
-        </div>
-
-      </div>
-    </div>
-  );
+// ── Data fetching ─────────────────────────────────────────────────────────────
+async function fetchTours(filters = {}) {
+  const params = new URLSearchParams();
+  if (filters.tour_type) params.set('tour_type', filters.tour_type);
+  if (filters.location)  params.set('location',  filters.location);
+  const res = await fetch(`${API_BASE}/tours?${params.toString()}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Failed to fetch tours (${res.status})`);
+  const json = await res.json();
+  return json.data || [];
 }
 
-function TourCard({ tour }) {
+const TOUR_TYPES = ['day', 'multiday', 'holiday', 'adventure', 'wildlife', 'cultural'];
+
+// ── Tour Card (identical visuals to original) ─────────────────────────────────
+export function TourCard({ tour }) {
   const cardRef = useRef(null);
 
   const handleMouseMove = (e) => {
@@ -95,7 +42,11 @@ function TourCard({ tour }) {
     }
   };
 
-  const fullStars = Math.floor(tour.rating);
+  const fullStars = Math.floor(tour.rating || 0);
+  // Price: prefer `price` field, support both "$180" string or 180 number
+  const priceDisplay = tour.price
+    ? (typeof tour.price === 'number' ? `$${tour.price}` : tour.price)
+    : '—';
 
   return (
     <>
@@ -121,13 +72,18 @@ function TourCard({ tour }) {
           80%  { opacity: 0.4; }
           100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
         }
+        @keyframes cardIn {
+          from { opacity: 0; transform: translateY(20px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .tour-card-enter { animation: cardIn 0.4s ease both; }
       `}</style>
 
       <article
         ref={cardRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="tour-card group"
+        className="tour-card tour-card-enter group"
         style={{
           position: 'relative',
           height: '440px',
@@ -140,11 +96,12 @@ function TourCard({ tour }) {
           willChange: 'transform',
         }}
       >
-        {/* Background Image */}
+        {/* Background image */}
         <img
-          src={tour.image}
+          src={tour.image_url}
           alt={tour.title}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={e => { e.target.src = 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800&q=80'; }}
         />
 
         {/* Gradient overlay */}
@@ -161,7 +118,7 @@ function TourCard({ tour }) {
           }} />
         </div>
 
-        {/* Floating particles */}
+        {/* Float particles */}
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <span key={i} style={{
             position: 'absolute',
@@ -184,7 +141,7 @@ function TourCard({ tour }) {
           textAlign: 'center',
           boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
         }}>
-          <span style={{ display: 'block', fontSize: 20, fontWeight: 800, color: '#111', lineHeight: 1 }}>{tour.price}</span>
+          <span style={{ display: 'block', fontSize: 20, fontWeight: 800, color: '#111', lineHeight: 1 }}>{priceDisplay}</span>
           <span style={{ fontSize: 9, fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.06em' }}>per person</span>
         </div>
 
@@ -204,7 +161,7 @@ function TourCard({ tour }) {
           {tour.location}
         </div>
 
-        {/* Bottom content */}
+        {/* Card body */}
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, zIndex: 10 }}>
 
           {/* Stars */}
@@ -215,7 +172,7 @@ function TourCard({ tour }) {
               ))}
             </div>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{tour.rating}</span>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>({tour.reviews} reviews)</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>({tour.review_count} reviews)</span>
           </div>
 
           {/* Title */}
@@ -227,12 +184,12 @@ function TourCard({ tour }) {
             {tour.title}
           </h3>
 
-          {/* Pills */}
+          {/* Meta pills */}
           <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 13 }}>
             {[
-              { icon: faClock, label: tour.duration },
-              { icon: faUserGroup, label: tour.groupSize },
-            ].map(({ icon, label }) => (
+              { icon: faClock,     label: tour.duration   },
+              { icon: faUserGroup, label: tour.group_size },
+            ].map(({ icon, label }) => label && (
               <span key={label} style={{
                 display: 'flex', alignItems: 'center', gap: 5,
                 background: 'rgba(255,255,255,0.12)',
@@ -248,7 +205,7 @@ function TourCard({ tour }) {
             ))}
           </div>
 
-          {/* CTA Button */}
+          {/* CTA */}
           <Link
             href={`/tours/${tour.slug}`}
             className="cta-btn"
@@ -271,5 +228,167 @@ function TourCard({ tour }) {
         </div>
       </article>
     </>
+  );
+}
+
+// ── Skeleton Card ─────────────────────────────────────────────────────────────
+function SkeletonCard() {
+  return (
+    <div style={{
+      height: 440, borderRadius: 20, overflow: 'hidden',
+      background: 'linear-gradient(90deg,#e8e4da 25%,#f0ece2 50%,#e8e4da 75%)',
+      backgroundSize: '200% 100%',
+      animation: 'shimmerSk 1.4s ease infinite',
+    }}>
+      <style>{`@keyframes shimmerSk{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
+    </div>
+  );
+}
+
+// ── Error state ───────────────────────────────────────────────────────────────
+function ErrorBanner({ msg, onRetry }) {
+  return (
+    <div style={{
+      textAlign: 'center', padding: '64px 24px',
+      background: '#fff9f9', border: '1px solid #fde8e8',
+      borderRadius: 24, maxWidth: 480, margin: '0 auto',
+    }}>
+      <FontAwesomeIcon icon={faTriangleExclamation} style={{ fontSize: 36, color: '#ef4444', marginBottom: 16 }} />
+      <p style={{ fontSize: 16, color: '#c53030', fontWeight: 600, marginBottom: 8 }}>Failed to load tours</p>
+      <p style={{ fontSize: 14, color: '#888', marginBottom: 24 }}>{msg}</p>
+      <button onClick={onRetry} style={{
+        padding: '10px 28px', borderRadius: 12, background: '#16a34a',
+        color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer',
+      }}>Try again</button>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+export default function Tour() {
+  const [tours,      setTours]      = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState(null);
+  const [search,     setSearch]     = useState('');
+  const [activeType, setActiveType] = useState('');
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchTours({ tour_type: activeType });
+      setTours(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Re-fetch when type filter changes
+  useEffect(() => { load(); }, [activeType]); // eslint-disable-line
+
+  // Client-side search filter on already-fetched tours
+  const filtered = tours.filter(t =>
+    !search ||
+    t.title?.toLowerCase().includes(search.toLowerCase()) ||
+    t.location?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="bg-[#f8f6f1] min-h-screen py-24 md:py-32 font-sans text-gray-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* ── Header ── */}
+        <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="w-12 h-0.5 bg-amber-500 rounded-full" />
+            <span className="text-sm font-extrabold tracking-widest text-green-800 uppercase">Choose Your Adventure</span>
+            <span className="w-12 h-0.5 bg-amber-500 rounded-full" />
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight leading-tight">
+            Our Exclusive <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-green-500">Private Tours</span>
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+            Carefully curated experiences designed for international travelers seeking authenticity, comfort, and unforgettable memories.
+          </p>
+        </div>
+
+        {/* ── Search + Filter bar ── */}
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center',
+          background: '#fff', borderRadius: 16, padding: '12px 16px',
+          border: '1px solid #e5e0d6', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          marginBottom: 32,
+        }}>
+          {/* Search */}
+          <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
+            <FontAwesomeIcon icon={faMagnifyingGlass} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#aaa', fontSize: 14 }} />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search tours or destinations…"
+              style={{
+                width: '100%', paddingLeft: 36, paddingRight: 14, paddingTop: 9, paddingBottom: 9,
+                border: '1px solid #e5e0d6', borderRadius: 10, fontSize: 14,
+                color: '#333', background: '#faf9f6', outline: 'none',
+              }}
+            />
+          </div>
+
+          {/* Type filter pills */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <FontAwesomeIcon icon={faSliders} style={{ color: '#888', fontSize: 14 }} />
+            {['', ...TOUR_TYPES].map(t => (
+              <button
+                key={t}
+                onClick={() => setActiveType(t)}
+                style={{
+                  padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+                  border: activeType === t ? '1.5px solid #16a34a' : '1.5px solid #e5e0d6',
+                  background: activeType === t ? '#16a34a' : 'transparent',
+                  color: activeType === t ? '#fff' : '#555',
+                  cursor: 'pointer', transition: 'all .15s',
+                  textTransform: 'capitalize',
+                }}
+              >
+                {t || 'All'}
+              </button>
+            ))}
+          </div>
+
+          {/* Live count */}
+          {!loading && (
+            <span style={{ fontSize: 13, color: '#999', fontWeight: 500, marginLeft: 'auto', whiteSpace: 'nowrap' }}>
+              {filtered.length} tour{filtered.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+
+        {/* ── Grid ── */}
+        {error ? (
+          <ErrorBanner msg={error} onRetry={load} />
+        ) : loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+            {[1, 2, 3].map(i => <SkeletonCard key={i} />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+            <p style={{ fontSize: 18, color: '#999', fontWeight: 500 }}>No tours match your search.</p>
+            <button onClick={() => { setSearch(''); setActiveType(''); }} style={{ marginTop: 16, padding: '10px 24px', borderRadius: 12, background: '#16a34a', color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' }}>
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+            {filtered.map(tour => (
+              <TourCard key={tour.id} tour={tour} />
+            ))}
+          </div>
+        )}
+
+      </div>
+    </div>
   );
 }

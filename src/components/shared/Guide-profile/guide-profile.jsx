@@ -27,13 +27,14 @@ export default function GuideProfile() {
   
           <div className="flex-1 space-y-5 text-center md:text-left">
             <h2 className="text-4xl md:text-5xl font-bold tracking-wide font-serif text-transparent bg-clip-text bg-linear-to-r from-green-800 to-amber-700">
-              Hi, I'm Naim!
+              Hi, I’m Naim — Your Friend and Guide in Bangladesh.
             </h2>
             <p className="text-stone-600 leading-relaxed text-lg md:text-xl font-light">
-              I'm a local guide with a passion for showing you the <strong className="font-semibold text-stone-800">real Bangladesh</strong>. 
-              From historic sites to rural villages, I share the culture, heritage, and stories of my homeland.
+              I’m a local guide with a deep passion for sharing my country in a simple, honest, and personal way. From historic landmarks to rural village life, I’ll take you beyond the usual tourist path and show you the Bangladesh most travellers never get to experience. <br /> <br />
+
+              <span className='text-stone-600 leading-relaxed text-lg md:text-xl font-light'>👉 Think of me not just as your guide—but as your local friend who makes everything easier, smoother, and more meaningful.</span>
             </p>
-            <div className="inline-block bg-green-50 px-4 py-2 border-l-4 border-green-500 text-green-800 italic font-medium text-lg mt-2">
+            <div className="inline-block bg-green-50 px-4 py-2 border-l-4 border-green-500 text-green-800 italic font-medium text-lg mt-2"> 
               "Let me take you on an unforgettable journey!"
             </div>
           </div>
@@ -47,7 +48,7 @@ export default function GuideProfile() {
             <div className="bg-amber-100 p-2 rounded-full transition-transform duration-300 group-hover:-translate-y-1">
               <FontAwesomeIcon icon={faUser} size="lg" style={{ color: "#b45309" }} />
             </div>
-            <span className="group-hover:text-stone-900 transition-colors">2+ Years Experience</span>
+            <span className="group-hover:text-stone-900 transition-colors">3+ Years Experience</span>
           </div>
           
           <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-stone-300"></div>

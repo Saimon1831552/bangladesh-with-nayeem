@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React from 'react';
 
 export default function Hero() {
@@ -27,9 +28,11 @@ export default function Hero() {
           
           
           <div className='flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto'>
-            <button className="w-full sm:w-auto bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
+            <Link href="/tours">
+                <button className="w-full sm:w-auto bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
               View Tours
             </button>
+            </Link>
             <button className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
               Plan your Trips
             </button>
