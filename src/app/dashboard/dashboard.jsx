@@ -416,7 +416,7 @@ function Section({ title, icon, onAdd, count, loading, onRefresh, extra, childre
 }
 
 // ── TOURS SECTION ─────────────────────────────────────────────────────────────
-const TOUR_DEFAULTS = { slug:"", title:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"" };
+const TOUR_DEFAULTS = { slug:"", title:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", itinerary:"[]", isFeatured:0 };
 
 function ToursSection({ toast }) {
   const [data,setData]=useState([]); const [search,setSearch]=useState(""); const [filterType,setFilterType]=useState(""); const [filterLoc,setFilterLoc]=useState("");
@@ -430,13 +430,50 @@ function ToursSection({ toast }) {
 
   useEffect(()=>{load();},[load]);
   const filtered=data.filter(r=>r.title?.toLowerCase().includes(search.toLowerCase())||r.location?.toLowerCase().includes(search.toLowerCase()));
+  
   const openAdd=()=>{setForm(TOUR_DEFAULTS);setModal("add");};
-  const openEdit=(r)=>{setForm({...r});setModal("edit");};
+  
+  const openEdit=(r)=>{
+    // Parse JSON safely for the textareas if the API returned them as objects/arrays
+    let hl = r.highlights;
+    let it = r.itinerary;
+    if (typeof hl === 'object' && hl !== null) hl = JSON.stringify(hl, null, 2);
+    if (typeof it === 'object' && it !== null) it = JSON.stringify(it, null, 2);
+
+    setForm({
+      ...r, 
+      highlights: hl || "[]", 
+      itinerary: it || "[]"
+    });
+    setModal("edit");
+  };
+
   const save=async()=>{
-    const body={...form,price:form.price?Number(form.price):null,rating:form.rating?Number(form.rating):null,review_count:Number(form.review_count)||0};
+    // Validate JSON before sending to backend
+    let parsedHighlights = [];
+    let parsedItinerary = [];
+    try {
+      parsedHighlights = JSON.parse(form.highlights || "[]");
+      parsedItinerary = JSON.parse(form.itinerary || "[]");
+    } catch(e) {
+      toast("Invalid JSON format in Highlights or Itinerary", "error");
+      return;
+    }
+
+    const body={
+      ...form,
+      price:form.price?Number(form.price):null,
+      rating:form.rating?Number(form.rating):null,
+      review_count:Number(form.review_count)||0,
+      isFeatured:form.isFeatured?1:0,
+      highlights: parsedHighlights,
+      itinerary: parsedItinerary
+    };
+
     const res=modal==="add"?await api.post("/tours",body):await api.put(`/tours/${form.id}`,body);
     if(res.success){toast("Tour saved successfully","success");setModal(null);load();}else toast(res.message||"Failed to save","error");
   };
+
   const remove=async()=>{
     const res=await api.delete(`/tours/${confirm.id}`);
     if(res.success){toast("Tour deleted","success");load();}else toast(res.message||"Failed","error");
@@ -492,6 +529,7 @@ function ToursSection({ toast }) {
             </td>
             <td style={{padding:"14px 18px"}}>
               <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+                {r.isFeatured ? <Badge color="amber">Featured</Badge> : null}
                 {r.tour_type?.split(",").filter(Boolean).map(t=><Badge key={t} color="teal">{t.trim()}</Badge>)}
               </div>
             </td>
@@ -512,6 +550,22 @@ function ToursSection({ toast }) {
             <Field label="Review Count"><input type="number" className="inp" value={form.review_count} onChange={f("review_count")} placeholder="0" /></Field>
             <Field label="Categories (comma-separated)"><input className="inp" value={form.tour_type} onChange={f("tour_type")} placeholder="multiday, holiday, day" /></Field>
             <Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://…" /></Field>
+            
+            <div style={{gridColumn:"1/-1"}}><Field label="Highlights (Valid JSON Array format)"><textarea className="inp" rows={3} value={form.highlights} onChange={f("highlights")} placeholder='["See the mountains", "Enjoy local food"]' /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><Field label="Itinerary (Valid JSON Array format)"><textarea className="inp" rows={4} value={form.itinerary} onChange={f("itinerary")} placeholder='[{"day": 1, "title": "Arrival", "desc": "Settle into the hotel."}]' /></Field></div>
+
+            <div style={{gridColumn:"1/-1",background:"var(--amber-soft)",border:"1px solid #f5d98a",borderRadius:"var(--radius-md)",padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div>
+                <p style={{fontWeight:700,fontSize:14,color:"var(--ink)"}}>Feature this tour</p>
+                <p style={{fontSize:12,color:"var(--ink-3)",marginTop:2}}>Featured tours appear prominently on the homepage</p>
+              </div>
+              <label className="toggle-wrap">
+                <input type="checkbox" checked={!!form.isFeatured} onChange={e=>setForm(p=>({...p,isFeatured:e.target.checked?1:0}))} />
+                <div className="toggle-track"></div>
+                <div className="toggle-thumb"></div>
+              </label>
+            </div>
+
           </Grid>
           <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginTop:24,paddingTop:20,borderTop:"1px solid var(--border)"}}>
             <button className="btn btn-ghost" onClick={()=>setModal(null)}>Cancel</button>

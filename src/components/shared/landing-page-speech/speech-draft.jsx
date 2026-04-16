@@ -37,7 +37,7 @@ export default function SpeechDraft() {
                                 <FontAwesomeIcon icon={faLanguage} size="lg" />
                             </div>
                             <div className="ml-4">
-                                <p className="text-lg text-gray-700 font-medium">English-speaking guides who understand Western travel expectations.</p>
+                                <p className="text-lg text-gray-700 font-medium"><span className='font-extrabold'>Cultural Translator:</span> I help bridge the gap, ensuring your high-end expectations align comfortably with local realities.</p>
                             </div>
                         </li>
 
@@ -46,7 +46,7 @@ export default function SpeechDraft() {
                                 <FontAwesomeIcon icon={faHeadset} size="lg" />
                             </div>
                             <div className="ml-4">
-                                <p className="text-lg text-gray-700 font-medium">24/7 Direct WhatsApp and email support before and during travel.</p>
+                                <p className="text-lg text-gray-700 font-medium"><span className='font-extrabold'>Always Connected:</span> 24/7 Direct WhatsApp and email support.</p>
                             </div>
                         </li>
 
@@ -55,7 +55,7 @@ export default function SpeechDraft() {
                                 <FontAwesomeIcon icon={faFileShield} size="lg" />
                             </div>
                             <div className="ml-4">
-                                <p className="text-lg text-gray-700 font-medium">Clear payment, cancellation, and refund terms with no hidden clauses.</p>
+                                <p className="text-lg text-gray-700 font-medium"><span className='font-extrabold'>Pure Transparency:</span> Honest contracts, fair refunds, and Cancellation. What you see is exactly what you get.</p>
                             </div>
                         </li>
 
@@ -64,7 +64,7 @@ export default function SpeechDraft() {
                                 <FontAwesomeIcon icon={faStar} size="lg" />
                             </div>
                             <div className="ml-4">
-                                <p className="text-lg text-gray-700 font-medium">4★ or 5★ accommodations throughout the tour with upscale amenities.</p>
+                                <p className="text-lg text-gray-700 font-medium"><span className='font-extrabold'>Vetted Luxury:</span> I recommend only elite 4* and 5* stays that have met my personal standards for comfort and safety.</p>
                             </div>
                         </li>
 
@@ -73,7 +73,7 @@ export default function SpeechDraft() {
                                 <FontAwesomeIcon icon={faTags} size="lg" />
                             </div>
                             <div className="ml-4">
-                                <p className="text-lg text-gray-700 font-medium">Direct booking, 15%–30% savings on commission, and inflated prices.</p>
+                                <p className="text-lg text-gray-700 font-medium"><span className='font-extrabold'>Direct Access:</span> Skip the agency markups And, Save 15%–30% by cutting out agency commissions.</p>
                             </div>
                         </li>
                     </ul>

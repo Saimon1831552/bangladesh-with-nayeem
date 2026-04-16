@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaHandPointRight } from "react-icons/fa6";
 import {
   faLocationDot, faClock, faUserGroup, faCheck, faXmark,
   faChevronLeft, faStar, faCalendarDays, faShieldHalved, faRoute,
@@ -44,7 +45,6 @@ async function fetchReviews(tourId) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-// Parse numeric price from "$299" or 299
 const parsePrice = (p) => {
   if (!p) return 0;
   if (typeof p === 'number') return p;
@@ -57,10 +57,25 @@ const formatPrice = (p) => {
   return String(p).startsWith('$') ? p : `$${p}`;
 };
 
-// Build itinerary from tour data — uses a simple heuristic based on duration
+// Safe JSON parse for dynamic fields (Highlights)
+function getHighlights(tour) {
+  let parsed = tour.highlights;
+  if (typeof parsed === 'string') {
+    try { parsed = JSON.parse(parsed); } catch (e) { return []; }
+  }
+  return Array.isArray(parsed) ? parsed : [];
+}
+
+// Build itinerary from tour data — updated to handle JSON strings safely
 function buildItinerary(tour) {
-  // If the API returns an itinerary array, use it directly
-  if (Array.isArray(tour.itinerary) && tour.itinerary.length > 0) return tour.itinerary;
+  let parsedItinerary = tour.itinerary;
+  
+  if (typeof parsedItinerary === 'string') {
+    try { parsedItinerary = JSON.parse(parsedItinerary); } catch (e) {}
+  }
+
+  // If the API/DB returns an itinerary array, use it directly
+  if (Array.isArray(parsedItinerary) && parsedItinerary.length > 0) return parsedItinerary;
 
   // Otherwise synthesize day-by-day from duration string
   const durationStr = tour.duration || '1 Day';
@@ -124,8 +139,6 @@ function ErrorPage({ msg }) {
 export default function TourDetails({ params }) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
-  // ...
-
 
   const [tour,     setTour]     = useState(null);
   const [gallery,  setGallery]  = useState([]);
@@ -173,7 +186,6 @@ export default function TourDetails({ params }) {
   if (error || !tour) return <ErrorPage msg={error || 'Tour data unavailable.'} />;
 
   // ── Derived data ──────────────────────────────────────────────────────────
-  // Images: prefer gallery images, then tour's own image_url, then fallbacks
   const images = gallery.length > 0
     ? gallery.map(g => g.image_url)
     : tour.image_url
@@ -185,10 +197,10 @@ export default function TourDetails({ params }) {
   const total     = priceNum * guests;
   const stats     = buildStats(tour);
   const itinerary = buildItinerary(tour);
+  const highlights = getHighlights(tour);
   const rating    = tour.rating || 0;
   const fullStars = Math.floor(rating);
 
-  // Tour type tags
   const typeTags = (tour.tour_type || '').split(',').map(t => t.trim()).filter(Boolean);
 
   return (
@@ -321,7 +333,6 @@ export default function TourDetails({ params }) {
           </div>
           <div className="hero-gradient" />
 
-          {/* Top bar */}
           <div className="hero-top">
             <Link href="/tours" className="back-btn">
               <FontAwesomeIcon icon={faChevronLeft} /> Back to Tours
@@ -333,7 +344,6 @@ export default function TourDetails({ params }) {
             )}
           </div>
 
-          {/* Thumbnail strip — only show if we have multiple images */}
           {images.length > 1 && (
             <div className="thumb-strip">
               {images.slice(0, 5).map((src, i) => (
@@ -344,12 +354,10 @@ export default function TourDetails({ params }) {
             </div>
           )}
 
-          {/* Counter */}
           {images.length > 1 && (
             <div className="img-counter">{activeImg + 1} / {images.length}</div>
           )}
 
-          {/* Hero content */}
           <div className="hero-content">
             <div className="stars-row fade-up fade-up-1">
               {[1,2,3,4,5].map(i => (
@@ -366,7 +374,6 @@ export default function TourDetails({ params }) {
               ))}
             </div>
             <h1 className="hero-title fade-up fade-up-2">
-              {/* Split title at first space for two-line display */}
               {tour.title.includes(' ')
                 ? <>{tour.title.split(' ').slice(0, Math.ceil(tour.title.split(' ').length / 2)).join(' ')}<br /><em>{tour.title.split(' ').slice(Math.ceil(tour.title.split(' ').length / 2)).join(' ')}</em></>
                 : tour.title
@@ -384,7 +391,6 @@ export default function TourDetails({ params }) {
           {/* Left column */}
           <div>
 
-            {/* Stats bento */}
             <div className="stats-grid">
               {stats.map((s, i) => (
                 <div key={i} className="stat-card">
@@ -397,12 +403,10 @@ export default function TourDetails({ params }) {
               ))}
             </div>
 
-            {/* Overview */}
             <div className="overview-block">
               <div className="section-eyebrow">About This Tour</div>
               <div className="section-title">Experience Overview</div>
 
-              {/* Gallery strip — dynamic from gallery API */}
               {images.length >= 2 && (
                 <div className="gallery-strip">
                   <img src={images[0]} alt={`${tour.title} view 1`} onError={e => e.target.style.display='none'} />
@@ -415,9 +419,35 @@ export default function TourDetails({ params }) {
 
               <p>{tour.description || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.`}</p>
               <p>Your expert guide will lead you through the highlights of this remarkable destination, ensuring every moment is memorable and every detail is taken care of.</p>
+              
+             {/* Dynamically Rendered Highlights Array */}
+               {highlights.length > 0 && (
+                 <div style={{ marginTop: '28px' }}>
+                   <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.6rem', fontWeight: 700, color: '#1c1c1c', marginBottom: '16px' }}>
+                     Tour Highlights
+                   </h3>
+                   <ul style={{ paddingLeft: '0', margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                     {highlights.map((h, i) => (
+                       <li key={i} style={{ 
+                         fontSize: '16px', 
+                         color: '#555', 
+                         lineHeight: 1.6, 
+                         display: 'flex', 
+                         alignItems: 'flex-start', 
+                         gap: '10px',
+                         listStyle: 'none' 
+                       }}>
+                         <span style={{ color: '#d97706', marginTop: '4px', flexShrink: 0 }}>
+                           <FaHandPointRight />
+                         </span>
+                         <span>{h}</span>
+                       </li>
+                     ))}
+                   </ul>
+                 </div>
+               )}
             </div>
 
-            {/* Itinerary */}
             <div className="itinerary">
               <div className="section-eyebrow">Day by Day</div>
               <div className="section-title">Tour Itinerary</div>
@@ -435,7 +465,6 @@ export default function TourDetails({ params }) {
               </div>
             </div>
 
-            {/* Included / Excluded */}
             <div className="inc-exc-grid">
               <div className="inc-card">
                 <div className="corner-blob" style={{ background: '#d1fae5' }} />
@@ -476,7 +505,6 @@ export default function TourDetails({ params }) {
               </div>
             </div>
 
-            {/* Dynamic Reviews section */}
             {reviews.length > 0 && (
               <div className="reviews-section">
                 <div className="section-eyebrow">What Travelers Say</div>
