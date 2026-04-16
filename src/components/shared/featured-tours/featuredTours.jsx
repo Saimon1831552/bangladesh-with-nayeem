@@ -1,11 +1,21 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { TourCard } from '@/app/tours/tours';
 
 
-export default  function FeaturedTours({ tours }) {
+export default  function FeaturedTours() {
+   const [tours, setTours] = useState([]);
+  
+      useEffect(() => {
+          const fetchTours = async () => {
+              const res = await fetch("http://localhost:5000/api/tours");
+              const json = await res.json();
+              setTours(json.data || []);
+          };
+          fetchTours();
+      }, []);
 
   return (
     <div style={{ background: '#f8f6f1', padding: '72px 32px 80px' }}>
