@@ -25,7 +25,7 @@ function ReadingProgress() {
 // ── Skeleton loader ───────────────────────────────────────────────────────────
 function Skeleton() {
   return (
-    <div style={{ background: "#f5f2ec", minHeight: "100vh" }}>
+    <div data-blog-page="true" style={{ position: "fixed", inset: 0, zIndex: 9999, overflowY: "auto", background: "#f5f2ec" }}>
       <style>{`
         @keyframes sk { 0%,100%{opacity:1} 50%{opacity:.4} }
         .sk { background: #e2ddd5; border-radius: 8px; animation: sk 1.6s ease infinite; }
@@ -74,6 +74,24 @@ export default function Page() {
   const [blog, setBlog] = useState(null);
   const [copied, setCopied] = useState(false);
   const heroImgRef = useRef(null);
+
+  // ── Hide site header/footer while this page is mounted ───────────────────
+  useEffect(() => {
+    document.body.classList.add("blog-detail-active");
+    const toHide = [];
+    ["header", "footer", "nav"].forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        if (!el.closest("[data-blog-page]")) {
+          toHide.push({ el, prev: el.style.cssText });
+          el.style.setProperty("display", "none", "important");
+        }
+      });
+    });
+    return () => {
+      document.body.classList.remove("blog-detail-active");
+      toHide.forEach(({ el, prev }) => { el.style.cssText = prev; });
+    };
+  }, []);
 
   // ── Original fetch logic — unchanged ──────────────────────────────────────
   useEffect(() => {
@@ -216,11 +234,22 @@ export default function Page() {
         .f2 { animation: fadeUp .6s .18s ease both; }
         .f3 { animation: fadeUp .6s .32s ease both; }
         .f5 { animation: fadeUp .65s .1s ease both; }
+
+        /* ── Escape site layout ── */
+        body.blog-detail-active { overflow: hidden !important; }
+        body.blog-detail-active > *:not(script):not(style):not([data-blog-page]) {
+          visibility: hidden !important;
+          pointer-events: none !important;
+        }
+        [data-blog-page], [data-blog-page] * {
+          visibility: visible !important;
+          pointer-events: auto !important;
+        }
       `}</style>
 
       <ReadingProgress />
 
-      <div className="bdp">
+      <div className="bdp" data-blog-page="true" style={{ position: "fixed", inset: 0, zIndex: 9999, overflowY: "auto" }}>
 
         {/* ── HERO ── */}
         <div className="bdp-hero">
