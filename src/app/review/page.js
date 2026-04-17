@@ -6,7 +6,7 @@ export default async function Page() {
 
   try {
     
-    const res = await fetch("http://localhost:5000/api/reviews", {
+    const res = await fetch("https://bangladesh-with-nayeem-production.up.railway.app/api/reviews", {
       cache: 'no-store'
     });
     

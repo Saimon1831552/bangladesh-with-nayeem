@@ -1,7 +1,7 @@
 import React from 'react';
 import Blog from './blog';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://bangladesh-with-nayeem-production.up.railway.app/api';
 
 export default async function BlogsPage() {
   let blogs = [];

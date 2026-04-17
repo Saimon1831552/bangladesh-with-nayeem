@@ -11,7 +11,7 @@ import {
   faImage
 } from '@fortawesome/free-solid-svg-icons';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://bangladesh-with-nayeem-production.up.railway.app/api';
 
 async function fetchTour(slug) {
   const res = await fetch(`${API_BASE}/tours/${slug}`, { cache: 'no-store' });
