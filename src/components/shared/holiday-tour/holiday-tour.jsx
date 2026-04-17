@@ -10,7 +10,7 @@ export default function Holiday() {
 
     useEffect(() => {
         const fetchTours = async () => {
-            const res = await fetch("http://localhost:5000/api/tours");
+            const res = await fetch("https://bangladesh-with-nayeem-production.up.railway.app/api/tours");
             const json = await res.json();
             setTours(json.data || []);
         };
