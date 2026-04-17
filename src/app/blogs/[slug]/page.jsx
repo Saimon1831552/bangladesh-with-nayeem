@@ -77,7 +77,7 @@ export default function Page() {
 
   // ── Original fetch logic — unchanged ──────────────────────────────────────
   useEffect(() => {
-    fetch(`http://localhost:5000/api/blogs/${slug}`)
+    fetch(`https://bangladesh-with-nayeem-production.up.railway.app/api/blogs/${slug}`)
       .then(res => res.json())
       .then(data => setBlog(data));
   }, [slug]);
