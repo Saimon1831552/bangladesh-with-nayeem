@@ -8,6 +8,7 @@ const galleryRouter = require('./routes/gallery');
 
 const app = express();
 
+
 // ✅ Restrict CORS to your Vercel frontend
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
