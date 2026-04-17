@@ -36,7 +36,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: 'Internal server error', error: err.message });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000 || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 module.exports = app;
