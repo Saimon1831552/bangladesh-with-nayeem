@@ -1,26 +1,6 @@
-import React from 'react'
-import Tour from './tours'
+import Tour from './tours';
 
-export default async function page() {
 
-  let tours = [];
-
-  try {
-    const res = await fetch("http://localhost:5000/api/tours", {
-      cache: 'no-store'
-    });
-    if (res.ok) {
-      const json = await res.json();
-      tours = json.data || [];
-    }
-  } catch (error) {
-    console.error("Failed to fetch tours:", error);
-  }
-
-  return (
-    <div>
-        <Tour tours={tours} />
-    </div>
-  )
+export default function ToursPage() {
+  return <Tour />;
 }
-
