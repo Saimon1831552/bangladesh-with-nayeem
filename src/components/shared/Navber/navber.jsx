@@ -16,7 +16,7 @@ export default function Navbar() {
     <div className='sticky top-0 z-50 bg-green-800/70 backdrop-blur-md border-b border-white/10'>
       <div className='flex flex-row justify-between items-center px-4 md:px-10 py-3'>
         
-        <img className='h-8 md:h-10 rounded-lg' src="https://i.ibb.co.com/Q3RsTD2L/Gemini-Generated-Image-ju2nw5ju2nw5ju2n.png" alt="Bangladesh with Naim" />
+        <img className='h-8 md:h-10 rounded-lg' src="https://i.ibb.co.com/WNMVBsgy/bangladesh-with-naim-logo-transparent.png" alt="Bangladesh with Naim" />
 
         <nav className='hidden md:block'>
           <ul className='flex flex-row justify-center gap-6 items-center list-none m-0 p-0'>
