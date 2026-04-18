@@ -288,23 +288,13 @@ export default function Gallery() {
             </div>
           </div>
 
-          {/* Two-Row Grid */}
+          {/* Single Row — 6 equal columns */}
           <div className="gl-rows">
-
-            {/* ROW 1 — big | med | small */}
-            <div className="gl-row" style={{ gridTemplateColumns: '7fr 3fr 2fr' }}>
-              {[0, 1, 2].map(idx => (
-                <GalleryCell key={idx} img={PREVIEW[idx]} idx={idx} height={420} isLast={false} onOpen={openLb} onOpenFull={openFull} />
+            <div className="gl-row" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+              {[0, 1, 2, 3, 4, 5].map(idx => (
+                <GalleryCell key={idx} img={PREVIEW[idx]} idx={idx} height={380} isLast={idx === 5} onOpen={openLb} onOpenFull={openFull} />
               ))}
             </div>
-
-            {/* ROW 2 — small | med | big (last has +N) */}
-            <div className="gl-row" style={{ gridTemplateColumns: '2fr 3fr 7fr' }}>
-              {[3, 4, 5].map(idx => (
-                <GalleryCell key={idx} img={PREVIEW[idx]} idx={idx} height={310} isLast={idx === 5} onOpen={openLb} onOpenFull={openFull} />
-              ))}
-            </div>
-
           </div>
 
           {/* Footer */}
