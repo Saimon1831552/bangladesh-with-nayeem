@@ -146,7 +146,7 @@ export function TourCard({ tour }) {
         borderRadius: 12, padding: '8px 14px', textAlign: 'center',
         boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
       }}>
-        <span style={{ display: 'block', fontSize: 20, fontWeight: 800, color: '#111', lineHeight: 1 }}>{priceDisplay}</span>
+        <span style={{ display: 'block', fontSize: 20, fontWeight: 800, color: '#111', lineHeight: 1 }}>${priceDisplay}</span>
         <span style={{ fontSize: 9, fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: '0.06em' }}>per person</span>
       </div>
 
