@@ -9,7 +9,7 @@ export default function Hero() {
         {/* Background image */}
         <div className="absolute inset-0 -z-10">
           <Image
-            src="https://i.ibb.co.com/KpqXnXhX/mamun-srizon-qay3l-NDSHzc-unsplash.jpg"
+            src="https://i.ibb.co.com/G3rrv8Jb/hero-1.jpg"
             alt="Beautiful Bangladesh Landscape"
             fill
             sizes="100vw"
