@@ -1,0 +1,117 @@
+<svg width="600" height="200" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&amp;family=Playfair+Display:wght@700&amp;family=Montserrat:wght@400;600&amp;display=swap');
+    </style>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8F5E9;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000033"/>
+    </filter>
+  </defs>
+  
+  <!-- Decorative line top -->
+  <line x1="10" y1="18" x2="590" y2="18" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.6"/>
+  
+  <!-- Bangladesh text - elegant script style -->
+  <text x="300" y="115" 
+    font-family="'Dancing Script', 'Brush Script MT', cursive" 
+    font-size="92" 
+    font-weight="700"
+    fill="white"
+    text-anchor="middle"
+    filter="url(#shadow)"
+    opacity="0.97">Bangladesh</text>
+  
+  <!-- Subtle outline for depth -->
+  <text x="300" y="115" 
+    font-family="'Dancing Script', 'Brush Script MT', cursive" 
+    font-size="92" 
+    font-weight="700"
+    fill="none"
+    stroke="rgba(255,255,255,0.3)"
+    stroke-width="0.5"
+    text-anchor="middle">Bangladesh</text>
+
+  <!-- Decorative clover/shamrock icon -->
+  <g transform="translate(290, 22) scale(0.9)">
+    <!-- Clover leaves -->
+    <ellipse cx="0" cy="-8" rx="7" ry="9" fill="#FFD700" opacity="0.9"/>
+    <ellipse cx="8" cy="0" rx="9" ry="7" fill="#FFD700" opacity="0.9"/>
+    <ellipse cx="-8" cy="0" rx="9" ry="7" fill="#FFD700" opacity="0.9"/>
+    <ellipse cx="0" cy="8" rx="7" ry="9" fill="#FFD700" opacity="0.9"/>
+    <!-- Center -->
+    <circle cx="0" cy="0" r="4" fill="#FF8C00"/>
+    <!-- Stem -->
+    <line x1="0" y1="17" x2="0" y2="28" stroke="#FFD700" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- "with Naim" subtitle -->
+  <text x="300" y="155" 
+    font-family="'Montserrat', 'Arial', sans-serif" 
+    font-size="22" 
+    font-weight="600"
+    fill="url(#goldGrad)"
+    text-anchor="middle"
+    letter-spacing="6">WITH NAIM</text>
+    
+  <!-- Decorative dots around subtitle -->
+  <circle cx="145" cy="148" r="2.5" fill="#FFD700" opacity="0.8"/>
+  <circle cx="135" cy="148" r="1.5" fill="#FFD700" opacity="0.5"/>
+  <circle cx="455" cy="148" r="2.5" fill="#FFD700" opacity="0.8"/>
+  <circle cx="465" cy="148" r="1.5" fill="#FFD700" opacity="0.5"/>
+  
+  <!-- Travel silhouette icon - boat + hikers -->
+  <g transform="translate(490, 95) scale(0.85)">
+    <!-- Sun/horizon circle -->
+    <circle cx="30" cy="20" r="22" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.9"/>
+    <!-- Sun rays -->
+    <line x1="30" y1="-5" x2="30" y2="2" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="51" y1="6" x2="46" y2="11" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="51" y1="34" x2="46" y2="29" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="9" y1="6" x2="14" y2="11" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="9" y1="34" x2="14" y2="29" stroke="#FFD700" stroke-width="1.5"/>
+    <!-- Hikers silhouettes -->
+    <ellipse cx="22" cy="11" rx="3" ry="3" fill="#FFD700"/>
+    <line x1="22" y1="14" x2="22" y2="24" stroke="#FFD700" stroke-width="2"/>
+    <line x1="22" y1="18" x2="17" y2="22" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="22" y1="18" x2="27" y2="22" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="22" y1="24" x2="18" y2="30" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="22" y1="24" x2="26" y2="30" stroke="#FFD700" stroke-width="1.5"/>
+    <!-- staff -->
+    <line x1="27" y1="22" x2="30" y2="28" stroke="#FFD700" stroke-width="1.5"/>
+    <ellipse cx="37" cy="11" rx="3" ry="3" fill="#FFD700"/>
+    <line x1="37" y1="14" x2="37" y2="24" stroke="#FFD700" stroke-width="2"/>
+    <line x1="37" y1="18" x2="32" y2="22" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="37" y1="18" x2="42" y2="22" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="37" y1="24" x2="33" y2="30" stroke="#FFD700" stroke-width="1.5"/>
+    <line x1="37" y1="24" x2="41" y2="30" stroke="#FFD700" stroke-width="1.5"/>
+    <!-- Horizon line -->
+    <line x1="8" y1="42" x2="52" y2="42" stroke="#FFD700" stroke-width="1.5" opacity="0.8"/>
+    <!-- Boat -->
+    <path d="M 2 55 Q 30 50 58 55 L 50 62 Q 30 65 10 62 Z" fill="#FFD700" opacity="0.85"/>
+    <!-- Mast -->
+    <line x1="30" y1="35" x2="30" y2="52" stroke="#FFD700" stroke-width="1.5"/>
+    <!-- Sail -->
+    <path d="M 30 36 L 44 50 L 30 50 Z" fill="#FFD700" opacity="0.7"/>
+    <!-- Water waves -->
+    <path d="M -5 68 Q 10 64 20 68 Q 35 72 50 68 Q 60 64 70 68" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.6"/>
+  </g>
+  
+  <!-- Decorative line bottom -->
+  <line x1="10" y1="182" x2="590" y2="182" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.6"/>
+</svg>

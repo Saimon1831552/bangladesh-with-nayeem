@@ -20,7 +20,7 @@ export default function Navbar() {
         {/* <img className='h-8 md:h-10 rounded-lg' src="https://i.ibb.co.com/WNMVBsgy/bangladesh-with-naim-logo-transparent.png" alt="Bangladesh with Naim" /> */}
 
         <Image 
-          src="https://i.ibb.co.com/WvG8dxwd/bangladesh-naim-logo-redesign.jpg"
+          src="../../../../public/bangladesh_naim_logo_redesign.svg"
           alt="Bangladesh with Naim"
           width={180}
           height={60}
