@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons'; 
+import Image from 'next/image';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,8 +17,16 @@ export default function Navbar() {
     <div className='sticky top-0 z-50 bg-green-800/70 backdrop-blur-md border-b border-white/10'>
       <div className='flex flex-row justify-between items-center px-4 md:px-10 py-3'>
         
-        <img className='h-8 md:h-10 rounded-lg' src="https://i.ibb.co.com/WNMVBsgy/bangladesh-with-naim-logo-transparent.png" alt="Bangladesh with Naim" />
+        {/* <img className='h-8 md:h-10 rounded-lg' src="https://i.ibb.co.com/WNMVBsgy/bangladesh-with-naim-logo-transparent.png" alt="Bangladesh with Naim" /> */}
 
+        <Image 
+          src="https://i.ibb.co.com/WvG8dxwd/bangladesh-naim-logo-redesign.jpg"
+          alt="Bangladesh with Naim"
+          width={180}
+          height={60}
+          className="h-10 md:h-14 w-auto"
+          priority
+        />
         <nav className='hidden md:block'>
           <ul className='flex flex-row justify-center gap-6 items-center list-none m-0 p-0'>
             <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/">Home</Link></li>
