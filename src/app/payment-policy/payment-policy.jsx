@@ -6,7 +6,7 @@ export default function PaymentPolicy() {
       <div className="max-w-4xl mx-auto px-6 py-16">
 
         <div className="mb-10">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-green-900 uppercase tracking-wide leading-tight">No Hidden Charges, No Surprise Fees</h1>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-green-900 uppercase tracking-wide leading-tight">Payment Policy – Private Tours in Bangladesh with Naim</h1>
           <h2 className="text-2xl md:text-3xl font-extrabold text-amber-500 uppercase tracking-wide mt-1">Just Transparent, Traveller-First Payments</h2>
           <p className="mt-5 text-gray-700 text-sm md:text-base leading-relaxed">
             Planning a trip should feel exciting—not stressful. That's why I've designed a <strong>simple, transparent, and secure payment process</strong> for booking private tours in Bangladesh. This page explains exactly how payments work, so you can book with confidence and no surprises.
