@@ -14,8 +14,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Bangladesh with Nayeem",
-  description: "Travel Agency",
+  title: "Bangladesh Tour Packages | Explore Bangladesh With Naim",
+  description: "Discover Bangladesh with expert local guides. Book affordable tour packages in Dhaka, Sundarbans, Srimangal & more.",
+
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true, 
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({ children }) {
