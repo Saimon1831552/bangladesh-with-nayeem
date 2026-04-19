@@ -9,7 +9,9 @@ export default async function BlogsPage() {
   let fetchError = false;
 
   try {
-    const res = await fetch(`${API_BASE}/api/blogs`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE}/api/blogs`, {
+       next: { revalidate: 60 },
+      });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     blogs = json.data || [];
