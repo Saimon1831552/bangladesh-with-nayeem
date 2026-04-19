@@ -148,7 +148,7 @@ const FontLoader = () => (
 
 // ── API layer (unchanged from original) ──────────────────────────────────────
 const FORCE_MOCK_API = false;
-const API_BASE = "https://www.bangladeshwithnaim.com/";
+const API_BASE = "https://bangladesh-with-nayeem-production.up.railway.app/api";
 
 let mockStorage = {
   tours: [
