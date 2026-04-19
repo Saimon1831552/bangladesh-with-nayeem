@@ -201,8 +201,8 @@ export default function Footer() {
             &copy; {currentYear} Bangladesh with Nayeem. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-gray-500">
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/terms-conditions" className="hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
 
