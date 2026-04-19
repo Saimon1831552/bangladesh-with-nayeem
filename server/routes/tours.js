@@ -1,12 +1,13 @@
 const express = require('express');
-const router = express.Router();
-const pool = require('../db');
+const router  = express.Router();
+const pool    = require('../db');
+const validatePatchFields = require('../utils/validatePatchFields');
 
-// GET /api/tours — list all (with optional filter by tour_type)
+// GET /api/tours
 router.get('/', async (req, res) => {
   try {
     const { tour_type, location } = req.query;
-    let query = 'SELECT * FROM tours WHERE 1=1';
+    let query  = 'SELECT * FROM tours WHERE 1=1';
     const params = [];
 
     if (tour_type) {
@@ -25,14 +26,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/tours/:id — get single tour by id or slug
+// GET /api/tours/:id
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const isNumeric = /^\d+$/.test(id);
-    const column = isNumeric ? 'id' : 'slug';
+    const column = /^\d+$/.test(id) ? 'id' : 'slug';
     const [rows] = await pool.query(`SELECT * FROM tours WHERE ${column} = ?`, [id]);
-
     if (!rows.length) return res.status(404).json({ success: false, message: 'Tour not found' });
     res.json({ success: true, data: rows[0] });
   } catch (err) {
@@ -40,52 +39,46 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/tours — create a tour
+// POST /api/tours
 router.post('/', async (req, res) => {
   try {
     const { slug, title, image_url, location, duration, group_size, price, rating, review_count, tour_type, isFeatured, highlights, itinerary } = req.body;
+    if (!slug || !title) return res.status(400).json({ success: false, message: 'slug and title are required' });
 
-    if (!slug || !title) {
-      return res.status(400).json({ success: false, message: 'slug and title are required' });
-    }
-
-    // Safely stringify JSON arrays for database storage
     const highlightsJson = JSON.stringify(highlights || []);
-    const itineraryJson = JSON.stringify(itinerary || []);
-    const featuredVal = isFeatured ? 1 : 0;
+    const itineraryJson  = JSON.stringify(itinerary  || []);
+    const featuredVal    = isFeatured ? 1 : 0;
 
     const [result] = await pool.query(
-      `INSERT INTO tours (slug, title, image_url, location, duration, group_size, price, rating, review_count, tour_type, isFeatured, highlights, itinerary)
+      `INSERT INTO tours (slug, title, image_url, location, duration, group_size, price, rating,
+       review_count, tour_type, isFeatured, highlights, itinerary)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [slug, title, image_url, location, duration, group_size, price ?? null, rating ?? null, review_count ?? 0, tour_type, featuredVal, highlightsJson, itineraryJson]
+      [slug, title, image_url, location, duration, group_size, price ?? null, rating ?? null,
+       review_count ?? 0, tour_type, featuredVal, highlightsJson, itineraryJson]
     );
-
     res.status(201).json({ success: true, message: 'Tour created', data: { id: result.insertId, slug } });
   } catch (err) {
-    if (err.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ success: false, message: 'Slug already exists' });
-    }
+    if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ success: false, message: 'Slug already exists' });
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-// PUT /api/tours/:id — full update
+// PUT /api/tours/:id
 router.put('/:id', async (req, res) => {
   try {
     const { slug, title, image_url, location, duration, group_size, price, rating, review_count, tour_type, isFeatured, highlights, itinerary } = req.body;
-    
-    // Safely stringify JSON arrays for database storage
+
     const highlightsJson = JSON.stringify(highlights || []);
-    const itineraryJson = JSON.stringify(itinerary || []);
-    const featuredVal = isFeatured ? 1 : 0;
+    const itineraryJson  = JSON.stringify(itinerary  || []);
+    const featuredVal    = isFeatured ? 1 : 0;
 
     const [result] = await pool.query(
-      `UPDATE tours SET slug=?, title=?, image_url=?, location=?, duration=?, group_size=?, price=?, rating=?, review_count=?, tour_type=?, isFeatured=?, highlights=?, itinerary=?
+      `UPDATE tours SET slug=?, title=?, image_url=?, location=?, duration=?, group_size=?,
+       price=?, rating=?, review_count=?, tour_type=?, isFeatured=?, highlights=?, itinerary=?
        WHERE id=?`,
-      // isFeatured, highlights, and itinerary are now properly aligned with the query string
-      [slug, title, image_url, location, duration, group_size, price, rating, review_count, tour_type, featuredVal, highlightsJson, itineraryJson, req.params.id]
+      [slug, title, image_url, location, duration, group_size, price, rating,
+       review_count, tour_type, featuredVal, highlightsJson, itineraryJson, req.params.id]
     );
-
     if (!result.affectedRows) return res.status(404).json({ success: false, message: 'Tour not found' });
     res.json({ success: true, message: 'Tour updated' });
   } catch (err) {
@@ -93,20 +86,20 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// PATCH /api/tours/:id — partial update
+// PATCH /api/tours/:id — ✅ Fix: whitelist fields + stringify JSON fields safely
 router.patch('/:id', async (req, res) => {
   try {
-    const fields = req.body;
-    if (!Object.keys(fields).length) {
-      return res.status(400).json({ success: false, message: 'No fields provided' });
+    const { safeFields, rejected } = validatePatchFields('tours', req.body);
+    if (!Object.keys(safeFields).length) {
+      return res.status(400).json({ success: false, message: 'No valid fields provided', ...(rejected.length ? { rejected } : {}) });
     }
 
-    // Ensure we stringify JSON fields if they are sent in a PATCH request
-    if (fields.highlights) fields.highlights = JSON.stringify(fields.highlights);
-    if (fields.itinerary) fields.itinerary = JSON.stringify(fields.itinerary);
+    // Stringify JSON fields if present
+    if (safeFields.highlights) safeFields.highlights = JSON.stringify(safeFields.highlights);
+    if (safeFields.itinerary)  safeFields.itinerary  = JSON.stringify(safeFields.itinerary);
 
-    const setClauses = Object.keys(fields).map(k => `${k} = ?`).join(', ');
-    const values = [...Object.values(fields), req.params.id];
+    const setClauses = Object.keys(safeFields).map(k => `${k} = ?`).join(', ');
+    const values     = [...Object.values(safeFields), req.params.id];
 
     const [result] = await pool.query(`UPDATE tours SET ${setClauses} WHERE id = ?`, values);
     if (!result.affectedRows) return res.status(404).json({ success: false, message: 'Tour not found' });
