@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Blog from './blog';
 
+export const dynamic = 'force-dynamic';
+
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'https://bangladesh-with-nayeem-production.up.railway.app')
   .replace(/\/api\/?$/, '');
 
