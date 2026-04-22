@@ -416,7 +416,7 @@ function Section({ title, icon, onAdd, count, loading, onRefresh, extra, childre
 }
 
 // ── TOURS SECTION ─────────────────────────────────────────────────────────────
-const TOUR_DEFAULTS = { slug:"", title:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", itinerary:"[]", isFeatured:0 };
+const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", why_choose:"[]", itinerary:"[]", trip_note:"", faq:"[]", isFeatured:0 };
 
 function ToursSection({ toast }) {
   const [data,setData]=useState([]); const [search,setSearch]=useState(""); const [filterType,setFilterType]=useState(""); const [filterLoc,setFilterLoc]=useState("");
@@ -437,13 +437,21 @@ function ToursSection({ toast }) {
     // Parse JSON safely for the textareas if the API returned them as objects/arrays
     let hl = r.highlights;
     let it = r.itinerary;
+    let wc = r.why_choose;
+    let fq = r.faq;
     if (typeof hl === 'object' && hl !== null) hl = JSON.stringify(hl, null, 2);
     if (typeof it === 'object' && it !== null) it = JSON.stringify(it, null, 2);
+    if (typeof wc === 'object' && wc !== null) wc = JSON.stringify(wc, null, 2);
+    if (typeof fq === 'object' && fq !== null) fq = JSON.stringify(fq, null, 2);
 
     setForm({
-      ...r, 
-      highlights: hl || "[]", 
-      itinerary: it || "[]"
+      ...r,
+      highlights: hl || "[]",
+      itinerary: it || "[]",
+      why_choose: wc || "[]",
+      faq: fq || "[]",
+      overview: r.overview || "",
+      trip_note: r.trip_note || "",
     });
     setModal("edit");
   };
@@ -452,11 +460,15 @@ function ToursSection({ toast }) {
     // Validate JSON before sending to backend
     let parsedHighlights = [];
     let parsedItinerary = [];
+    let parsedWhyChoose = [];
+    let parsedFaq = [];
     try {
       parsedHighlights = JSON.parse(form.highlights || "[]");
       parsedItinerary = JSON.parse(form.itinerary || "[]");
+      parsedWhyChoose = JSON.parse(form.why_choose || "[]");
+      parsedFaq = JSON.parse(form.faq || "[]");
     } catch(e) {
-      toast("Invalid JSON format in Highlights or Itinerary", "error");
+      toast("Invalid JSON format in one of the JSON fields", "error");
       return;
     }
 
@@ -467,7 +479,11 @@ function ToursSection({ toast }) {
       review_count:Number(form.review_count)||0,
       isFeatured:form.isFeatured?1:0,
       highlights: parsedHighlights,
-      itinerary: parsedItinerary
+      itinerary: parsedItinerary,
+      why_choose: parsedWhyChoose,
+      faq: parsedFaq,
+      overview: form.overview || null,
+      trip_note: form.trip_note || null,
     };
 
     const res=modal==="add"?await api.post("/tours",body):await api.put(`/tours/${form.id}`,body);
@@ -551,8 +567,12 @@ function ToursSection({ toast }) {
             <Field label="Categories (comma-separated)"><input className="inp" value={form.tour_type} onChange={f("tour_type")} placeholder="multiday, holiday, day" /></Field>
             <Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://…" /></Field>
             
-            <div style={{gridColumn:"1/-1"}}><Field label="Highlights (Valid JSON Array format)"><textarea className="inp" rows={3} value={form.highlights} onChange={f("highlights")} placeholder='["See the mountains", "Enjoy local food"]' /></Field></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="Itinerary (Valid JSON Array format)"><textarea className="inp" rows={4} value={form.itinerary} onChange={f("itinerary")} placeholder='[{"day": 1, "title": "Arrival", "desc": "Settle into the hotel."}]' /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><Field label="Overview"><textarea className="inp" rows={3} value={form.overview} onChange={f("overview")} placeholder="A short paragraph describing this tour to potential visitors..." /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><Field label="Highlights (JSON Array)"><textarea className="inp" rows={3} value={form.highlights} onChange={f("highlights")} placeholder='["See the mountains", "Enjoy local food"]' /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><Field label="Why Choose Us (JSON Array)"><textarea className="inp" rows={3} value={form.why_choose} onChange={f("why_choose")} placeholder='["Expert local guides", "Small group sizes", "All-inclusive pricing"]' /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><Field label="Itinerary (JSON Array)"><textarea className="inp" rows={4} value={form.itinerary} onChange={f("itinerary")} placeholder='[{"day": 1, "title": "Arrival", "desc": "Settle into the hotel."}]' /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><Field label="FAQ (JSON Array)"><textarea className="inp" rows={4} value={form.faq} onChange={f("faq")} placeholder='[{"question": "What is included?", "answer": "All meals and transport are included."}]' /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><Field label="Trip Note"><textarea className="inp" rows={3} value={form.trip_note} onChange={f("trip_note")} placeholder="Any special notes, warnings, or requirements for this trip..." /></Field></div>
 
             <div style={{gridColumn:"1/-1",background:"var(--amber-soft)",border:"1px solid #f5d98a",borderRadius:"var(--radius-md)",padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div>
