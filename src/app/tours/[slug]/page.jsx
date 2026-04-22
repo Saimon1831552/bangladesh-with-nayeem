@@ -21,7 +21,6 @@ async function fetchTour(slug) {
   return json.data;
 }
 
-// Fetch gallery images linked to this tour
 async function fetchGallery(tourId) {
   try {
     const res = await fetch(`${API_BASE}/gallery?tour_id=${tourId}`, { cache: 'no-store' });
@@ -33,7 +32,6 @@ async function fetchGallery(tourId) {
   }
 }
 
-// Fetch reviews for this tour
 async function fetchReviews(tourId) {
   try {
     const res = await fetch(`${API_BASE}/reviews?tour_id=${tourId}`, { cache: 'no-store' });
@@ -58,7 +56,6 @@ const formatPrice = (p) => {
   return String(p).startsWith('$') ? p : `$${p}`;
 };
 
-// Safe JSON parse for dynamic fields (Highlights)
 function getHighlights(tour) {
   let parsed = tour.highlights;
   if (typeof parsed === 'string') {
@@ -67,7 +64,6 @@ function getHighlights(tour) {
   return Array.isArray(parsed) ? parsed : [];
 }
 
-// Safe JSON parse for why_choose
 function getWhyChoose(tour) {
   let parsed = tour.why_choose;
   if (typeof parsed === 'string') {
@@ -76,7 +72,6 @@ function getWhyChoose(tour) {
   return Array.isArray(parsed) ? parsed : [];
 }
 
-// Safe JSON parse for faq
 function getFaq(tour) {
   let parsed = tour.faq;
   if (typeof parsed === 'string') {
@@ -85,18 +80,13 @@ function getFaq(tour) {
   return Array.isArray(parsed) ? parsed : [];
 }
 
-// Build itinerary from tour data — updated to handle JSON strings safely
 function buildItinerary(tour) {
   let parsedItinerary = tour.itinerary;
-  
   if (typeof parsedItinerary === 'string') {
     try { parsedItinerary = JSON.parse(parsedItinerary); } catch (e) {}
   }
-
-  // If the API/DB returns an itinerary array, use it directly
   if (Array.isArray(parsedItinerary) && parsedItinerary.length > 0) return parsedItinerary;
 
-  // Otherwise synthesize day-by-day from duration string
   const durationStr = tour.duration || '1 Day';
   const dayMatch = durationStr.match(/(\d+)\s*day/i);
   const days = dayMatch ? parseInt(dayMatch[1]) : 1;
@@ -111,7 +101,6 @@ function buildItinerary(tour) {
   }));
 }
 
-// Build stats from tour fields
 function buildStats(tour) {
   const stats = [];
   if (tour.duration)   stats.push({ icon: faClock,        label: 'Duration',   value: tour.duration });
@@ -154,13 +143,13 @@ function ErrorPage({ msg }) {
   );
 }
 
-// ── FAQ accordion component ───────────────────────────────────────────────────
+// ── FAQ accordion ─────────────────────────────────────────────────────────────
 function FaqSection({ faqItems }) {
   const [openIdx, setOpenIdx] = useState(null);
   return (
     <div className="faq-section">
       <div className="section-eyebrow">Got Questions?</div>
-      <div className="section-title">Frequently Asked</div>
+      <div className="section-title" style={{ fontSize: '1.8rem', marginBottom: 20 }}>Frequently Asked</div>
       {faqItems.map((item, i) => (
         <div key={i} className="faq-item">
           <button className="faq-question" onClick={() => setOpenIdx(openIdx === i ? null : i)}>
@@ -187,16 +176,15 @@ export default function TourDetails({ params }) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
 
-  const [tour,     setTour]     = useState(null);
-  const [gallery,  setGallery]  = useState([]);
-  const [reviews,  setReviews]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
+  const [tour,      setTour]      = useState(null);
+  const [gallery,   setGallery]   = useState([]);
+  const [reviews,   setReviews]   = useState([]);
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState(null);
   const [activeImg, setActiveImg] = useState(0);
-  const [guests,   setGuests]   = useState(2);
+  const [guests,    setGuests]    = useState(2);
   const heroRef = useRef(null);
 
-  // Load tour data
   useEffect(() => {
     if (!slug) return;
     (async () => {
@@ -204,8 +192,6 @@ export default function TourDetails({ params }) {
       try {
         const tourData = await fetchTour(slug);
         setTour(tourData);
-
-        // Load gallery + reviews in parallel
         const [galleryData, reviewsData] = await Promise.all([
           fetchGallery(tourData.id),
           fetchReviews(tourData.id),
@@ -220,7 +206,6 @@ export default function TourDetails({ params }) {
     })();
   }, [slug]);
 
-  // Parallax hero
   useEffect(() => {
     const hero = heroRef.current;
     if (!hero) return;
@@ -245,22 +230,23 @@ export default function TourDetails({ params }) {
   const stats     = buildStats(tour);
   const itinerary = buildItinerary(tour);
   const highlights  = getHighlights(tour);
-  const whyChoose  = getWhyChoose(tour);
-  const faqItems   = getFaq(tour);
-  const tripNote   = tour.trip_note || '';
-  const rating    = tour.rating || 0;
-  const fullStars = Math.floor(rating);
-
-  const typeTags = (tour.tour_type || '').split(',').map(t => t.trim()).filter(Boolean);
+  const whyChoose   = getWhyChoose(tour);
+  const faqItems    = getFaq(tour);
+  const tripNote    = tour.trip_note || '';
+  const rating      = tour.rating || 0;
+  const fullStars   = Math.floor(rating);
+  const typeTags    = (tour.tour_type || '').split(',').map(t => t.trim()).filter(Boolean);
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
+        /* ── Base ── */
         .page-wrap { font-family: 'DM Sans', sans-serif; background: #f8f6f1; min-height: 100vh; color: #1c1c1c; }
         .display-font { font-family: 'Cormorant Garamond', serif; }
 
+        /* ── Hero (UNCHANGED) ── */
         .hero { position: relative; height: 92vh; overflow: hidden; }
         .hero-img-wrap { position: absolute; inset: 0; overflow: hidden; }
         .hero-img { width: 100%; height: 110%; object-fit: cover; }
@@ -269,53 +255,88 @@ export default function TourDetails({ params }) {
         .back-btn { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.2s; letter-spacing: 0.02em; }
         .back-btn:hover { background: rgba(255,255,255,0.22); }
         .top-rated { display: flex; align-items: center; gap: 6px; background: #d97706; color: #fff; padding: 10px 18px; border-radius: 100px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-
         .thumb-strip { position: absolute; right: 40px; bottom: 120px; display: flex; flex-direction: column; gap: 10px; z-index: 20; }
         .thumb { width: 64px; height: 48px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 2px solid transparent; opacity: 0.55; transition: opacity 0.25s, border-color 0.25s, transform 0.2s; }
         .thumb.active { opacity: 1; border-color: #d97706; transform: scale(1.08); }
         .thumb:hover { opacity: 0.85; }
-
         .hero-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 0 40px 56px; z-index: 10; max-width: 820px; }
         .hero-tags { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
         .hero-tag { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); color: #d97706; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 14px; border-radius: 8px; }
         .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 700; color: #fff; line-height: 1.05; margin-bottom: 16px; letter-spacing: -0.01em; }
         .hero-title em { color: #d97706; font-style: italic; }
         .hero-sub { color: rgba(255,255,255,0.75); font-size: 16px; font-weight: 400; line-height: 1.7; max-width: 560px; }
-
         .stars-row { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
         .star-icon { color: #d97706; font-size: 13px; }
         .rating-text { font-size: 13px; font-weight: 600; color: #fff; }
         .review-text { font-size: 12px; color: rgba(255,255,255,0.5); }
-
         .img-counter { position: absolute; bottom: 56px; right: 40px; font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; z-index: 10; }
 
-        .main { max-width: 1280px; margin: 0 auto; padding: 64px 40px 80px; display: grid; grid-template-columns: 1fr 380px; gap: 60px; align-items: start; }
-        @media(max-width: 1024px){ .main { grid-template-columns: 1fr; } }
-        @media(max-width: 640px){ .main { padding: 40px 20px 60px; } .hero-content{ padding: 0 20px 40px; } .hero-top{ padding: 20px; } .thumb-strip{ display: none; } }
+        /* ── Main two-column layout ── */
+        .main {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 64px 40px 80px;
+          display: grid;
+          grid-template-columns: 1fr 380px;
+          gap: 60px;
+          align-items: start;
+        }
+        @media(max-width: 1024px) { .main { grid-template-columns: 1fr; } }
+        @media(max-width: 640px) {
+          .main { padding: 40px 20px 60px; }
+          .hero-content { padding: 0 20px 40px; }
+          .hero-top { padding: 20px; }
+          .thumb-strip { display: none; }
+        }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 56px; }
-        @media(max-width: 640px){ .stats-grid { grid-template-columns: repeat(2,1fr); } }
+        /* ── Right column sticky wrapper ── */
+        .right-col {
+          position: sticky;
+          top: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+        @media(max-width: 1024px) {
+          .right-col {
+            position: static;
+          }
+        }
+
+        /* ── Stats grid ── */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 48px; }
+        @media(max-width: 640px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
         .stat-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; transition: transform 0.2s, box-shadow 0.2s; cursor: default; }
         .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
         .stat-icon-wrap { width: 48px; height: 48px; border-radius: 50%; background: #f0faf4; display: flex; align-items: center; justify-content: center; }
         .stat-label { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.1em; }
         .stat-value { font-size: 14px; font-weight: 700; color: #1c1c1c; }
 
+        /* ── Section headings ── */
         .section-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #d97706; margin-bottom: 8px; }
-        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 700; color: #1c1c1c; line-height: 1.1; margin-bottom: 28px; }
+        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 700; color: #1c1c1c; line-height: 1.1; margin-bottom: 24px; }
 
-        .overview-block { background: #fff; border: 1px solid #ede9e0; border-radius: 28px; padding: 44px; margin-bottom: 56px; }
+        /* ── Section spacing ── */
+        .section-block { margin-bottom: 52px; }
+        .section-block:last-child { margin-bottom: 0; }
+
+        /* ── Overview ── */
+        .overview-block { background: #fff; border: 1px solid #ede9e0; border-radius: 28px; padding: 40px; }
         .overview-block p { font-size: 16px; line-height: 1.85; color: #555; margin-bottom: 16px; }
         .overview-block p:last-child { margin-bottom: 0; }
-
         .gallery-strip { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 28px; border-radius: 16px; overflow: hidden; height: 220px; }
         .gallery-strip img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
         .gallery-strip img:hover { transform: scale(1.04); }
         .gallery-right { display: grid; grid-template-rows: 1fr 1fr; gap: 12px; }
 
-        .itinerary { margin-bottom: 56px; }
+        /* ── Highlights ── */
+        .highlights-list { padding-left: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+        .highlights-list li { font-size: 15.5px; color: #555; line-height: 1.6; display: flex; align-items: flex-start; gap: 10px; list-style: none; }
+        .highlight-icon { color: #d97706; margin-top: 3px; flex-shrink: 0; }
+
+        /* ── Itinerary ── */
         .timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
-        .timeline::before { content: ''; position: absolute; left: 23px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #d97706, #15803d, #15803d); border-radius: 2px; }
+        .timeline::before { content: ''; position: absolute; left: 23px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #d97706, #15803d); border-radius: 2px; }
         .timeline-item { display: flex; gap: 24px; padding-bottom: 28px; position: relative; }
         .timeline-item:last-child { padding-bottom: 0; }
         .day-bubble { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0; z-index: 2; border: 3px solid #f8f6f1; }
@@ -325,22 +346,55 @@ export default function TourDetails({ params }) {
         .timeline-card p { font-size: 14px; line-height: 1.75; color: #666; }
         .day-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #d97706; margin-bottom: 4px; }
 
-        .inc-exc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
-        @media(max-width: 640px){ .inc-exc-grid { grid-template-columns: 1fr; } }
+        /* ── Included / Excluded ── */
+        .inc-exc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media(max-width: 640px) { .inc-exc-grid { grid-template-columns: 1fr; } }
         .inc-card { background: #fff; border: 1px solid #d1fae5; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; }
         .exc-card { background: #fff; border: 1px solid #fee2e2; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; }
         .corner-blob { position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; border-radius: 50%; opacity: 0.5; }
-        .inc-card h3, .exc-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: #1c1c1c; margin-bottom: 20px; position: relative; z-index: 1; }
+        .inc-card h3, .exc-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 700; color: #1c1c1c; margin-bottom: 20px; position: relative; z-index: 1; }
         .inc-list, .exc-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
         .inc-list li, .exc-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: #444; font-weight: 400; line-height: 1.5; }
         .check-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 10px; }
 
-        /* Reviews section */
-        .reviews-section { margin-bottom: 56px; }
+        /* ── Why Choose ── */
+        .why-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+        .why-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 22px 20px; display: flex; align-items: flex-start; gap: 14px; transition: transform 0.2s, box-shadow 0.2s; }
+        .why-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
+        .why-icon { width: 36px; height: 36px; border-radius: 50%; background: #f0faf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .why-text { font-size: 14px; color: #444; line-height: 1.6; font-weight: 400; }
+
+        /* ── Trip Note ── */
+        .trip-note-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 20px; padding: 28px 32px; }
+        .trip-note-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .trip-note-icon { font-size: 16px; color: #b45309; flex-shrink: 0; }
+        .trip-note-title { font-size: 14px; font-weight: 700; color: #92400e; }
+        .trip-note-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .trip-note-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #555; line-height: 1.7; }
+        .trip-note-bullet { width: 6px; height: 6px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 8px; }
+
+        /* ── Price & Offers ── */
+        .price-offers-box { background: #fff; border: 1px solid #ede9e0; border-radius: 28px; padding: 36px; }
+        .price-tour-subtitle { font-size: 13px; font-weight: 700; color: #15803d; background: #f0faf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 14px; margin-bottom: 20px; }
+        .price-row-item { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #444; margin-bottom: 12px; line-height: 1.6; }
+        .price-row-icon { width: 20px; text-align: center; flex-shrink: 0; margin-top: 1px; }
+        .price-highlight { font-weight: 700; color: #1c1c1c; }
+        .price-italic-tagline { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; color: #15803d; margin: 20px 0; font-weight: 600; }
+        .price-divider { height: 1px; background: #ede9e0; margin: 20px 0; }
+        .price-sub-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #1c1c1c; margin-bottom: 12px; }
+        .price-bullet-list { list-style: none; padding: 0; margin: 0 0 4px; display: flex; flex-direction: column; gap: 9px; }
+        .price-bullet-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: #555; line-height: 1.6; }
+        .price-bullet-dot { width: 6px; height: 6px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 7px; }
+        .contact-link { color: #15803d; font-weight: 700; text-decoration: none; }
+        .contact-link:hover { text-decoration: underline; }
+
+        /* ── Reviews ── */
         .review-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 28px; margin-bottom: 14px; }
+        .review-card:last-child { margin-bottom: 0; }
         .review-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
 
-        .booking-widget { background: #1c1c1a; border-radius: 28px; padding: 36px; color: #fff; position: sticky; top: 24px; }
+        /* ── Booking Widget ── */
+        .booking-widget { background: #1c1c1a; border-radius: 28px; padding: 36px; color: #fff; }
         .widget-price { font-family: 'Cormorant Garamond', serif; font-size: 3.2rem; font-weight: 700; color: #fff; line-height: 1; }
         .widget-pp { font-size: 14px; color: rgba(255,255,255,0.45); font-weight: 400; }
         .widget-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 24px 0; }
@@ -366,53 +420,18 @@ export default function TourDetails({ params }) {
         .reserve-btn:hover { background: #b45309; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(217,119,6,0.35); }
         .secure-badge { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; margin-top: 16px; letter-spacing: 0.04em; }
 
-        /* Why Choose Us */
-        .why-choose-section { margin-bottom: 56px; }
-        .why-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-        .why-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 24px 20px; display: flex; align-items: flex-start; gap: 14px; transition: transform 0.2s, box-shadow 0.2s; }
-        .why-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
-        .why-icon { width: 36px; height: 36px; border-radius: 50%; background: #f0faf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .why-text { font-size: 14px; color: #444; line-height: 1.6; font-weight: 400; }
-
-        /* Trip Note */
-        .trip-note-section { margin-bottom: 56px; }
-        .trip-note-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 20px; padding: 28px 32px; }
-        .trip-note-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-        .trip-note-icon { font-size: 16px; color: #b45309; flex-shrink: 0; }
-        .trip-note-title { font-size: 14px; font-weight: 700; color: #92400e; }
-        .trip-note-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-        .trip-note-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #555; line-height: 1.7; }
-        .trip-note-bullet { width: 6px; height: 6px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 8px; }
-
-        /* Tour Price & Offers */
-        .price-offers-section { margin-bottom: 0; }
-        .price-offers-box { background: #fff; border: 1px solid #ede9e0; border-radius: 28px; padding: 36px; }
-        .price-offers-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; color: #1c1c1c; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
-        .price-tour-subtitle { font-size: 13px; font-weight: 700; color: #15803d; background: #f0faf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 14px; margin-bottom: 20px; }
-        .price-row-item { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #444; margin-bottom: 12px; line-height: 1.6; }
-        .price-row-icon { width: 20px; text-align: center; flex-shrink: 0; margin-top: 1px; }
-        .price-strikethrough { text-decoration: line-through; color: #ef4444; margin-right: 4px; }
-        .price-highlight { font-weight: 700; color: #1c1c1c; }
-        .price-italic-tagline { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; color: #15803d; margin: 20px 0 20px; font-weight: 600; }
-        .price-divider { height: 1px; background: #ede9e0; margin: 20px 0; }
-        .price-sub-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #1c1c1c; margin-bottom: 12px; }
-        .price-sub-heading svg { color: #d97706; }
-        .price-bullet-list { list-style: none; padding: 0; margin: 0 0 4px; display: flex; flex-direction: column; gap: 9px; }
-        .price-bullet-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: #555; line-height: 1.6; }
-        .price-bullet-dot { width: 6px; height: 6px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 7px; }
-        .contact-link { color: #15803d; font-weight: 700; text-decoration: none; }
-        .contact-link:hover { text-decoration: underline; }
-
-        /* FAQ */
-        .faq-section { margin-bottom: 56px; }
-        .faq-item { background: #fff; border: 1px solid #ede9e0; border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: box-shadow 0.2s; }
+        /* ── FAQ (right column) ── */
+        .faq-section { margin-bottom: 0; }
+        .faq-item { background: #fff; border: 1px solid #ede9e0; border-radius: 16px; margin-bottom: 10px; overflow: hidden; transition: box-shadow 0.2s; }
+        .faq-item:last-child { margin-bottom: 0; }
         .faq-item:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
-        .faq-question { width: 100%; background: none; border: none; text-align: left; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 16px; }
-        .faq-question span { font-size: 15px; font-weight: 600; color: #1c1c1c; line-height: 1.5; }
+        .faq-question { width: 100%; background: none; border: none; text-align: left; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 16px; }
+        .faq-question span { font-size: 14px; font-weight: 600; color: #1c1c1c; line-height: 1.5; }
         .faq-chevron { font-size: 12px; color: #d97706; flex-shrink: 0; transition: transform 0.25s; }
         .faq-chevron.open { transform: rotate(180deg); }
-        .faq-answer { padding: 0 24px 20px; font-size: 14px; color: #666; line-height: 1.8; }
+        .faq-answer { padding: 0 22px 18px; font-size: 13.5px; color: #666; line-height: 1.8; }
 
+        /* ── Animations ── */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
         .fade-up { animation: fadeUp 0.7s ease both; }
         .fade-up-1 { animation-delay: 0.1s; }
@@ -422,7 +441,7 @@ export default function TourDetails({ params }) {
 
       <div className="page-wrap">
 
-        {/* ── HERO ── */}
+        {/* ══════════════════════════════ HERO (UNCHANGED) ══════════════════════════════ */}
         <div className="hero">
           <div className="hero-img-wrap">
             <img ref={heroRef} className="hero-img" src={images[activeImg]} alt={tour.title}
@@ -477,18 +496,19 @@ export default function TourDetails({ params }) {
               }
             </h1>
             <p className="hero-sub fade-up fade-up-3">
-              {tour.overview || `Journey through ${tour.location} on this exclusive private tour, crafted for travelers who demand comfort, authenticity, and unforgettable memories.`}
+              {`Journey through ${tour.location} on this exclusive private tour, crafted for travelers who demand comfort, authenticity, and unforgettable memories.`}
             </p>
           </div>
         </div>
+        {/* ══════════════════════════════ END HERO ══════════════════════════════ */}
 
-        {/* ── MAIN CONTENT ── */}
+        {/* ══════════════════════════════ MAIN CONTENT ══════════════════════════════ */}
         <div className="main">
 
           {/* ════════════════ LEFT COLUMN ════════════════ */}
           <div>
 
-            {/* Stats */}
+            {/* Stats bar */}
             <div className="stats-grid">
               {stats.map((s, i) => (
                 <div key={i} className="stat-card">
@@ -502,32 +522,34 @@ export default function TourDetails({ params }) {
             </div>
 
             {/* 1. Overview */}
-            <div className="overview-block">
-              <div className="section-eyebrow">About This Tour</div>
-              <div className="section-title">Experience Overview</div>
+            <div className="section-block">
+              <div className="overview-block">
+                <div className="section-eyebrow">About This Tour</div>
+                <div className="section-title">Experience Overview</div>
 
-              {images.length >= 2 && (
-                <div className="gallery-strip">
-                  <img src={images[0]} alt={`${tour.title} view 1`} onError={e => e.target.style.display='none'} />
-                  <div className="gallery-right">
-                    <img src={images[1] || images[0]} alt={`${tour.title} view 2`} onError={e => e.target.style.display='none'} />
-                    {images[2] && <img src={images[2]} alt={`${tour.title} view 3`} onError={e => e.target.style.display='none'} />}
+                {images.length >= 2 && (
+                  <div className="gallery-strip">
+                    <img src={images[0]} alt={`${tour.title} view 1`} onError={e => e.target.style.display='none'} />
+                    <div className="gallery-right">
+                      <img src={images[1] || images[0]} alt={`${tour.title} view 2`} onError={e => e.target.style.display='none'} />
+                      {images[2] && <img src={images[2]} alt={`${tour.title} view 3`} onError={e => e.target.style.display='none'} />}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <p>{tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.`}</p>
+                <p>{tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.`}</p>
+              </div>
             </div>
 
             {/* 2. Highlights */}
             {highlights.length > 0 && (
-              <div style={{ marginBottom: 56 }}>
+              <div className="section-block">
                 <div className="section-eyebrow">What You'll See</div>
                 <div className="section-title">Tour Highlights</div>
-                <ul style={{ paddingLeft: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <ul className="highlights-list">
                   {highlights.map((h, i) => (
-                    <li key={i} style={{ fontSize: 16, color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'flex-start', gap: 10, listStyle: 'none' }}>
-                      <span style={{ color: '#d97706', marginTop: 4, flexShrink: 0 }}><FaHandPointRight /></span>
+                    <li key={i}>
+                      <span className="highlight-icon"><FaHandPointRight /></span>
                       <span>{h}</span>
                     </li>
                   ))}
@@ -536,7 +558,7 @@ export default function TourDetails({ params }) {
             )}
 
             {/* 3. Itinerary */}
-            <div className="itinerary">
+            <div className="section-block">
               <div className="section-eyebrow">Day by Day</div>
               <div className="section-title">Tour Itinerary</div>
               <div className="timeline">
@@ -554,82 +576,53 @@ export default function TourDetails({ params }) {
             </div>
 
             {/* 4. Included / Excluded */}
-            <div className="inc-exc-grid" style={{ marginBottom: 56 }}>
-              <div className="inc-card">
-                <div className="corner-blob" style={{ background: '#d1fae5' }} />
-                <h3>What's Included</h3>
-                <ul className="inc-list">
-                  {(tour.included || [
-                    'English-speaking expert guide',
-                    'All meals & mineral water',
-                    'Private accommodation',
-                    'All permits & entrance fees',
-                  ]).map((item, i) => (
-                    <li key={i}>
-                      <span className="check-dot" style={{ background: '#dcfce7', color: '#16a34a' }}>
-                        <FontAwesomeIcon icon={faCheck} />
-                      </span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="exc-card">
-                <div className="corner-blob" style={{ background: '#fee2e2' }} />
-                <h3>What's Excluded</h3>
-                <ul className="exc-list">
-                  {(tour.excluded || [
-                    'International flights',
-                    'Personal expenses & tipping',
-                    'Travel insurance',
-                  ]).map((item, i) => (
-                    <li key={i}>
-                      <span className="check-dot" style={{ background: '#fee2e2', color: '#ef4444' }}>
-                        <FontAwesomeIcon icon={faXmark} />
-                      </span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+            <div className="section-block">
+              <div className="section-eyebrow">What's Covered</div>
+              <div className="section-title">Inclusions &amp; Exclusions</div>
+              <div className="inc-exc-grid">
+                <div className="inc-card">
+                  <div className="corner-blob" style={{ background: '#d1fae5' }} />
+                  <h3>What's Included</h3>
+                  <ul className="inc-list">
+                    {(tour.included || [
+                      'English-speaking expert guide',
+                      'All meals & mineral water',
+                      'Private accommodation',
+                      'All permits & entrance fees',
+                    ]).map((item, i) => (
+                      <li key={i}>
+                        <span className="check-dot" style={{ background: '#dcfce7', color: '#16a34a' }}>
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="exc-card">
+                  <div className="corner-blob" style={{ background: '#fee2e2' }} />
+                  <h3>What's Excluded</h3>
+                  <ul className="exc-list">
+                    {(tour.excluded || [
+                      'International flights',
+                      'Personal expenses & tipping',
+                      'Travel insurance',
+                    ]).map((item, i) => (
+                      <li key={i}>
+                        <span className="check-dot" style={{ background: '#fee2e2', color: '#ef4444' }}>
+                          <FontAwesomeIcon icon={faXmark} />
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
 
-            {/* 5. Reviews */}
-            {reviews.length > 0 && (
-              <div className="reviews-section">
-                <div className="section-eyebrow">What Travelers Say</div>
-                <div className="section-title">Guest Reviews</div>
-                {reviews.map(r => (
-                  <div key={r.id} className="review-card">
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-                      <div className="review-avatar" style={{ background: r.bg_hex || '#EAF3DE', color: r.color_hex || '#3B6D11' }}>
-                        {r.initials || r.name?.charAt(0) || 'A'}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <div>
-                            <span style={{ fontWeight: 700, fontSize: 15, color: '#1c1c1c' }}>{r.name}</span>
-                            {r.country && <span style={{ fontSize: 12, color: '#999', marginLeft: 8 }}>{r.country}</span>}
-                          </div>
-                          <div style={{ display: 'flex', gap: 2 }}>
-                            {[1,2,3,4,5].map(i => (
-                              <FontAwesomeIcon key={i} icon={faStar} style={{ fontSize: 12, color: i <= r.rating ? '#d97706' : '#e5e7eb' }} />
-                            ))}
-                          </div>
-                        </div>
-                        {r.title && <p style={{ fontWeight: 600, fontSize: 14, color: '#333', marginBottom: 6 }}>{r.title}</p>}
-                        <p style={{ fontSize: 14, color: '#666', lineHeight: 1.7 }}>{r.body}</p>
-                        <p style={{ fontSize: 11, color: '#bbb', marginTop: 8 }}>{r.review_date}{r.is_verified ? ' · ✓ Verified' : ''}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* 6. Why Choose Us */}
+            {/* 5. Why Choose Us */}
             {whyChoose.length > 0 && (
-              <div className="why-choose-section">
+              <div className="section-block">
                 <div className="section-eyebrow">Our Promise</div>
                 <div className="section-title">Why Choose This Tour</div>
                 <div className="why-grid">
@@ -645,9 +638,9 @@ export default function TourDetails({ params }) {
               </div>
             )}
 
-            {/* 7. Trip Note */}
+            {/* 6. Trip Note */}
             {tripNote && (
-              <div className="trip-note-section">
+              <div className="section-block">
                 <div className="section-eyebrow">Important</div>
                 <div className="section-title">Trip Note</div>
                 <div className="trip-note-box">
@@ -667,8 +660,8 @@ export default function TourDetails({ params }) {
               </div>
             )}
 
-            {/* 8. Price & Offers */}
-            <div className="price-offers-section">
+            {/* 7. Price & Offers */}
+            <div className="section-block">
               <div className="section-eyebrow">Pricing</div>
               <div className="section-title">Tour Price &amp; Offers</div>
               <div className="price-offers-box">
@@ -727,11 +720,44 @@ export default function TourDetails({ params }) {
               </div>
             </div>
 
+            {/* 8. Reviews */}
+            {reviews.length > 0 && (
+              <div className="section-block">
+                <div className="section-eyebrow">What Travelers Say</div>
+                <div className="section-title">Guest Reviews</div>
+                {reviews.map(r => (
+                  <div key={r.id} className="review-card">
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                      <div className="review-avatar" style={{ background: r.bg_hex || '#EAF3DE', color: r.color_hex || '#3B6D11' }}>
+                        {r.initials || r.name?.charAt(0) || 'A'}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <div>
+                            <span style={{ fontWeight: 700, fontSize: 15, color: '#1c1c1c' }}>{r.name}</span>
+                            {r.country && <span style={{ fontSize: 12, color: '#999', marginLeft: 8 }}>{r.country}</span>}
+                          </div>
+                          <div style={{ display: 'flex', gap: 2 }}>
+                            {[1,2,3,4,5].map(i => (
+                              <FontAwesomeIcon key={i} icon={faStar} style={{ fontSize: 12, color: i <= r.rating ? '#d97706' : '#e5e7eb' }} />
+                            ))}
+                          </div>
+                        </div>
+                        {r.title && <p style={{ fontWeight: 600, fontSize: 14, color: '#333', marginBottom: 6 }}>{r.title}</p>}
+                        <p style={{ fontSize: 14, color: '#666', lineHeight: 1.7 }}>{r.body}</p>
+                        <p style={{ fontSize: 11, color: '#bbb', marginTop: 8 }}>{r.review_date}{r.is_verified ? ' · ✓ Verified' : ''}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
           </div>
           {/* ════════════════ END LEFT COLUMN ════════════════ */}
 
-          {/* ════════════════ RIGHT COLUMN ════════════════ */}
-          <div>
+          {/* ════════════════ RIGHT COLUMN (sticky) ════════════════ */}
+          <div className="right-col">
 
             {/* 1. Booking Widget */}
             <div className="booking-widget">
@@ -798,15 +824,15 @@ export default function TourDetails({ params }) {
 
             {/* 2. FAQ */}
             {faqItems.length > 0 && (
-              <div style={{ marginTop: 24 }}>
-                <FaqSection faqItems={faqItems} />
-              </div>
+              <FaqSection faqItems={faqItems} />
             )}
 
           </div>
           {/* ════════════════ END RIGHT COLUMN ════════════════ */}
 
         </div>
+        {/* ══════════════════════════════ END MAIN CONTENT ══════════════════════════════ */}
+
       </div>
     </>
   );
