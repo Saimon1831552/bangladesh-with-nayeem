@@ -100,7 +100,7 @@ export const metadata = {
 
   verification: {
     
-    google: "YOUR_GOOGLE_SEARCH_CONSOLE_TOKEN",
+    google: "google0112f4e428fe015b",
     
   },
 };
