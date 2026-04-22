@@ -66,6 +66,24 @@ function getHighlights(tour) {
   return Array.isArray(parsed) ? parsed : [];
 }
 
+// Safe JSON parse for why_choose
+function getWhyChoose(tour) {
+  let parsed = tour.why_choose;
+  if (typeof parsed === 'string') {
+    try { parsed = JSON.parse(parsed); } catch (e) { return []; }
+  }
+  return Array.isArray(parsed) ? parsed : [];
+}
+
+// Safe JSON parse for faq
+function getFaq(tour) {
+  let parsed = tour.faq;
+  if (typeof parsed === 'string') {
+    try { parsed = JSON.parse(parsed); } catch (e) { return []; }
+  }
+  return Array.isArray(parsed) ? parsed : [];
+}
+
 // Build itinerary from tour data — updated to handle JSON strings safely
 function buildItinerary(tour) {
   let parsedItinerary = tour.itinerary;
@@ -135,6 +153,34 @@ function ErrorPage({ msg }) {
   );
 }
 
+// ── FAQ accordion component ───────────────────────────────────────────────────
+function FaqSection({ faqItems }) {
+  const [openIdx, setOpenIdx] = useState(null);
+  return (
+    <div className="faq-section">
+      <div className="section-eyebrow">Got Questions?</div>
+      <div className="section-title">Frequently Asked</div>
+      {faqItems.map((item, i) => (
+        <div key={i} className="faq-item">
+          <button className="faq-question" onClick={() => setOpenIdx(openIdx === i ? null : i)}>
+            <span>{item.question || item.q || item}</span>
+            <FontAwesomeIcon
+              icon={faChevronLeft}
+              className={`faq-chevron ${openIdx === i ? 'open' : ''}`}
+              style={{ transform: openIdx === i ? 'rotate(-90deg)' : 'rotate(-90deg) scaleY(-1)' }}
+            />
+          </button>
+          {openIdx === i && (
+            <div className="faq-answer">
+              {item.answer || item.a || ''}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 export default function TourDetails({ params }) {
   const resolvedParams = use(params);
@@ -197,7 +243,10 @@ export default function TourDetails({ params }) {
   const total     = priceNum * guests;
   const stats     = buildStats(tour);
   const itinerary = buildItinerary(tour);
-  const highlights = getHighlights(tour);
+  const highlights  = getHighlights(tour);
+  const whyChoose  = getWhyChoose(tour);
+  const faqItems   = getFaq(tour);
+  const tripNote   = tour.trip_note || '';
   const rating    = tour.rating || 0;
   const fullStars = Math.floor(rating);
 
@@ -316,6 +365,30 @@ export default function TourDetails({ params }) {
         .reserve-btn:hover { background: #b45309; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(217,119,6,0.35); }
         .secure-badge { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; margin-top: 16px; letter-spacing: 0.04em; }
 
+        /* Why Choose Us */
+        .why-choose-section { margin-bottom: 56px; }
+        .why-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+        .why-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 24px 20px; display: flex; align-items: flex-start; gap: 14px; transition: transform 0.2s, box-shadow 0.2s; }
+        .why-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
+        .why-icon { width: 36px; height: 36px; border-radius: 50%; background: #f0faf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .why-text { font-size: 14px; color: #444; line-height: 1.6; font-weight: 400; }
+
+        /* Trip Note */
+        .trip-note-section { margin-bottom: 56px; }
+        .trip-note-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 20px; padding: 28px 32px; display: flex; gap: 16px; align-items: flex-start; }
+        .trip-note-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+        .trip-note-box p { font-size: 15px; color: #555; line-height: 1.8; margin: 0; }
+
+        /* FAQ */
+        .faq-section { margin-bottom: 56px; }
+        .faq-item { background: #fff; border: 1px solid #ede9e0; border-radius: 16px; margin-bottom: 12px; overflow: hidden; transition: box-shadow 0.2s; }
+        .faq-item:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+        .faq-question { width: 100%; background: none; border: none; text-align: left; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 16px; }
+        .faq-question span { font-size: 15px; font-weight: 600; color: #1c1c1c; line-height: 1.5; }
+        .faq-chevron { font-size: 12px; color: #d97706; flex-shrink: 0; transition: transform 0.25s; }
+        .faq-chevron.open { transform: rotate(180deg); }
+        .faq-answer { padding: 0 24px 20px; font-size: 14px; color: #666; line-height: 1.8; }
+
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
         .fade-up { animation: fadeUp 0.7s ease both; }
         .fade-up-1 { animation-delay: 0.1s; }
@@ -380,7 +453,7 @@ export default function TourDetails({ params }) {
               }
             </h1>
             <p className="hero-sub fade-up fade-up-3">
-              {tour.description || `Journey through ${tour.location} on this exclusive private tour, crafted for travelers who demand comfort, authenticity, and unforgettable memories.`}
+              {tour.overview || `Journey through ${tour.location} on this exclusive private tour, crafted for travelers who demand comfort, authenticity, and unforgettable memories.`}
             </p>
           </div>
         </div>
@@ -417,8 +490,7 @@ export default function TourDetails({ params }) {
                 </div>
               )}
 
-              <p>{tour.description || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.`}</p>
-              <p>Your expert guide will lead you through the highlights of this remarkable destination, ensuring every moment is memorable and every detail is taken care of.</p>
+              <p>{tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.`}</p>
               
              {/* Dynamically Rendered Highlights Array */}
                {highlights.length > 0 && (
@@ -538,6 +610,41 @@ export default function TourDetails({ params }) {
             )}
 
           </div>
+
+          {/* ── WHY CHOOSE US ── */}
+          {whyChoose.length > 0 && (
+            <div className="why-choose-section">
+              <div className="section-eyebrow">Our Promise</div>
+              <div className="section-title">Why Choose This Tour</div>
+              <div className="why-grid">
+                {whyChoose.map((item, i) => (
+                  <div key={i} className="why-card">
+                    <div className="why-icon">
+                      <FontAwesomeIcon icon={faCheck} style={{ fontSize: 14, color: '#15803d' }} />
+                    </div>
+                    <span className="why-text">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── TRIP NOTE ── */}
+          {tripNote && (
+            <div className="trip-note-section">
+              <div className="section-eyebrow">Important</div>
+              <div className="section-title">Trip Note</div>
+              <div className="trip-note-box">
+                <span className="trip-note-icon">⚠️</span>
+                <p>{tripNote}</p>
+              </div>
+            </div>
+          )}
+
+          {/* ── FAQ ── */}
+          {faqItems.length > 0 && (
+            <FaqSection faqItems={faqItems} />
+          )}
 
           {/* ── BOOKING WIDGET ── */}
           <div>
