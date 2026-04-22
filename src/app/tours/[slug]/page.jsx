@@ -8,7 +8,8 @@ import {
   faLocationDot, faClock, faUserGroup, faCheck, faXmark,
   faChevronLeft, faStar, faCalendarDays, faShieldHalved, faRoute,
   faLeaf, faWater, faBinoculars, faSpinner, faTriangleExclamation,
-  faImage
+  faImage, faTag, faCircleInfo, faArrowRotateLeft, faMagnifyingGlass,
+  faUsers, faBus, faPlus, faBolt
 } from '@fortawesome/free-solid-svg-icons';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://bangladesh-with-nayeem-production.up.railway.app/api';
@@ -375,9 +376,32 @@ export default function TourDetails({ params }) {
 
         /* Trip Note */
         .trip-note-section { margin-bottom: 56px; }
-        .trip-note-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 20px; padding: 28px 32px; display: flex; gap: 16px; align-items: flex-start; }
-        .trip-note-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
-        .trip-note-box p { font-size: 15px; color: #555; line-height: 1.8; margin: 0; }
+        .trip-note-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 20px; padding: 28px 32px; }
+        .trip-note-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .trip-note-icon { font-size: 16px; color: #b45309; flex-shrink: 0; }
+        .trip-note-title { font-size: 14px; font-weight: 700; color: #92400e; }
+        .trip-note-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .trip-note-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #555; line-height: 1.7; }
+        .trip-note-bullet { width: 6px; height: 6px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 8px; }
+
+        /* Tour Price & Offers */
+        .price-offers-section { margin-bottom: 0; }
+        .price-offers-box { background: #fff; border: 1px solid #ede9e0; border-radius: 28px; padding: 36px; }
+        .price-offers-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; color: #1c1c1c; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+        .price-tour-subtitle { font-size: 13px; font-weight: 700; color: #15803d; background: #f0faf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 14px; margin-bottom: 20px; }
+        .price-row-item { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #444; margin-bottom: 12px; line-height: 1.6; }
+        .price-row-icon { width: 20px; text-align: center; flex-shrink: 0; margin-top: 1px; }
+        .price-strikethrough { text-decoration: line-through; color: #ef4444; margin-right: 4px; }
+        .price-highlight { font-weight: 700; color: #1c1c1c; }
+        .price-italic-tagline { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; color: #15803d; margin: 20px 0 20px; font-weight: 600; }
+        .price-divider { height: 1px; background: #ede9e0; margin: 20px 0; }
+        .price-sub-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #1c1c1c; margin-bottom: 12px; }
+        .price-sub-heading svg { color: #d97706; }
+        .price-bullet-list { list-style: none; padding: 0; margin: 0 0 4px; display: flex; flex-direction: column; gap: 9px; }
+        .price-bullet-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: #555; line-height: 1.6; }
+        .price-bullet-dot { width: 6px; height: 6px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 7px; }
+        .contact-link { color: #15803d; font-weight: 700; text-decoration: none; }
+        .contact-link:hover { text-decoration: underline; }
 
         /* FAQ */
         .faq-section { margin-bottom: 56px; }
@@ -611,41 +635,6 @@ export default function TourDetails({ params }) {
 
           </div>
 
-          {/* ── WHY CHOOSE US ── */}
-          {whyChoose.length > 0 && (
-            <div className="why-choose-section">
-              <div className="section-eyebrow">Our Promise</div>
-              <div className="section-title">Why Choose This Tour</div>
-              <div className="why-grid">
-                {whyChoose.map((item, i) => (
-                  <div key={i} className="why-card">
-                    <div className="why-icon">
-                      <FontAwesomeIcon icon={faCheck} style={{ fontSize: 14, color: '#15803d' }} />
-                    </div>
-                    <span className="why-text">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── TRIP NOTE ── */}
-          {tripNote && (
-            <div className="trip-note-section">
-              <div className="section-eyebrow">Important</div>
-              <div className="section-title">Trip Note</div>
-              <div className="trip-note-box">
-                <span className="trip-note-icon">⚠️</span>
-                <p>{tripNote}</p>
-              </div>
-            </div>
-          )}
-
-          {/* ── FAQ ── */}
-          {faqItems.length > 0 && (
-            <FaqSection faqItems={faqItems} />
-          )}
-
           {/* ── BOOKING WIDGET ── */}
           <div>
             <div className="booking-widget">
@@ -711,7 +700,139 @@ export default function TourDetails({ params }) {
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', letterSpacing: '0.03em' }}>You won't be charged yet</p>
 
             </div>
+
+            {/* ── TOUR PRICE & OFFERS ── */}
+            <div className="price-offers-section" style={{ marginTop: 24 }}>
+              <div className="price-offers-box">
+                <h2 className="price-offers-title">
+                  💰 Tour Price &amp; Offers
+                </h2>
+                <div className="price-tour-subtitle">
+                  🔒 {tour.title} – Affordable Private Experience
+                </div>
+
+                <div className="price-row-item">
+                  <span className="price-row-icon" style={{ color: '#15803d' }}>$</span>
+                  <span><strong>Start:</strong> The first <span className="price-highlight">1–2 guests</span> are a flat fee of{' '}
+                    <span className="price-strikethrough">{priceFmt}</span>{' '}
+                    <span className="price-highlight">{priceFmt} USD total.</span>
+                  </span>
+                </div>
+                <div className="price-row-item">
+                  <span className="price-row-icon" style={{ color: '#1d4ed8' }}><FontAwesomeIcon icon={faPlus} style={{ fontSize: 12 }} /></span>
+                  <span><strong>Add-On:</strong> Each additional guest (up to 2 more) is{' '}
+                    <span className="price-highlight">$70 USD per person</span>
+                  </span>
+                </div>
+                <div className="price-row-item">
+                  <span className="price-row-icon" style={{ color: '#7c3aed' }}><FontAwesomeIcon icon={faUsers} style={{ fontSize: 12 }} /></span>
+                  <span><strong>Group Size:</strong> A maximum of <span className="price-highlight">6 guests</span> is allowed on <span className="price-highlight">regular departures</span></span>
+                </div>
+                <div className="price-row-item">
+                  <span className="price-row-icon" style={{ color: '#d97706' }}><FontAwesomeIcon icon={faBus} style={{ fontSize: 12 }} /></span>
+                  <span><strong>Custom Tour?</strong> Solo, groups &amp; families —{' '}
+                    <a href="/contact" className="contact-link">contact us</a> for a personalised quote.
+                  </span>
+                </div>
+
+                <p className="price-italic-tagline">Your Day, Your Way – A Fully Tailored Tour for Ultimate Experience</p>
+
+                <div className="price-divider" />
+
+                <div className="price-sub-heading">
+                  <FontAwesomeIcon icon={faBolt} style={{ fontSize: 14, color: '#d97706' }} />
+                  Special Offer
+                </div>
+                <ul className="price-bullet-list">
+                  <li><span className="price-bullet-dot" /><span><strong>Early-Bird Deals:</strong> Save <strong>flat 10%</strong> on any of our tours when you <strong>book 60+ days in advance.</strong></span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Multi-Tour Bonus:</strong> Book <strong>1+ days</strong> Panorama Bangladesh tours and <strong>receive a handicraft souvenir.</strong></span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Free Airport Transfer:</strong> Complimentary <strong>airport transfers</strong> with any <strong>multi-day Panorama Bangladesh tours.</strong></span></li>
+                </ul>
+
+                <div className="price-divider" />
+
+                <div className="price-sub-heading">
+                  <FontAwesomeIcon icon={faTag} style={{ fontSize: 14, color: '#d97706' }} />
+                  Fair Pricing Promise
+                </div>
+                <ul className="price-bullet-list">
+                  <li><span className="price-bullet-dot" /><span><strong>Transparent Inclusions:</strong> All listed entry fees, rickshaw &amp; boat rides are included.</span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>No Surprise Costs:</strong> No "factory" visits or shopping commissions—ever.</span></li>
+                </ul>
+
+                <div className="price-divider" />
+
+                <div className="price-sub-heading">
+                  <FontAwesomeIcon icon={faArrowRotateLeft} style={{ fontSize: 14, color: '#d97706' }} />
+                  Free Rescheduling &amp; Cancellation
+                </div>
+                <ul className="price-bullet-list">
+                  <li><span className="price-bullet-dot" /><span><strong>Complimentary Rescheduling:</strong> Change your date up to 72 hours before the tour (subject to availability).</span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Fair Cancellation:</strong> Full refund if cancelled at least 30 days before the tour; see the{' '}
+                    <a href="/cancellation-policy" className="contact-link">cancellation policy.</a>
+                  </span></li>
+                </ul>
+
+                <div className="price-divider" />
+
+                <div className="price-sub-heading">
+                  <FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 14, color: '#d97706' }} />
+                  Seeking a Guaranteed Fixed Departure or Tailored B2B Tours in Bangladesh?
+                </div>
+                <p style={{ fontSize: 13.5, color: '#555', lineHeight: 1.7, marginTop: 4 }}>
+                  We offer fixed-departure group tours and bespoke B2B packages for travel agencies and corporate clients.{' '}
+                  <a href="/contact" className="contact-link">Get in touch</a> to discuss your requirements.
+                </p>
+
+              </div>
+            </div>
+
           </div>
+
+          {/* ── WHY CHOOSE US ── */}
+          {whyChoose.length > 0 && (
+            <div className="why-choose-section">
+              <div className="section-eyebrow">Our Promise</div>
+              <div className="section-title">Why Choose This Tour</div>
+              <div className="why-grid">
+                {whyChoose.map((item, i) => (
+                  <div key={i} className="why-card">
+                    <div className="why-icon">
+                      <FontAwesomeIcon icon={faCheck} style={{ fontSize: 14, color: '#15803d' }} />
+                    </div>
+                    <span className="why-text">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── TRIP NOTE ── */}
+          {tripNote && (
+            <div className="trip-note-section">
+              <div className="section-eyebrow">Important</div>
+              <div className="section-title">Trip Note</div>
+              <div className="trip-note-box">
+                <div className="trip-note-header">
+                  <FontAwesomeIcon icon={faCircleInfo} className="trip-note-icon" />
+                  <span className="trip-note-title">Please read before booking</span>
+                </div>
+                <ul className="trip-note-list">
+                  {tripNote.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4).map((sentence, i) => (
+                    <li key={i}>
+                      <span className="trip-note-bullet" />
+                      <span>{sentence.trim()}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* ── FAQ ── */}
+          {faqItems.length > 0 && (
+            <FaqSection faqItems={faqItems} />
+          )}
 
         </div>
       </div>
