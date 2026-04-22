@@ -485,9 +485,10 @@ export default function TourDetails({ params }) {
         {/* ── MAIN CONTENT ── */}
         <div className="main">
 
-          {/* Left column */}
+          {/* ════════════════ LEFT COLUMN ════════════════ */}
           <div>
 
+            {/* Stats */}
             <div className="stats-grid">
               {stats.map((s, i) => (
                 <div key={i} className="stat-card">
@@ -500,6 +501,7 @@ export default function TourDetails({ params }) {
               ))}
             </div>
 
+            {/* 1. Overview */}
             <div className="overview-block">
               <div className="section-eyebrow">About This Tour</div>
               <div className="section-title">Experience Overview</div>
@@ -515,35 +517,25 @@ export default function TourDetails({ params }) {
               )}
 
               <p>{tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.`}</p>
-              
-             {/* Dynamically Rendered Highlights Array */}
-               {highlights.length > 0 && (
-                 <div style={{ marginTop: '28px' }}>
-                   <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.6rem', fontWeight: 700, color: '#1c1c1c', marginBottom: '16px' }}>
-                     Tour Highlights
-                   </h3>
-                   <ul style={{ paddingLeft: '0', margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                     {highlights.map((h, i) => (
-                       <li key={i} style={{ 
-                         fontSize: '16px', 
-                         color: '#555', 
-                         lineHeight: 1.6, 
-                         display: 'flex', 
-                         alignItems: 'flex-start', 
-                         gap: '10px',
-                         listStyle: 'none' 
-                       }}>
-                         <span style={{ color: '#d97706', marginTop: '4px', flexShrink: 0 }}>
-                           <FaHandPointRight />
-                         </span>
-                         <span>{h}</span>
-                       </li>
-                     ))}
-                   </ul>
-                 </div>
-               )}
             </div>
 
+            {/* 2. Highlights */}
+            {highlights.length > 0 && (
+              <div style={{ marginBottom: 56 }}>
+                <div className="section-eyebrow">What You'll See</div>
+                <div className="section-title">Tour Highlights</div>
+                <ul style={{ paddingLeft: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {highlights.map((h, i) => (
+                    <li key={i} style={{ fontSize: 16, color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'flex-start', gap: 10, listStyle: 'none' }}>
+                      <span style={{ color: '#d97706', marginTop: 4, flexShrink: 0 }}><FaHandPointRight /></span>
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* 3. Itinerary */}
             <div className="itinerary">
               <div className="section-eyebrow">Day by Day</div>
               <div className="section-title">Tour Itinerary</div>
@@ -561,7 +553,8 @@ export default function TourDetails({ params }) {
               </div>
             </div>
 
-            <div className="inc-exc-grid">
+            {/* 4. Included / Excluded */}
+            <div className="inc-exc-grid" style={{ marginBottom: 56 }}>
               <div className="inc-card">
                 <div className="corner-blob" style={{ background: '#d1fae5' }} />
                 <h3>What's Included</h3>
@@ -601,6 +594,7 @@ export default function TourDetails({ params }) {
               </div>
             </div>
 
+            {/* 5. Reviews */}
             {reviews.length > 0 && (
               <div className="reviews-section">
                 <div className="section-eyebrow">What Travelers Say</div>
@@ -633,12 +627,114 @@ export default function TourDetails({ params }) {
               </div>
             )}
 
+            {/* 6. Why Choose Us */}
+            {whyChoose.length > 0 && (
+              <div className="why-choose-section">
+                <div className="section-eyebrow">Our Promise</div>
+                <div className="section-title">Why Choose This Tour</div>
+                <div className="why-grid">
+                  {whyChoose.map((item, i) => (
+                    <div key={i} className="why-card">
+                      <div className="why-icon">
+                        <FontAwesomeIcon icon={faCheck} style={{ fontSize: 14, color: '#15803d' }} />
+                      </div>
+                      <span className="why-text">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 7. Trip Note */}
+            {tripNote && (
+              <div className="trip-note-section">
+                <div className="section-eyebrow">Important</div>
+                <div className="section-title">Trip Note</div>
+                <div className="trip-note-box">
+                  <div className="trip-note-header">
+                    <FontAwesomeIcon icon={faCircleInfo} className="trip-note-icon" />
+                    <span className="trip-note-title">Please read before booking</span>
+                  </div>
+                  <ul className="trip-note-list">
+                    {tripNote.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4).map((sentence, i) => (
+                      <li key={i}>
+                        <span className="trip-note-bullet" />
+                        <span>{sentence.trim()}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* 8. Price & Offers */}
+            <div className="price-offers-section">
+              <div className="section-eyebrow">Pricing</div>
+              <div className="section-title">Tour Price &amp; Offers</div>
+              <div className="price-offers-box">
+                <div className="price-tour-subtitle">
+                  🔒 {tour.title} – Affordable Private Experience
+                </div>
+
+                <div className="price-row-item">
+                  <span className="price-row-icon" style={{ color: '#15803d' }}>$</span>
+                  <span><strong>Start:</strong> The first <span className="price-highlight">1–2 guests</span> are a flat fee of{' '}
+                    <span className="price-highlight">{priceFmt} USD total.</span>
+                  </span>
+                </div>
+                <div className="price-row-item">
+                  <span className="price-row-icon" style={{ color: '#1d4ed8' }}><FontAwesomeIcon icon={faPlus} style={{ fontSize: 12 }} /></span>
+                  <span><strong>Add-On:</strong> Each additional guest (up to 2 more) is <span className="price-highlight">$70 USD per person</span></span>
+                </div>
+                <div className="price-row-item">
+                  <span className="price-row-icon" style={{ color: '#7c3aed' }}><FontAwesomeIcon icon={faUsers} style={{ fontSize: 12 }} /></span>
+                  <span><strong>Group Size:</strong> A maximum of <span className="price-highlight">6 guests</span> on <span className="price-highlight">regular departures</span></span>
+                </div>
+                <div className="price-row-item">
+                  <span className="price-row-icon" style={{ color: '#d97706' }}><FontAwesomeIcon icon={faBus} style={{ fontSize: 12 }} /></span>
+                  <span><strong>Custom Tour?</strong> Solo, groups &amp; families — <a href="/contact" className="contact-link">contact us</a> for a personalised quote.</span>
+                </div>
+
+                <p className="price-italic-tagline">Your Day, Your Way – A Fully Tailored Tour for Ultimate Experience</p>
+
+                <div className="price-divider" />
+                <div className="price-sub-heading"><FontAwesomeIcon icon={faBolt} style={{ fontSize: 14, color: '#d97706' }} /> Special Offer</div>
+                <ul className="price-bullet-list">
+                  <li><span className="price-bullet-dot" /><span><strong>Early-Bird Deals:</strong> Save <strong>flat 10%</strong> when you <strong>book 60+ days in advance.</strong></span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Multi-Tour Bonus:</strong> Book <strong>1+ days</strong> and <strong>receive a handicraft souvenir.</strong></span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Free Airport Transfer:</strong> Complimentary transfers with any <strong>multi-day tour.</strong></span></li>
+                </ul>
+
+                <div className="price-divider" />
+                <div className="price-sub-heading"><FontAwesomeIcon icon={faTag} style={{ fontSize: 14, color: '#d97706' }} /> Fair Pricing Promise</div>
+                <ul className="price-bullet-list">
+                  <li><span className="price-bullet-dot" /><span><strong>Transparent Inclusions:</strong> All entry fees, rickshaw &amp; boat rides included.</span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>No Surprise Costs:</strong> No "factory" visits or shopping commissions—ever.</span></li>
+                </ul>
+
+                <div className="price-divider" />
+                <div className="price-sub-heading"><FontAwesomeIcon icon={faArrowRotateLeft} style={{ fontSize: 14, color: '#d97706' }} /> Free Rescheduling &amp; Cancellation</div>
+                <ul className="price-bullet-list">
+                  <li><span className="price-bullet-dot" /><span><strong>Complimentary Rescheduling:</strong> Change your date up to 72 hours before the tour.</span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Fair Cancellation:</strong> Full refund if cancelled 30+ days before; see <a href="/cancellation-policy" className="contact-link">cancellation policy.</a></span></li>
+                </ul>
+
+                <div className="price-divider" />
+                <div className="price-sub-heading"><FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 14, color: '#d97706' }} /> Fixed Departures or B2B Tours?</div>
+                <p style={{ fontSize: 13.5, color: '#555', lineHeight: 1.7, marginTop: 4 }}>
+                  We offer fixed-departure group tours and bespoke B2B packages. <a href="/contact" className="contact-link">Get in touch</a> to discuss your requirements.
+                </p>
+              </div>
+            </div>
+
           </div>
+          {/* ════════════════ END LEFT COLUMN ════════════════ */}
 
-          {/* ── BOOKING WIDGET ── */}
+          {/* ════════════════ RIGHT COLUMN ════════════════ */}
           <div>
-            <div className="booking-widget">
 
+            {/* 1. Booking Widget */}
+            <div className="booking-widget">
               <div style={{ marginBottom: 6 }}>
                 <span className="widget-pp">From</span>
               </div>
@@ -698,141 +794,17 @@ export default function TourDetails({ params }) {
 
               <div className="widget-divider" />
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', letterSpacing: '0.03em' }}>You won't be charged yet</p>
-
             </div>
 
-            {/* ── TOUR PRICE & OFFERS ── */}
-            <div className="price-offers-section" style={{ marginTop: 24 }}>
-              <div className="price-offers-box">
-                <h2 className="price-offers-title">
-                  💰 Tour Price &amp; Offers
-                </h2>
-                <div className="price-tour-subtitle">
-                  🔒 {tour.title} – Affordable Private Experience
-                </div>
-
-                <div className="price-row-item">
-                  <span className="price-row-icon" style={{ color: '#15803d' }}>$</span>
-                  <span><strong>Start:</strong> The first <span className="price-highlight">1–2 guests</span> are a flat fee of{' '}
-                    <span className="price-strikethrough">{priceFmt}</span>{' '}
-                    <span className="price-highlight">{priceFmt} USD total.</span>
-                  </span>
-                </div>
-                <div className="price-row-item">
-                  <span className="price-row-icon" style={{ color: '#1d4ed8' }}><FontAwesomeIcon icon={faPlus} style={{ fontSize: 12 }} /></span>
-                  <span><strong>Add-On:</strong> Each additional guest (up to 2 more) is{' '}
-                    <span className="price-highlight">$70 USD per person</span>
-                  </span>
-                </div>
-                <div className="price-row-item">
-                  <span className="price-row-icon" style={{ color: '#7c3aed' }}><FontAwesomeIcon icon={faUsers} style={{ fontSize: 12 }} /></span>
-                  <span><strong>Group Size:</strong> A maximum of <span className="price-highlight">6 guests</span> is allowed on <span className="price-highlight">regular departures</span></span>
-                </div>
-                <div className="price-row-item">
-                  <span className="price-row-icon" style={{ color: '#d97706' }}><FontAwesomeIcon icon={faBus} style={{ fontSize: 12 }} /></span>
-                  <span><strong>Custom Tour?</strong> Solo, groups &amp; families —{' '}
-                    <a href="/contact" className="contact-link">contact us</a> for a personalised quote.
-                  </span>
-                </div>
-
-                <p className="price-italic-tagline">Your Day, Your Way – A Fully Tailored Tour for Ultimate Experience</p>
-
-                <div className="price-divider" />
-
-                <div className="price-sub-heading">
-                  <FontAwesomeIcon icon={faBolt} style={{ fontSize: 14, color: '#d97706' }} />
-                  Special Offer
-                </div>
-                <ul className="price-bullet-list">
-                  <li><span className="price-bullet-dot" /><span><strong>Early-Bird Deals:</strong> Save <strong>flat 10%</strong> on any of our tours when you <strong>book 60+ days in advance.</strong></span></li>
-                  <li><span className="price-bullet-dot" /><span><strong>Multi-Tour Bonus:</strong> Book <strong>1+ days</strong> Panorama Bangladesh tours and <strong>receive a handicraft souvenir.</strong></span></li>
-                  <li><span className="price-bullet-dot" /><span><strong>Free Airport Transfer:</strong> Complimentary <strong>airport transfers</strong> with any <strong>multi-day Panorama Bangladesh tours.</strong></span></li>
-                </ul>
-
-                <div className="price-divider" />
-
-                <div className="price-sub-heading">
-                  <FontAwesomeIcon icon={faTag} style={{ fontSize: 14, color: '#d97706' }} />
-                  Fair Pricing Promise
-                </div>
-                <ul className="price-bullet-list">
-                  <li><span className="price-bullet-dot" /><span><strong>Transparent Inclusions:</strong> All listed entry fees, rickshaw &amp; boat rides are included.</span></li>
-                  <li><span className="price-bullet-dot" /><span><strong>No Surprise Costs:</strong> No "factory" visits or shopping commissions—ever.</span></li>
-                </ul>
-
-                <div className="price-divider" />
-
-                <div className="price-sub-heading">
-                  <FontAwesomeIcon icon={faArrowRotateLeft} style={{ fontSize: 14, color: '#d97706' }} />
-                  Free Rescheduling &amp; Cancellation
-                </div>
-                <ul className="price-bullet-list">
-                  <li><span className="price-bullet-dot" /><span><strong>Complimentary Rescheduling:</strong> Change your date up to 72 hours before the tour (subject to availability).</span></li>
-                  <li><span className="price-bullet-dot" /><span><strong>Fair Cancellation:</strong> Full refund if cancelled at least 30 days before the tour; see the{' '}
-                    <a href="/cancellation-policy" className="contact-link">cancellation policy.</a>
-                  </span></li>
-                </ul>
-
-                <div className="price-divider" />
-
-                <div className="price-sub-heading">
-                  <FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 14, color: '#d97706' }} />
-                  Seeking a Guaranteed Fixed Departure or Tailored B2B Tours in Bangladesh?
-                </div>
-                <p style={{ fontSize: 13.5, color: '#555', lineHeight: 1.7, marginTop: 4 }}>
-                  We offer fixed-departure group tours and bespoke B2B packages for travel agencies and corporate clients.{' '}
-                  <a href="/contact" className="contact-link">Get in touch</a> to discuss your requirements.
-                </p>
-
+            {/* 2. FAQ */}
+            {faqItems.length > 0 && (
+              <div style={{ marginTop: 24 }}>
+                <FaqSection faqItems={faqItems} />
               </div>
-            </div>
+            )}
 
           </div>
-
-          {/* ── WHY CHOOSE US ── */}
-          {whyChoose.length > 0 && (
-            <div className="why-choose-section">
-              <div className="section-eyebrow">Our Promise</div>
-              <div className="section-title">Why Choose This Tour</div>
-              <div className="why-grid">
-                {whyChoose.map((item, i) => (
-                  <div key={i} className="why-card">
-                    <div className="why-icon">
-                      <FontAwesomeIcon icon={faCheck} style={{ fontSize: 14, color: '#15803d' }} />
-                    </div>
-                    <span className="why-text">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── TRIP NOTE ── */}
-          {tripNote && (
-            <div className="trip-note-section">
-              <div className="section-eyebrow">Important</div>
-              <div className="section-title">Trip Note</div>
-              <div className="trip-note-box">
-                <div className="trip-note-header">
-                  <FontAwesomeIcon icon={faCircleInfo} className="trip-note-icon" />
-                  <span className="trip-note-title">Please read before booking</span>
-                </div>
-                <ul className="trip-note-list">
-                  {tripNote.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4).map((sentence, i) => (
-                    <li key={i}>
-                      <span className="trip-note-bullet" />
-                      <span>{sentence.trim()}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* ── FAQ ── */}
-          {faqItems.length > 0 && (
-            <FaqSection faqItems={faqItems} />
-          )}
+          {/* ════════════════ END RIGHT COLUMN ════════════════ */}
 
         </div>
       </div>
