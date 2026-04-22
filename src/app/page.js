@@ -192,7 +192,7 @@ export const metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Bangladesh Tour Packages | Explore Bangladesh With Naim",
+    title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
     description:
       "Private, personalized tours across Bangladesh. Heritage walks, Sundarbans safaris, tea garden escapes & more — guided by your trusted local friend, Naim.",
     url: SITE_URL,
