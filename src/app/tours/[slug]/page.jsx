@@ -184,6 +184,32 @@ export default function TourDetails({ params }) {
   const [activeImg, setActiveImg] = useState(0);
   const [guests,    setGuests]    = useState(2);
   const heroRef = useRef(null);
+  const navRef  = useRef(null);
+
+  // Active nav link on scroll
+  useEffect(() => {
+    const ids = ['hero','overview','highlights','itinerary','price','inclusion','why-naim','trip-note','faq','booking'];
+    const onScroll = () => {
+      const offset = 130;
+      let active = ids[0];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= offset) active = id;
+      }
+      if (!navRef.current) return;
+      navRef.current.querySelectorAll('a').forEach(a => {
+        const href = a.getAttribute('href');
+        if (href === `#${active}`) {
+          a.classList.add('nav-active');
+          a.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+        } else {
+          a.classList.remove('nav-active');
+        }
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
@@ -358,11 +384,11 @@ export default function TourDetails({ params }) {
         .check-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 10px; }
 
         /* ── Why Choose ── */
-        .why-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-        .why-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 22px 20px; display: flex; align-items: flex-start; gap: 14px; transition: transform 0.2s, box-shadow 0.2s; }
-        .why-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
+        .why-grid { display: flex; flex-direction: column; gap: 12px; }
+        .why-card { background: #fff; border: 1px solid #ede9e0; border-radius: 16px; padding: 20px 24px; display: flex; align-items: flex-start; gap: 14px; transition: transform 0.2s, box-shadow 0.2s; }
+        .why-card:hover { transform: translateX(6px); box-shadow: 0 8px 28px rgba(0,0,0,0.07); }
         .why-icon { width: 36px; height: 36px; border-radius: 50%; background: #f0faf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .why-text { font-size: 14px; color: #444; line-height: 1.6; font-weight: 400; }
+        .why-text { font-size: 14.5px; color: #444; line-height: 1.65; font-weight: 400; }
 
         /* ── Trip Note ── */
         .trip-note-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 20px; padding: 28px 32px; }
@@ -441,12 +467,13 @@ export default function TourDetails({ params }) {
         /* ── Section Nav ── */
         .section-nav {
           position: sticky;
-          top: 0;
-          z-index: 100;
-          background: rgba(248,246,241,0.95);
+          top: 70px;
+          z-index: 90;
+          background: rgba(248,246,241,0.97);
           backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
           border-bottom: 1px solid #ede9e0;
-          box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+          box-shadow: 0 2px 16px rgba(0,0,0,0.07);
         }
         .section-nav-inner {
           max-width: 1280px;
@@ -462,8 +489,8 @@ export default function TourDetails({ params }) {
         .section-nav-inner a {
           flex-shrink: 0;
           display: block;
-          padding: 15px 16px;
-          font-size: 12px;
+          padding: 14px 15px;
+          font-size: 11.5px;
           font-weight: 600;
           color: #666;
           text-decoration: none;
@@ -478,9 +505,25 @@ export default function TourDetails({ params }) {
           color: #d97706;
           border-bottom-color: #d97706;
         }
+        @media(max-width: 1024px) { .section-nav { top: 60px; } }
         @media(max-width: 640px) {
-          .section-nav-inner { padding: 0 16px; gap: 0; }
-          .section-nav-inner a { padding: 13px 11px; font-size: 10.5px; }
+          .section-nav { top: 56px; }
+          .section-nav-inner { padding: 0 12px; }
+          .section-nav-inner a { padding: 12px 10px; font-size: 10px; }
+        }
+
+        /* ── Scroll offset for sticky nav + site header ── */
+        #hero, #overview, #highlights, #itinerary,
+        #price, #inclusion, #why-naim, #trip-note,
+        #faq, #booking {
+          scroll-margin-top: 120px;
+        }
+        @media(max-width: 640px) {
+          #hero, #overview, #highlights, #itinerary,
+          #price, #inclusion, #why-naim, #trip-note,
+          #faq, #booking {
+            scroll-margin-top: 104px;
+          }
         }
 
         /* ── Text justify ── */
@@ -562,7 +605,7 @@ export default function TourDetails({ params }) {
 
         {/* ══════════════════════════════ SECTION NAV ══════════════════════════════ */}
         <nav className="section-nav">
-          <div className="section-nav-inner">
+          <div ref={navRef} className="section-nav-inner">
             <a href="#hero">Hero</a>
             <a href="#overview">Overview</a>
             <a href="#highlights">Tour Highlights</a>
@@ -703,7 +746,7 @@ export default function TourDetails({ params }) {
                   {whyChoose.map((item, i) => (
                     <div key={i} className="why-card">
                       <div className="why-icon">
-                        <FontAwesomeIcon icon={faCheck} style={{ fontSize: 14, color: '#15803d' }} />
+                        <span style={{ fontSize: 13, fontWeight: 800, color: '#15803d', fontFamily: "'Cormorant Garamond', serif" }}>{i + 1}</span>
                       </div>
                       <span className="why-text">{item}</span>
                     </div>
