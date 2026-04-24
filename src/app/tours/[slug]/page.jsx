@@ -156,14 +156,12 @@ function FaqSection({ faqItems }) {
             <span>{item.question || item.q || item}</span>
             <FontAwesomeIcon
               icon={faChevronLeft}
-              className={`faq-chevron ${openIdx === i ? 'open' : ''}`}
-              style={{ transform: openIdx === i ? 'rotate(-90deg)' : 'rotate(-90deg) scaleY(-1)' }}
+              className="faq-chevron"
+              style={{ transform: openIdx === i ? 'rotate(-90deg)' : 'rotate(90deg)' }}
             />
           </button>
           {openIdx === i && (
-            <div className="faq-answer">
-              {item.answer || item.a || ''}
-            </div>
+            <div className="faq-answer" dangerouslySetInnerHTML={{ __html: item.answer || item.a || '' }} />
           )}
         </div>
       ))}
@@ -189,13 +187,13 @@ export default function TourDetails({ params }) {
   // Active nav link on scroll
   useEffect(() => {
     const ids = ['overview','highlights','itinerary','price','inclusion','trip-note','why-naim','faq','booking'];
-    // site header (~70px) + section nav (~46px) + small buffer = 124px
-    const NAV_OFFSET = 130;
+    // site header (70px) + section nav (46px) + buffer = 124px
+    const OFFSET = 130;
     const onScroll = () => {
       let active = ids[0];
       for (const id of ids) {
         const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= NAV_OFFSET) active = id;
+        if (el && el.getBoundingClientRect().top <= OFFSET) active = id;
       }
       if (!navRef.current) return;
       navRef.current.querySelectorAll('a').forEach(a => {
@@ -205,7 +203,7 @@ export default function TourDetails({ params }) {
       });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    onScroll(); // highlight correct link on initial load
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -314,20 +312,20 @@ export default function TourDetails({ params }) {
         }
 
         /* ── Right column sticky wrapper ── */
-        /* top = site header (70px) + section nav (~46px) + 16px gap = 132px */
+        /*
+          top = site header (70px) + section nav (~46px) + 16px gap = 132px
+          No max-height constraint — FAQ must be fully visible without clipping.
+        */
         .right-col {
           position: sticky;
           top: 132px;
           display: flex;
           flex-direction: column;
           gap: 24px;
-          max-height: calc(100vh - 140px);
-          overflow-y: auto;
-          scrollbar-width: none;
+          align-self: start;
         }
-        .right-col::-webkit-scrollbar { display: none; }
         @media(max-width: 1024px) {
-          .right-col { position: static; max-height: none; overflow-y: visible; }
+          .right-col { position: static; top: auto; }
         }
 
         /* ── Stats grid ── */
@@ -454,9 +452,8 @@ export default function TourDetails({ params }) {
         .faq-item:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
         .faq-question { width: 100%; background: none; border: none; text-align: left; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 16px; }
         .faq-question span { font-size: 14px; font-weight: 600; color: #1c1c1c; line-height: 1.5; }
-        .faq-chevron { font-size: 12px; color: #d97706; flex-shrink: 0; transition: transform 0.25s; }
-        .faq-chevron.open { transform: rotate(180deg); }
-        .faq-answer { padding: 0 22px 18px; font-size: 13.5px; color: #666; line-height: 1.8; }
+        .faq-chevron { font-size: 12px; color: #d97706; flex-shrink: 0; transition: transform 0.25s ease; }
+        .faq-answer { padding: 0 22px 18px; font-size: 13.5px; color: #666; line-height: 1.8; text-align: justify; }
 
         /* ── Animations ── */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
@@ -467,20 +464,19 @@ export default function TourDetails({ params }) {
 
         /* ── Section Nav ── */
         /*
-          The site header is ~70px tall and position:fixed/sticky at top:0.
-          Our section nav must sit directly below it: top:70px.
-          z-index:99 keeps it above page content but below any site header dropdowns.
-          scroll-margin-top = site header (70px) + section nav (~46px) + 8px gap = 124px
+          Site header is ~70px (position fixed/sticky).
+          Section nav sticks just below it: top: 70px.
+          z-index: 98 — above all content, below site header dropdowns (z~100).
         */
         .section-nav {
           position: sticky;
           top: 70px;
-          z-index: 99;
+          z-index: 98;
           background: rgba(248,246,241,0.98);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           border-bottom: 2px solid #ede9e0;
-          box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+          box-shadow: 0 2px 16px rgba(0,0,0,0.07);
         }
         .section-nav-inner {
           max-width: 1280px;
@@ -488,7 +484,6 @@ export default function TourDetails({ params }) {
           padding: 0 40px;
           display: flex;
           align-items: center;
-          gap: 0;
           overflow-x: auto;
           scrollbar-width: none;
         }
@@ -499,7 +494,7 @@ export default function TourDetails({ params }) {
           padding: 14px 15px;
           font-size: 11.5px;
           font-weight: 600;
-          color: #555;
+          color: #666;
           text-decoration: none;
           letter-spacing: 0.04em;
           text-transform: uppercase;
@@ -520,7 +515,10 @@ export default function TourDetails({ params }) {
           .section-nav-inner a { padding: 12px 10px; font-size: 10px; }
         }
 
-        /* ── Scroll offset = site header + section nav height ── */
+        /*
+          scroll-margin-top = site header (70px) + section nav (~46px) + 8px gap = 124px
+          This ensures clicked sections land just below the sticky nav, not hidden under it.
+        */
         #overview, #highlights, #itinerary,
         #price, #inclusion, #why-naim, #trip-note,
         #faq, #booking {
@@ -529,7 +527,7 @@ export default function TourDetails({ params }) {
         @media(max-width: 1024px) {
           #overview, #highlights, #itinerary,
           #price, #inclusion, #why-naim, #trip-note,
-          #faq, #booking { scroll-margin-top: 110px; }
+          #faq, #booking { scroll-margin-top: 112px; }
         }
         @media(max-width: 640px) {
           #overview, #highlights, #itinerary,
