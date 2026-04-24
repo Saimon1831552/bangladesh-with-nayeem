@@ -437,12 +437,70 @@ export default function TourDetails({ params }) {
         .fade-up-1 { animation-delay: 0.1s; }
         .fade-up-2 { animation-delay: 0.25s; }
         .fade-up-3 { animation-delay: 0.4s; }
+
+        /* ── Section Nav ── */
+        .section-nav {
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          background: rgba(248,246,241,0.95);
+          backdrop-filter: blur(14px);
+          border-bottom: 1px solid #ede9e0;
+          box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        }
+        .section-nav-inner {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 40px;
+          display: flex;
+          align-items: center;
+          gap: 0;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+        .section-nav-inner::-webkit-scrollbar { display: none; }
+        .section-nav-inner a {
+          flex-shrink: 0;
+          display: block;
+          padding: 15px 16px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #666;
+          text-decoration: none;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          border-bottom: 2px solid transparent;
+          transition: color 0.2s, border-color 0.2s;
+          white-space: nowrap;
+        }
+        .section-nav-inner a:hover,
+        .section-nav-inner a.nav-active {
+          color: #d97706;
+          border-bottom-color: #d97706;
+        }
+        @media(max-width: 640px) {
+          .section-nav-inner { padding: 0 16px; gap: 0; }
+          .section-nav-inner a { padding: 13px 11px; font-size: 10.5px; }
+        }
+
+        /* ── Text justify ── */
+        .text-justify { text-align: justify; }
+        .overview-block p { text-align: justify; }
+        .timeline-card p { text-align: justify; }
+        .highlights-list li { text-align: justify; }
+        .inc-list li, .exc-list li { text-align: justify; }
+        .why-text { text-align: justify; }
+        .trip-note-list li { text-align: justify; }
+        .price-row-item { text-align: justify; }
+        .price-bullet-list li { text-align: justify; }
+        .faq-answer { text-align: justify; }
+        .review-card p { text-align: justify; }
       `}</style>
 
       <div className="page-wrap">
 
         {/* ══════════════════════════════ HERO (UNCHANGED) ══════════════════════════════ */}
-        <div className="hero">
+        <div id="hero" className="hero">
           <div className="hero-img-wrap">
             <img ref={heroRef} className="hero-img" src={images[activeImg]} alt={tour.title}
               onError={e => { e.target.src = 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=2000&q=80'; }} />
@@ -502,6 +560,22 @@ export default function TourDetails({ params }) {
         </div>
         {/* ══════════════════════════════ END HERO ══════════════════════════════ */}
 
+        {/* ══════════════════════════════ SECTION NAV ══════════════════════════════ */}
+        <nav className="section-nav">
+          <div className="section-nav-inner">
+            <a href="#hero">Hero</a>
+            <a href="#overview">Overview</a>
+            <a href="#highlights">Tour Highlights</a>
+            <a href="#itinerary">Itinerary</a>
+            <a href="#price">Tour Price</a>
+            <a href="#inclusion">Inclusion / Exclusion</a>
+            <a href="#trip-note">Trip Note</a>
+            <a href="#faq">FAQ</a>
+            <a href="#why-naim">Why Book With Naim?</a>
+            <a href="#booking" style={{ color: '#d97706', fontWeight: 700 }}>Booking Now</a>
+          </div>
+        </nav>
+
         {/* ══════════════════════════════ MAIN CONTENT ══════════════════════════════ */}
         <div className="main">
 
@@ -522,7 +596,7 @@ export default function TourDetails({ params }) {
             </div>
 
             {/* 1. Overview */}
-            <div className="section-block">
+            <div id="overview" className="section-block">
               <div className="overview-block">
                 <div className="section-eyebrow">About This Tour</div>
                 <div className="section-title">Experience Overview</div>
@@ -543,7 +617,7 @@ export default function TourDetails({ params }) {
 
             {/* 2. Highlights */}
             {highlights.length > 0 && (
-              <div className="section-block">
+              <div id="highlights" className="section-block">
                 <div className="section-eyebrow">What You'll See</div>
                 <div className="section-title">Tour Highlights</div>
                 <ul className="highlights-list">
@@ -558,7 +632,7 @@ export default function TourDetails({ params }) {
             )}
 
             {/* 3. Itinerary */}
-            <div className="section-block">
+            <div id="itinerary" className="section-block">
               <div className="section-eyebrow">Day by Day</div>
               <div className="section-title">Tour Itinerary</div>
               <div className="timeline">
@@ -576,7 +650,7 @@ export default function TourDetails({ params }) {
             </div>
 
             {/* 4. Included / Excluded */}
-            <div className="section-block">
+            <div id="inclusion" className="section-block">
               <div className="section-eyebrow">What's Covered</div>
               <div className="section-title">Inclusions &amp; Exclusions</div>
               <div className="inc-exc-grid">
@@ -622,9 +696,9 @@ export default function TourDetails({ params }) {
 
             {/* 5. Why Choose Us */}
             {whyChoose.length > 0 && (
-              <div className="section-block">
+              <div id="why-naim" className="section-block">
                 <div className="section-eyebrow">Our Promise</div>
-                <div className="section-title">Why Choose This Tour</div>
+                <div className="section-title">Why Book This Tour With Naim?</div>
                 <div className="why-grid">
                   {whyChoose.map((item, i) => (
                     <div key={i} className="why-card">
@@ -640,7 +714,7 @@ export default function TourDetails({ params }) {
 
             {/* 6. Trip Note */}
             {tripNote && (
-              <div className="section-block">
+              <div id="trip-note" className="section-block">
                 <div className="section-eyebrow">Important</div>
                 <div className="section-title">Trip Note</div>
                 <div className="trip-note-box">
@@ -668,7 +742,7 @@ export default function TourDetails({ params }) {
             )}
 
             {/* 7. Price & Offers */}
-            <div className="section-block">
+            <div id="price" className="section-block">
               <div className="section-eyebrow">Pricing</div>
               <div className="section-title">Tour Price &amp; Offers</div>
               <div className="price-offers-box">
@@ -767,7 +841,7 @@ export default function TourDetails({ params }) {
           <div className="right-col">
 
             {/* 1. Booking Widget */}
-            <div className="booking-widget">
+            <div id="booking" className="booking-widget">
               <div style={{ marginBottom: 6 }}>
                 <span className="widget-pp">From</span>
               </div>
@@ -831,7 +905,9 @@ export default function TourDetails({ params }) {
 
             {/* 2. FAQ */}
             {faqItems.length > 0 && (
-              <FaqSection faqItems={faqItems} />
+              <div id="faq">
+                <FaqSection faqItems={faqItems} />
+              </div>
             )}
 
           </div>
