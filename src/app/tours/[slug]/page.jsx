@@ -649,13 +649,20 @@ export default function TourDetails({ params }) {
                     <span className="trip-note-title">Please read before booking</span>
                   </div>
                   <ul className="trip-note-list">
-                    {tripNote.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4).map((sentence, i) => (
+                  {(() => {
+                    const raw = tripNote.trim();
+                    // If data uses <strong> tags as bullet headers, split before each <strong>
+                    const items = raw.includes('<strong>')
+                      ? raw.split(/(?=<strong>)/).map(s => s.trim()).filter(s => s.length > 0)
+                      : raw.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4);
+                    return items.map((item, i) => (
                       <li key={i}>
                         <span className="trip-note-bullet" />
-                        <span dangerouslySetInnerHTML={{ __html: sentence.trim() }} />
+                        <span dangerouslySetInnerHTML={{ __html: item.trim() }} />
                       </li>
-                    ))}
-                  </ul>
+                    ));
+                  })()}
+                </ul>
                 </div>
               </div>
             )}
