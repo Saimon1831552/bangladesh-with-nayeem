@@ -841,7 +841,7 @@ export default function TourDetails({ params }) {
                   {whyChoose.map((item, i) => (
                     <div key={i} className="why-card">
                       
-                      <span className="why-text" dangerouslySetInnerHTML={__html}>{item}</span>
+                      <span className="why-text" dangerouslySetInnerHTML={{ __html: item }} />
                     </div>
                   ))}
                 </div>
