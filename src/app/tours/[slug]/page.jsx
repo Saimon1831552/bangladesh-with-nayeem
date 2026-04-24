@@ -537,7 +537,7 @@ export default function TourDetails({ params }) {
                   </div>
                 )}
 
-                <div dangerouslySetInnerHTML={{ __html: tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.` }} />
+                <div className='text-justify' dangerouslySetInnerHTML={{ __html: tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.` }} />
               </div>
             </div>
 
@@ -550,7 +550,7 @@ export default function TourDetails({ params }) {
                   {highlights.map((h, i) => (
                     <li key={i}>
                       <span className="highlight-icon"><FaHandPointRight /></span>
-                      <span>{h}</span>
+                      <span dangerouslySetInnerHTML={{ __html: h }} />
                     </li>
                   ))}
                 </ul>
