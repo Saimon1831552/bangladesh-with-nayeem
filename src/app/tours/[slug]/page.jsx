@@ -188,9 +188,10 @@ export default function TourDetails({ params }) {
 
   // Active nav link on scroll
   useEffect(() => {
-    const ids = ['overview','highlights','itinerary','price','inclusion','why-naim','trip-note','faq','booking'];
+    const ids = ['overview','highlights','itinerary','price','inclusion','trip-note','why-naim','faq','booking'];
+    const NAV_HEIGHT = 56; // matches scroll-margin-top
     const onScroll = () => {
-      const offset = 130;
+      const offset = NAV_HEIGHT + 10;
       let active = ids[0];
       for (const id of ids) {
         const el = document.getElementById(id);
@@ -199,15 +200,18 @@ export default function TourDetails({ params }) {
       if (!navRef.current) return;
       navRef.current.querySelectorAll('a').forEach(a => {
         const href = a.getAttribute('href');
-        if (href === `#${active}`) {
+        const isActive = href === `#${active}`;
+        if (isActive) {
           a.classList.add('nav-active');
-          a.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+          // Scroll the active link into view inside the nav bar (horizontal scroll)
+          a.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
         } else {
           a.classList.remove('nav-active');
         }
       });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // run once on mount
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -321,14 +325,20 @@ export default function TourDetails({ params }) {
         /* ── Right column sticky wrapper ── */
         .right-col {
           position: sticky;
-          top: 24px;
+          top: 64px; /* section-nav height (~48px) + 16px gap */
           display: flex;
           flex-direction: column;
           gap: 24px;
+          max-height: calc(100vh - 72px);
+          overflow-y: auto;
+          scrollbar-width: none;
         }
+        .right-col::-webkit-scrollbar { display: none; }
         @media(max-width: 1024px) {
           .right-col {
             position: static;
+            max-height: none;
+            overflow-y: visible;
           }
         }
 
@@ -468,15 +478,23 @@ export default function TourDetails({ params }) {
         .fade-up-3 { animation-delay: 0.4s; }
 
         /* ── Section Nav ── */
+        /*
+          The site-wide header is hidden (display:none) on this page,
+          so the section-nav sits at the very top of the viewport (top:0).
+          It has position:sticky so it scrolls with the page until it
+          hits top:0, then pins there for the rest of the scroll.
+          z-index:999 keeps it above all content including the right
+          sticky column (z-index:1).
+        */
         .section-nav {
           position: sticky;
           top: 0;
-          z-index: 90;
-          background: rgba(248,246,241,0.97);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          border-bottom: 1px solid #ede9e0;
-          box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+          z-index: 999;
+          background: rgba(248,246,241,0.98);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border-bottom: 2px solid #ede9e0;
+          box-shadow: 0 2px 20px rgba(0,0,0,0.08);
         }
         .section-nav-inner {
           max-width: 1280px;
@@ -492,7 +510,7 @@ export default function TourDetails({ params }) {
         .section-nav-inner a {
           flex-shrink: 0;
           display: block;
-          padding: 14px 15px;
+          padding: 15px 16px;
           font-size: 11.5px;
           font-weight: 600;
           color: #666;
@@ -500,6 +518,7 @@ export default function TourDetails({ params }) {
           letter-spacing: 0.04em;
           text-transform: uppercase;
           border-bottom: 2px solid transparent;
+          margin-bottom: -2px;
           transition: color 0.2s, border-color 0.2s;
           white-space: nowrap;
         }
@@ -508,24 +527,22 @@ export default function TourDetails({ params }) {
           color: #d97706;
           border-bottom-color: #d97706;
         }
-        @media(max-width: 1024px) { .section-nav { top: 0; } }
         @media(max-width: 640px) {
-          .section-nav { top: 0; }
           .section-nav-inner { padding: 0 12px; }
           .section-nav-inner a { padding: 12px 10px; font-size: 10px; }
         }
 
-        /* ── Scroll offset for sticky nav ── */
-        #hero, #overview, #highlights, #itinerary,
+        /* ── Scroll offset: nav height ~48px + 8px breathing room ── */
+        #overview, #highlights, #itinerary,
         #price, #inclusion, #why-naim, #trip-note,
         #faq, #booking {
-          scroll-margin-top: 50px;
+          scroll-margin-top: 56px;
         }
         @media(max-width: 640px) {
-          #hero, #overview, #highlights, #itinerary,
+          #overview, #highlights, #itinerary,
           #price, #inclusion, #why-naim, #trip-note,
           #faq, #booking {
-            scroll-margin-top: 44px;
+            scroll-margin-top: 48px;
           }
         }
 
