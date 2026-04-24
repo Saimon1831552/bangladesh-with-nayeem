@@ -537,7 +537,7 @@ export default function TourDetails({ params }) {
                   </div>
                 )}
 
-                <p>{tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.`}</p>
+                <div dangerouslySetInnerHTML={{ __html: tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.` }} />
               </div>
             </div>
 
