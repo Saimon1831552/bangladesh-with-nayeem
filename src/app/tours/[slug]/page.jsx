@@ -652,7 +652,7 @@ export default function TourDetails({ params }) {
                     {tripNote.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4).map((sentence, i) => (
                       <li key={i}>
                         <span className="trip-note-bullet" />
-                        <span>{sentence.trim()}</span>
+                        <span dangerouslySetInnerHTML={{ __html: sentence.trim() }} />
                       </li>
                     ))}
                   </ul>
@@ -811,7 +811,7 @@ export default function TourDetails({ params }) {
                 </>
               )}
 
-              <button className="reserve-btn">Reserve Now</button>
+              <button className="reserve-btn">Booking Now</button>
 
               <div className="secure-badge">
                 <FontAwesomeIcon icon={faShieldHalved} />
