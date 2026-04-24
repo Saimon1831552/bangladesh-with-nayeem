@@ -268,6 +268,9 @@ export default function TourDetails({ params }) {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
+        /* ── Hide site-wide header on this page only ── */
+        header { display: none !important; }
+
         /* ── Base ── */
         .page-wrap { font-family: 'DM Sans', sans-serif; background: #f8f6f1; min-height: 100vh; color: #1c1c1c; }
         .display-font { font-family: 'Cormorant Garamond', serif; }
@@ -420,31 +423,31 @@ export default function TourDetails({ params }) {
         .review-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
 
         /* ── Booking Widget ── */
-        .booking-widget { background: #1c1c1a; border-radius: 20px; padding: 22px; color: #fff; }
-        .widget-price { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 700; color: #fff; line-height: 1; }
-        .widget-pp { font-size: 12px; color: rgba(255,255,255,0.45); font-weight: 400; }
-        .widget-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 14px 0; }
-        .widget-row { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
-        .widget-field { padding: 10px 12px; cursor: pointer; transition: background 0.2s; }
+        .booking-widget { background: #1c1c1a; border-radius: 28px; padding: 36px; color: #fff; }
+        .widget-price { font-family: 'Cormorant Garamond', serif; font-size: 3.2rem; font-weight: 700; color: #fff; line-height: 1; }
+        .widget-pp { font-size: 14px; color: rgba(255,255,255,0.45); font-weight: 400; }
+        .widget-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 24px 0; }
+        .widget-row { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; overflow: hidden; margin-bottom: 14px; }
+        .widget-field { padding: 16px; cursor: pointer; transition: background 0.2s; }
         .widget-field:hover { background: rgba(255,255,255,0.05); }
         .widget-field:first-child { border-right: 1px solid rgba(255,255,255,0.12); }
-        .widget-field label { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); margin-bottom: 3px; }
-        .widget-field span { font-size: 12px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 5px; }
-        .guest-row { border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .guest-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); display: block; margin-bottom: 2px; }
-        .guest-count { font-size: 13px; color: #fff; font-weight: 600; }
-        .guest-controls { display: flex; align-items: center; gap: 10px; }
-        .guest-btn { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: transparent; color: #fff; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; line-height: 1; }
+        .widget-field label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+        .widget-field span { font-size: 13px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 6px; }
+        .guest-row { border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .guest-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); display: block; margin-bottom: 2px; }
+        .guest-count { font-size: 15px; color: #fff; font-weight: 600; }
+        .guest-controls { display: flex; align-items: center; gap: 12px; }
+        .guest-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: transparent; color: #fff; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; line-height: 1; }
         .guest-btn:hover { background: rgba(255,255,255,0.1); }
-        .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .price-row-label { font-size: 12px; color: rgba(255,255,255,0.5); }
-        .price-row-val { font-size: 13px; color: rgba(255,255,255,0.85); font-weight: 500; }
-        .total-row { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 4px; margin-bottom: 16px; }
-        .total-label { font-size: 13px; font-weight: 600; color: #fff; }
-        .total-val { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; color: #d97706; }
-        .reserve-btn { width: 100%; padding: 13px; border-radius: 12px; background: #d97706; border: none; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 0.04em; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; font-family: 'DM Sans', sans-serif; }
-        .reserve-btn:hover { background: #b45309; transform: translateY(-2px); box-shadow: 0 10px 22px rgba(217,119,6,0.35); }
-        .secure-badge { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.35); font-weight: 500; margin-top: 12px; letter-spacing: 0.04em; }
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .price-row-label { font-size: 13px; color: rgba(255,255,255,0.5); }
+        .price-row-val { font-size: 14px; color: rgba(255,255,255,0.85); font-weight: 500; }
+        .total-row { display: flex; justify-content: space-between; align-items: center; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 6px; margin-bottom: 24px; }
+        .total-label { font-size: 15px; font-weight: 600; color: #fff; }
+        .total-val { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: #d97706; }
+        .reserve-btn { width: 100%; padding: 18px; border-radius: 16px; background: #d97706; border: none; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 0.04em; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; font-family: 'DM Sans', sans-serif; }
+        .reserve-btn:hover { background: #b45309; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(217,119,6,0.35); }
+        .secure-badge { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; margin-top: 16px; letter-spacing: 0.04em; }
 
         /* ── FAQ (right column) ── */
         .faq-section { margin-bottom: 0; }
@@ -467,7 +470,7 @@ export default function TourDetails({ params }) {
         /* ── Section Nav ── */
         .section-nav {
           position: sticky;
-          top: 70px;
+          top: 0;
           z-index: 90;
           background: rgba(248,246,241,0.97);
           backdrop-filter: blur(14px);
@@ -505,24 +508,24 @@ export default function TourDetails({ params }) {
           color: #d97706;
           border-bottom-color: #d97706;
         }
-        @media(max-width: 1024px) { .section-nav { top: 60px; } }
+        @media(max-width: 1024px) { .section-nav { top: 0; } }
         @media(max-width: 640px) {
-          .section-nav { top: 56px; }
+          .section-nav { top: 0; }
           .section-nav-inner { padding: 0 12px; }
           .section-nav-inner a { padding: 12px 10px; font-size: 10px; }
         }
 
-        /* ── Scroll offset for sticky nav + site header ── */
+        /* ── Scroll offset for sticky nav ── */
         #hero, #overview, #highlights, #itinerary,
         #price, #inclusion, #why-naim, #trip-note,
         #faq, #booking {
-          scroll-margin-top: 120px;
+          scroll-margin-top: 50px;
         }
         @media(max-width: 640px) {
           #hero, #overview, #highlights, #itinerary,
           #price, #inclusion, #why-naim, #trip-note,
           #faq, #booking {
-            scroll-margin-top: 104px;
+            scroll-margin-top: 44px;
           }
         }
 
@@ -603,7 +606,20 @@ export default function TourDetails({ params }) {
         </div>
         {/* ══════════════════════════════ END HERO ══════════════════════════════ */}
 
-
+        {/* ══════════════════════════════ SECTION NAV ══════════════════════════════ */}
+        <nav className="section-nav">
+          <div ref={navRef} className="section-nav-inner">
+            <a href="#overview">Overview</a>
+            <a href="#highlights">Tour Highlights</a>
+            <a href="#itinerary">Itinerary</a>
+            <a href="#price">Tour Price</a>
+            <a href="#inclusion">Inclusion / Exclusion</a>
+            <a href="#trip-note">Trip Note</a>
+            <a href="#faq">FAQ</a>
+            <a href="#why-naim">Why Book With Naim?</a>
+            <a href="#booking" style={{ color: '#d97706', fontWeight: 700 }}>Booking Now</a>
+          </div>
+        </nav>
 
         {/* ══════════════════════════════ MAIN CONTENT ══════════════════════════════ */}
         <div className="main">
@@ -825,7 +841,7 @@ export default function TourDetails({ params }) {
                   {whyChoose.map((item, i) => (
                     <div key={i} className="why-card">
                       
-                      <span className="why-text" dangerouslySetInnerHTML={{ __html: item }} />
+                      <span className="why-text" dangerouslySetInnerHTML={__html}>{item}</span>
                     </div>
                   ))}
                 </div>
