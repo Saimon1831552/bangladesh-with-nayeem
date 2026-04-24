@@ -566,9 +566,9 @@ export default function TourDetails({ params }) {
                   <div key={item.day} className="timeline-item">
                     <div className="day-bubble" style={{ background: item.color }}>{item.day}</div>
                     <div className="timeline-card">
-                      <div className="day-label">Day {item.day}</div>
-                      <h3>{item.title}</h3>
-                      <p>{item.desc}</p>
+                      <div className="day-label">{(item.day>1)? `Day ${item.day}` : 'Day'}</div>
+                      <h3 className='text-justify'>{item.title}</h3>
+                      <p className='text-justify'>{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -657,7 +657,7 @@ export default function TourDetails({ params }) {
                       : raw.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4);
                     return items.map((item, i) => (
                       <li key={i}>
-                        <span className="trip-note-bullet" />
+                        <span className="trip-note-bullet text-justify" />
                         <span dangerouslySetInnerHTML={{ __html: item.trim() }} />
                       </li>
                     ));
