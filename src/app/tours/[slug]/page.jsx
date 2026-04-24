@@ -188,7 +188,7 @@ export default function TourDetails({ params }) {
 
   // Active nav link on scroll
   useEffect(() => {
-    const ids = ['hero','overview','highlights','itinerary','price','inclusion','why-naim','trip-note','faq','booking'];
+    const ids = ['overview','highlights','itinerary','price','inclusion','why-naim','trip-note','faq','booking'];
     const onScroll = () => {
       const offset = 130;
       let active = ids[0];
@@ -606,7 +606,6 @@ export default function TourDetails({ params }) {
         {/* ══════════════════════════════ SECTION NAV ══════════════════════════════ */}
         <nav className="section-nav">
           <div ref={navRef} className="section-nav-inner">
-            <a href="#hero">Hero</a>
             <a href="#overview">Overview</a>
             <a href="#highlights">Tour Highlights</a>
             <a href="#itinerary">Itinerary</a>
@@ -692,97 +691,6 @@ export default function TourDetails({ params }) {
               </div>
             </div>
 
-            {/* 4. Included / Excluded */}
-            <div id="inclusion" className="section-block">
-              <div className="section-eyebrow">What's Covered</div>
-              <div className="section-title">Inclusions &amp; Exclusions</div>
-              <div className="inc-exc-grid">
-                <div className="inc-card">
-                  <div className="corner-blob" style={{ background: '#d1fae5' }} />
-                  <h3>What's Included</h3>
-                  <ul className="inc-list">
-                    {(tour.included || [
-                      'English-speaking expert guide',
-                      'All meals & mineral water',
-                      'Private accommodation',
-                      'All permits & entrance fees',
-                    ]).map((item, i) => (
-                      <li key={i}>
-                        <span className="check-dot" style={{ background: '#dcfce7', color: '#16a34a' }}>
-                          <FontAwesomeIcon icon={faCheck} />
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="exc-card">
-                  <div className="corner-blob" style={{ background: '#fee2e2' }} />
-                  <h3>What's Excluded</h3>
-                  <ul className="exc-list">
-                    {(tour.excluded || [
-                      'International flights',
-                      'Personal expenses & tipping',
-                      'Travel insurance',
-                    ]).map((item, i) => (
-                      <li key={i}>
-                        <span className="check-dot" style={{ background: '#fee2e2', color: '#ef4444' }}>
-                          <FontAwesomeIcon icon={faXmark} />
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* 5. Why Choose Us */}
-            {whyChoose.length > 0 && (
-              <div id="why-naim" className="section-block">
-                <div className="section-eyebrow">Our Promise</div>
-                <div className="section-title">Why Book This Tour With Naim?</div>
-                <div className="why-grid">
-                  {whyChoose.map((item, i) => (
-                    <div key={i} className="why-card">
-                      <div className="why-icon">
-                        <span style={{ fontSize: 13, fontWeight: 800, color: '#15803d', fontFamily: "'Cormorant Garamond', serif" }}>{i + 1}</span>
-                      </div>
-                      <span className="why-text">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 6. Trip Note */}
-            {tripNote && (
-              <div id="trip-note" className="section-block">
-                <div className="section-eyebrow">Important</div>
-                <div className="section-title">Trip Note</div>
-                <div className="trip-note-box">
-                  <div className="trip-note-header">
-                    <FontAwesomeIcon icon={faCircleInfo} className="trip-note-icon" />
-                    <span className="trip-note-title">Please read before booking</span>
-                  </div>
-                  <ul className="trip-note-list">
-                  {(() => {
-                    const raw = tripNote.trim();
-                    // If data uses <strong> tags as bullet headers, split before each <strong>
-                    const items = raw.includes('<strong>')
-                      ? raw.split(/(?=<strong>)/).map(s => s.trim()).filter(s => s.length > 0)
-                      : raw.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4);
-                    return items.map((item, i) => (
-                      <li key={i}>
-                        <span className="trip-note-bullet text-justify" />
-                        <span dangerouslySetInnerHTML={{ __html: item.trim() }} />
-                      </li>
-                    ));
-                  })()}
-                </ul>
-                </div>
-              </div>
-            )}
 
             {/* 7. Price & Offers */}
             <div id="price" className="section-block">
@@ -843,6 +751,99 @@ export default function TourDetails({ params }) {
                 </p>
               </div>
             </div>
+
+            {/* 4. Included / Excluded */}
+            <div id="inclusion" className="section-block">
+              <div className="section-eyebrow">What's Covered</div>
+              <div className="section-title">Inclusions &amp; Exclusions</div>
+              <div className="inc-exc-grid">
+                <div className="inc-card">
+                  <div className="corner-blob" style={{ background: '#d1fae5' }} />
+                  <h3>What's Included</h3>
+                  <ul className="inc-list">
+                    {(tour.included || [
+                      'English-speaking expert guide',
+                      'All meals & mineral water',
+                      'Private accommodation',
+                      'All permits & entrance fees',
+                    ]).map((item, i) => (
+                      <li key={i}>
+                        <span className="check-dot" style={{ background: '#dcfce7', color: '#16a34a' }}>
+                          <FontAwesomeIcon icon={faCheck} />
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="exc-card">
+                  <div className="corner-blob" style={{ background: '#fee2e2' }} />
+                  <h3>What's Excluded</h3>
+                  <ul className="exc-list">
+                    {(tour.excluded || [
+                      'International flights',
+                      'Personal expenses & tipping',
+                      'Travel insurance',
+                    ]).map((item, i) => (
+                      <li key={i}>
+                        <span className="check-dot" style={{ background: '#fee2e2', color: '#ef4444' }}>
+                          <FontAwesomeIcon icon={faXmark} />
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+
+
+            {/* 6. Trip Note */}
+            {tripNote && (
+              <div id="trip-note" className="section-block">
+                <div className="section-eyebrow">Important</div>
+                <div className="section-title">Trip Note</div>
+                <div className="trip-note-box">
+                  <div className="trip-note-header">
+                    <FontAwesomeIcon icon={faCircleInfo} className="trip-note-icon" />
+                    <span className="trip-note-title">Please read before booking</span>
+                  </div>
+                  <ul className="trip-note-list">
+                  {(() => {
+                    const raw = tripNote.trim();
+                    // If data uses <strong> tags as bullet headers, split before each <strong>
+                    const items = raw.includes('<strong>')
+                      ? raw.split(/(?=<strong>)/).map(s => s.trim()).filter(s => s.length > 0)
+                      : raw.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4);
+                    return items.map((item, i) => (
+                      <li key={i}>
+                        <span className="trip-note-bullet text-justify" />
+                        <span dangerouslySetInnerHTML={{ __html: item.trim() }} />
+                      </li>
+                    ));
+                  })()}
+                </ul>
+                </div>
+              </div>
+            )}
+
+
+           {/* 5. Why Choose Us */}
+            {whyChoose.length > 0 && (
+              <div id="why-naim" className="section-block">
+                <div className="section-eyebrow">Our Promise</div>
+                <div className="section-title">Why Book This Tour With Naim?</div>
+                <div className="why-grid">
+                  {whyChoose.map((item, i) => (
+                    <div key={i} className="why-card">
+                      
+                      <span className="why-text" dangerouslySetInnerHTML={{ __html: item }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 8. Reviews */}
             {reviews.length > 0 && (
