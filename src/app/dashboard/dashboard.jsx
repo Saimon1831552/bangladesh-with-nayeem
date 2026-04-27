@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth, ADMIN_EMAILS } from "@/lib/firebase";
 
 // ── Google Font injection ─────────────────────────────────────────────────────
 const FontLoader = () => (
@@ -1104,14 +1107,25 @@ const NAV = [
   { id:"gallery",   label:"Gallery",   icon:P.gallery },
 ];
 
-// ── ROOT APP ──────────────────────────────────────────────────────────────────
-export default function App() {
+export default function AdminDashboardPage() {
   const [active, setActive] = useState("dashboard");
   const [stats, setStats] = useState({ tours:0, blogs:0, reviews:0, gallery:0, recentTours:[], recentReviews:[] });
   const [toast, setToast] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const showToast = useCallback((msg, type="success") => setToast({ msg, type }), []);
+  const router = useRouter();
+
+  // ── Auth guard: redirect to login if not admin ────────────────────────────
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, user => {
+      if (!user || !ADMIN_EMAILS.includes(user.email)) {
+        router.replace("/dashboard/login");
+      }
+    });
+    return unsub;
+  }, [router]);
+
 
   // Escape the parent site layout (header/footer) by tagging <body>
   useEffect(() => {
@@ -1199,15 +1213,24 @@ export default function App() {
             })}
           </nav>
 
-          {/* Footer user */}
+          {/* Footer user + sign out */}
           <div style={{ padding:"14px 12px", borderTop:"1px solid var(--sidebar-border)", display:"flex", alignItems:"center", gap:10, flexShrink:0, overflow:"hidden" }}>
             <div style={{ width:34, height:34, borderRadius:"50%", background:"rgba(26,107,74,.3)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:800, color:"#6ee7b7", flexShrink:0 }}>N</div>
             {sidebarOpen && (
-              <div style={{ overflow:"hidden" }}>
+              <div style={{ overflow:"hidden", flex:1 }}>
                 <div style={{ fontSize:13, fontWeight:700, color:"#fff", whiteSpace:"nowrap" }}>Nayeem Islam</div>
                 <div style={{ fontSize:11, color:"var(--sidebar-text)", whiteSpace:"nowrap" }}>Administrator</div>
               </div>
             )}
+            <button
+              onClick={() => signOut(auth)}
+              title="Sign Out"
+              style={{ width:30, height:30, borderRadius:8, background:"rgba(192,52,74,0.15)", border:"1px solid rgba(192,52,74,0.25)", color:"#f87171", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"background .15s" }}
+              onMouseEnter={e => e.currentTarget.style.background="rgba(192,52,74,0.3)"}
+              onMouseLeave={e => e.currentTarget.style.background="rgba(192,52,74,0.15)"}
+            >
+              <Ico d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4 M16 17l5-5-5-5 M21 12H9" size={14} />
+            </button>
           </div>
         </aside>
 
