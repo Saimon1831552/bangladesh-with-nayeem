@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth, ADMIN_EMAILS } from "@/lib/firebase";
+import { auth, ADMIN_EMAILS } from "@/auth/firebase";
 
 // ── Google Font injection ─────────────────────────────────────────────────────
 const FontLoader = () => (

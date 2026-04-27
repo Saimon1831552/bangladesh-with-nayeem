@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, ADMIN_EMAILS } from "@/lib/firebase";
+import { auth, ADMIN_EMAILS } from "@/auth/firebase";
 import TravelAdminDashboard from "./dashboard";
 
 export default function AdminPage() {
