@@ -3,7 +3,7 @@ import Blog from './blog';
 
 export const dynamic = 'force-dynamic';
 
-const API_BASE = (process.env.RAILWAY_PUBLIC_DOMAIN)
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL)
   .replace(/\/api\/?$/, '');
 
 export default async function BlogsPage() {
