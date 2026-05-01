@@ -12,10 +12,10 @@ import {
   faUsers, faBus, faPlus, faBolt
 } from '@fortawesome/free-solid-svg-icons';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://bangladesh-with-nayeem-production.up.railway.app/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 async function fetchTour(slug) {
-  const res = await fetch(`${API_BASE}/tours/${slug}`, { cache: 'no-store' });
+  const res = await fetch(`${API_BASE}api/tours/${slug}`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`Tour not found (${res.status})`);
   const json = await res.json();
   return json.data;
@@ -23,7 +23,7 @@ async function fetchTour(slug) {
 
 async function fetchGallery(tourId) {
   try {
-    const res = await fetch(`${API_BASE}/gallery?tour_id=${tourId}`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE}api/gallery?tour_id=${tourId}`, { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || [];
@@ -34,7 +34,7 @@ async function fetchGallery(tourId) {
 
 async function fetchReviews(tourId) {
   try {
-    const res = await fetch(`${API_BASE}/reviews?tour_id=${tourId}`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE}api/reviews?tour_id=${tourId}`, { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || [];
