@@ -9,10 +9,9 @@ import {
   faSpinner, faTriangleExclamation, faSliders, faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons';
 
-// ✅ Fix 1: No trailing /api — keep base clean
 const API_BASE = process.env.NEXT_PUBLIC_API_URL
   ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, '')
-  : 'https://bangladesh-with-nayeem-production.up.railway.app';
+  : '';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800&q=80';
 const TOUR_TYPES = ['day', 'multiday', 'holiday', 'adventure', 'wildlife', 'cultural'];
