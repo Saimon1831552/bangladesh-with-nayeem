@@ -419,7 +419,41 @@ function Section({ title, icon, onAdd, count, loading, onRefresh, extra, childre
 }
 
 // ── TOURS SECTION ─────────────────────────────────────────────────────────────
-const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", why_choose:"[]", itinerary:"[]", trip_note:"", faq:"[]", isFeatured:0 };
+const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", why_choose:"[]", itinerary:"[]", trip_note:"", faq:"[]", isFeatured:0, gallery_img:[], included:[], excluded:[] };
+
+// ── Dynamic list editor (gallery images / included / excluded) ─────────────────
+function ListEditor({ label, color="teal", icon, items, onChange, placeholder }) {
+  const add    = () => onChange([...items, ""]);
+  const update = (i, v) => { const n=[...items]; n[i]=v; onChange(n); };
+  const remove = (i) => onChange(items.filter((_,j)=>j!==i));
+  const accent = color==="green" ? "#15803d" : color==="red" ? "#dc2626" : "#1A6B4A";
+  const soft   = color==="green" ? "#f0fdf4" : color==="red" ? "#fff5f5" : "#eaf4ef";
+  const border = color==="green" ? "#bbf7d0" : color==="red" ? "#fecaca" : "#b2d9c6";
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:2}}>
+        <label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>{label}</label>
+        <button type="button" className="btn btn-ghost" style={{padding:"5px 12px",fontSize:12,gap:5}} onClick={add}>
+          <Ico d={P.plus} size={12} stroke={2.5}/> Add
+        </button>
+      </div>
+      {items.length===0 && (
+        <div style={{padding:"12px 16px",background:"var(--surface-2)",borderRadius:"var(--radius-md)",border:"1.5px dashed var(--border)",fontSize:13,color:"var(--ink-4)",textAlign:"center"}}>
+          No items yet — click Add
+        </div>
+      )}
+      {items.map((item,i)=>(
+        <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
+          <div style={{width:28,height:28,borderRadius:"50%",background:soft,border:`1.5px solid ${border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:accent,fontSize:12,fontWeight:700}}>{i+1}</div>
+          <input className="inp" value={item} onChange={e=>update(i,e.target.value)} placeholder={placeholder} style={{flex:1}}/>
+          <button type="button" className="btn-icon del" style={{flexShrink:0}} onClick={()=>remove(i)} title="Remove">
+            <Ico d={P.close} size={13}/>
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function ToursSection({ toast }) {
   const [data,setData]=useState([]); const [search,setSearch]=useState(""); const [filterType,setFilterType]=useState(""); const [filterLoc,setFilterLoc]=useState("");
@@ -437,24 +471,19 @@ function ToursSection({ toast }) {
   const openAdd=()=>{setForm(TOUR_DEFAULTS);setModal("add");};
   
   const openEdit=(r)=>{
-    // Parse JSON safely for the textareas if the API returned them as objects/arrays
-    let hl = r.highlights;
-    let it = r.itinerary;
-    let wc = r.why_choose;
-    let fq = r.faq;
+    let hl = r.highlights; let it = r.itinerary; let wc = r.why_choose; let fq = r.faq;
     if (typeof hl === 'object' && hl !== null) hl = JSON.stringify(hl, null, 2);
     if (typeof it === 'object' && it !== null) it = JSON.stringify(it, null, 2);
     if (typeof wc === 'object' && wc !== null) wc = JSON.stringify(wc, null, 2);
     if (typeof fq === 'object' && fq !== null) fq = JSON.stringify(fq, null, 2);
-
+    const parseArr=(v)=>{if(Array.isArray(v))return v;if(typeof v==='string'){try{const p=JSON.parse(v);return Array.isArray(p)?p:[];}catch{return[];}}return[];};
     setForm({
       ...r,
-      highlights: hl || "[]",
-      itinerary: it || "[]",
-      why_choose: wc || "[]",
-      faq: fq || "[]",
-      overview: r.overview || "",
-      trip_note: r.trip_note || "",
+      highlights: hl || "[]", itinerary: it || "[]", why_choose: wc || "[]", faq: fq || "[]",
+      overview: r.overview || "", trip_note: r.trip_note || "",
+      gallery_img: parseArr(r.gallery_img),
+      included: parseArr(r.included),
+      excluded: parseArr(r.excluded),
     });
     setModal("edit");
   };
@@ -487,6 +516,9 @@ function ToursSection({ toast }) {
       faq: parsedFaq,
       overview: form.overview || null,
       trip_note: form.trip_note || null,
+      gallery_img: form.gallery_img || [],
+      included:   form.included   || [],
+      excluded:   form.excluded   || [],
     };
 
     const res=modal==="add"?await api.post("/tours",body):await api.put(`/tours/${form.id}`,body);
@@ -512,10 +544,14 @@ function ToursSection({ toast }) {
       </SearchBar>
 
       <Table
-        cols={["Tour","Destination","Details","Price","Rating","Type"]}
+        cols={["Tour","Destination","Details","Price","Gallery","Inc / Exc","Rating","Type"]}
         rows={filtered} onEdit={openEdit} onDelete={setConfirm}
-        renderCell={r=>(
-          <>
+        renderCell={r=>{
+          const parseArr=(v)=>{if(Array.isArray(v))return v;if(typeof v==='string'){try{const p=JSON.parse(v);return Array.isArray(p)?p:[];}catch{return[];}}return[];};
+          const imgs=parseArr(r.gallery_img);
+          const inc=parseArr(r.included);
+          const exc=parseArr(r.excluded);
+          return(<>
             <td style={{padding:"14px 18px"}}>
               <div style={{display:"flex",alignItems:"center",gap:12}}>
                 {r.image_url
@@ -530,7 +566,7 @@ function ToursSection({ toast }) {
             </td>
             <td style={{padding:"14px 18px"}}>
               <span style={{display:"flex",alignItems:"center",gap:5,fontSize:13,color:"var(--ink-2)"}}>
-                <Ico d={P.map} size={13} style={{color:"var(--accent)",flexShrink:0}} />{r.location}
+                <Ico d={P.map} size={13} style={{color:"var(--accent)",flexShrink:0}}/>{r.location}
               </span>
             </td>
             <td style={{padding:"14px 18px",fontSize:12.5,color:"var(--ink-3)"}}>
@@ -538,6 +574,38 @@ function ToursSection({ toast }) {
               <div><span style={{fontWeight:600,color:"var(--ink-2)"}}>Size: </span>{r.group_size}</div>
             </td>
             <td style={{padding:"14px 18px"}}><span style={{fontWeight:800,fontSize:16,color:"var(--ink)"}}>{r.price?`$${r.price}`:"—"}</span></td>
+
+            {/* ── Gallery column ── */}
+            <td style={{padding:"14px 18px"}}>
+              {imgs.length>0
+                ?<div style={{display:"flex",flexDirection:"column",gap:5}}>
+                    <div style={{display:"flex",gap:3}}>
+                      {imgs.slice(0,3).map((u,i)=>(
+                        <img key={i} src={u} alt="" style={{width:30,height:30,borderRadius:6,objectFit:"cover",border:"1.5px solid var(--border)"}} onError={e=>e.target.style.display="none"}/>
+                      ))}
+                      {imgs.length>3&&<div style={{width:30,height:30,borderRadius:6,background:"var(--surface-3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:"var(--ink-3)",border:"1.5px solid var(--border)"}}>+{imgs.length-3}</div>}
+                    </div>
+                    <span style={{fontSize:11,color:"var(--ink-3)"}}>{imgs.length} image{imgs.length!==1?"s":""}</span>
+                  </div>
+                :<span style={{color:"var(--ink-4)",fontSize:12}}>—</span>
+              }
+            </td>
+
+            {/* ── Included / Excluded column ── */}
+            <td style={{padding:"14px 18px"}}>
+              {(inc.length>0||exc.length>0)
+                ?<div style={{display:"flex",flexDirection:"column",gap:3}}>
+                    <span style={{display:"flex",alignItems:"center",gap:4,fontSize:12,color:"#15803d",fontWeight:600}}>
+                      <Ico d={P.check} size={11} stroke={2.5}/>{inc.length} included
+                    </span>
+                    <span style={{display:"flex",alignItems:"center",gap:4,fontSize:12,color:"var(--rose)",fontWeight:600}}>
+                      <Ico d={P.close} size={11} stroke={2.5}/>{exc.length} excluded
+                    </span>
+                  </div>
+                :<span style={{color:"var(--ink-4)",fontSize:12}}>—</span>
+              }
+            </td>
+
             <td style={{padding:"14px 18px"}}>
               {r.rating
                 ?<span style={{display:"inline-flex",alignItems:"center",gap:5,background:"var(--amber-soft)",color:"var(--amber)",fontWeight:700,fontSize:13,padding:"4px 10px",borderRadius:99,border:"1px solid #f5d98a"}}>
@@ -548,12 +616,12 @@ function ToursSection({ toast }) {
             </td>
             <td style={{padding:"14px 18px"}}>
               <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                {r.isFeatured ? <Badge color="amber">Featured</Badge> : null}
+                {r.isFeatured?<Badge color="amber">Featured</Badge>:null}
                 {r.tour_type?.split(",").filter(Boolean).map(t=><Badge key={t} color="teal">{t.trim()}</Badge>)}
               </div>
             </td>
-          </>
-        )}
+          </>);
+        }}
       />
 
       {modal&&(
@@ -568,9 +636,48 @@ function ToursSection({ toast }) {
             <Field label="Rating"><input type="number" step=".1" min="0" max="5" className="inp" value={form.rating} onChange={f("rating")} placeholder="4.8" /></Field>
             <Field label="Review Count"><input type="number" className="inp" value={form.review_count} onChange={f("review_count")} placeholder="0" /></Field>
             <Field label="Categories (comma-separated)"><input className="inp" value={form.tour_type} onChange={f("tour_type")} placeholder="multiday, holiday, day" /></Field>
-            <Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://…" /></Field>
-            
+            <Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://… (hero image)" /></Field>
+
             <div style={{gridColumn:"1/-1"}}><Field label="Overview"><textarea className="inp" rows={3} value={form.overview} onChange={f("overview")} placeholder="A short paragraph describing this tour to potential visitors..." /></Field></div>
+
+            {/* ── Gallery Images ── */}
+            <div style={{gridColumn:"1/-1",background:"var(--blue-soft)",border:"1px solid #aecbee",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>
+              <ListEditor
+                label="Tour Gallery Images"
+                color="teal"
+                items={form.gallery_img||[]}
+                onChange={v=>setForm(p=>({...p,gallery_img:v}))}
+                placeholder="https://… (image URL)"
+              />
+              {(form.gallery_img||[]).length>0&&(
+                <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:12}}>
+                  {form.gallery_img.filter(Boolean).map((u,i)=>(
+                    <img key={i} src={u} alt="" style={{width:60,height:60,borderRadius:"var(--radius-md)",objectFit:"cover",border:"2px solid var(--border)"}} onError={e=>e.target.style.display="none"}/>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── Included / Excluded ── */}
+            <div style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>
+              <ListEditor
+                label="✓ What's Included"
+                color="green"
+                items={form.included||[]}
+                onChange={v=>setForm(p=>({...p,included:v}))}
+                placeholder="e.g. Expert local guide"
+              />
+            </div>
+            <div style={{background:"#fff5f5",border:"1px solid #fecaca",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>
+              <ListEditor
+                label="✗ What's Excluded"
+                color="red"
+                items={form.excluded||[]}
+                onChange={v=>setForm(p=>({...p,excluded:v}))}
+                placeholder="e.g. International flights"
+              />
+            </div>
+
             <div style={{gridColumn:"1/-1"}}><Field label="Highlights (JSON Array)"><textarea className="inp" rows={3} value={form.highlights} onChange={f("highlights")} placeholder='["See the mountains", "Enjoy local food"]' /></Field></div>
             <div style={{gridColumn:"1/-1"}}><Field label="Why Choose Us (JSON Array)"><textarea className="inp" rows={3} value={form.why_choose} onChange={f("why_choose")} placeholder='["Expert local guides", "Small group sizes", "All-inclusive pricing"]' /></Field></div>
             <div style={{gridColumn:"1/-1"}}><Field label="Itinerary (JSON Array)"><textarea className="inp" rows={4} value={form.itinerary} onChange={f("itinerary")} placeholder='[{"day": 1, "title": "Arrival", "desc": "Settle into the hotel."}]' /></Field></div>

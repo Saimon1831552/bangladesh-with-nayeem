@@ -239,11 +239,29 @@ export default function TourDetails({ params }) {
   if (error || !tour) return <ErrorPage msg={error || 'Tour data unavailable.'} />;
 
   // ── Derived data ──────────────────────────────────────────────────────────
-  const images = gallery.length > 0
-    ? gallery.map(g => g.image_url)
-    : tour.image_url
-      ? [tour.image_url]
-      : ['https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=2000&q=80'];
+
+  // Parse gallery_img stored directly on the tour (set from dashboard)
+  const parseArr = (v) => {
+    if (Array.isArray(v)) return v.filter(Boolean);
+    if (typeof v === 'string') { try { const p = JSON.parse(v); return Array.isArray(p) ? p.filter(Boolean) : []; } catch { return []; } }
+    return [];
+  };
+
+  const tourGalleryImgs = parseArr(tour.gallery_img);
+  const galleryApiImgs  = gallery.map(g => g.image_url).filter(Boolean);
+
+  // Priority: tour.gallery_img → gallery API → tour.image_url → fallback
+  const images = tourGalleryImgs.length > 0
+    ? tourGalleryImgs
+    : galleryApiImgs.length > 0
+      ? galleryApiImgs
+      : tour.image_url
+        ? [tour.image_url]
+        : ['https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=2000&q=80'];
+
+  // Parse included / excluded — from tour directly (set from dashboard)
+  const includedItems = parseArr(tour.included);
+  const excludedItems = parseArr(tour.excluded);
 
   const priceNum  = parsePrice(tour.price);
   const priceFmt  = formatPrice(tour.price);
@@ -769,7 +787,7 @@ export default function TourDetails({ params }) {
                   <div className="corner-blob" style={{ background: '#d1fae5' }} />
                   <h3>What's Included</h3>
                   <ul className="inc-list">
-                    {(tour.included || [
+                    {(includedItems.length > 0 ? includedItems : [
                       'English-speaking expert guide',
                       'All meals & mineral water',
                       'Private accommodation',
@@ -779,7 +797,7 @@ export default function TourDetails({ params }) {
                         <span className="check-dot" style={{ background: '#dcfce7', color: '#16a34a' }}>
                           <FontAwesomeIcon icon={faCheck} />
                         </span>
-                        {item}
+                        <span dangerouslySetInnerHTML={{ __html: item }} />
                       </li>
                     ))}
                   </ul>
@@ -788,7 +806,7 @@ export default function TourDetails({ params }) {
                   <div className="corner-blob" style={{ background: '#fee2e2' }} />
                   <h3>What's Excluded</h3>
                   <ul className="exc-list">
-                    {(tour.excluded || [
+                    {(excludedItems.length > 0 ? excludedItems : [
                       'International flights',
                       'Personal expenses & tipping',
                       'Travel insurance',
@@ -797,7 +815,7 @@ export default function TourDetails({ params }) {
                         <span className="check-dot" style={{ background: '#fee2e2', color: '#ef4444' }}>
                           <FontAwesomeIcon icon={faXmark} />
                         </span>
-                        {item}
+                        <span dangerouslySetInnerHTML={{ __html: item }} />
                       </li>
                     ))}
                   </ul>
