@@ -183,11 +183,18 @@ export default function TourDetails({ params }) {
   const heroRef = useRef(null);
   const navRef  = useRef(null);
 
-  // Active nav link on scroll
+  // Hide site-wide header only on this page, restore on unmount
+  useEffect(() => {
+    const header = document.querySelector('header');
+    if (!header) return;
+    const prev = header.style.display;
+    header.style.setProperty('display', 'none', 'important');
+    return () => { header.style.display = prev; };
+  }, []);
   useEffect(() => {
     const ids = ['overview','highlights','itinerary','price','inclusion','trip-note','why-naim','faq','booking'];
-    // site header (70px) + section nav (46px) + buffer = 124px
-    const OFFSET = 130;
+    // site header is hidden on this page — only section nav (~46px) + buffer = 60px
+    const OFFSET = 60;
     const onScroll = () => {
       let active = ids[0];
       for (const id of ids) {
@@ -281,6 +288,9 @@ export default function TourDetails({ params }) {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
+        /* ── Hide global site header on this page only ── */
+        header:not([data-tour-nav]) { display: none !important; }
+
         /* ── Base ── */
         .page-wrap { font-family: 'DM Sans', sans-serif; background: #f8f6f1; min-height: 100vh; color: #1c1c1c; }
         .display-font { font-family: 'Cormorant Garamond', serif; }
@@ -330,12 +340,10 @@ export default function TourDetails({ params }) {
 
         /* ── Right column sticky wrapper ── */
         /*
-          top = site header (70px) + section nav (~46px) + 16px gap = 132px
-          No max-height constraint — FAQ must be fully visible without clipping.
-        */
+          /* top = section nav (~46px) + 16px gap = 62px (no site header) */
         .right-col {
           position: sticky;
-          top: 132px;
+          top: 62px;
           display: flex;
           flex-direction: column;
           gap: 24px;
@@ -481,14 +489,14 @@ export default function TourDetails({ params }) {
 
         /* ── Section Nav ── */
         /*
-          Site header is ~70px (position fixed/sticky).
-          Section nav sticks just below it: top: 70px.
-          z-index: 98 — above all content, below site header dropdowns (z~100).
+          Site header is hidden on this page (display:none).
+          Section nav is the only sticky element → top: 0.
+          scroll-margin-top = section nav height (~46px) + 8px = 54px.
         */
         .section-nav {
           position: sticky;
-          top: 70px;
-          z-index: 98;
+          top: 0;
+          z-index: 999;
           background: rgba(248,246,241,0.98);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
@@ -525,31 +533,21 @@ export default function TourDetails({ params }) {
           color: #d97706;
           border-bottom-color: #d97706;
         }
-        @media(max-width: 1024px) { .section-nav { top: 64px; } }
         @media(max-width: 640px) {
-          .section-nav { top: 56px; }
           .section-nav-inner { padding: 0 12px; }
           .section-nav-inner a { padding: 12px 10px; font-size: 10px; }
         }
 
-        /*
-          scroll-margin-top = site header (70px) + section nav (~46px) + 8px gap = 124px
-          This ensures clicked sections land just below the sticky nav, not hidden under it.
-        */
+        /* scroll-margin-top = section nav only (no site header) */
         #overview, #highlights, #itinerary,
         #price, #inclusion, #why-naim, #trip-note,
         #faq, #booking {
-          scroll-margin-top: 124px;
-        }
-        @media(max-width: 1024px) {
-          #overview, #highlights, #itinerary,
-          #price, #inclusion, #why-naim, #trip-note,
-          #faq, #booking { scroll-margin-top: 112px; }
+          scroll-margin-top: 54px;
         }
         @media(max-width: 640px) {
           #overview, #highlights, #itinerary,
           #price, #inclusion, #why-naim, #trip-note,
-          #faq, #booking { scroll-margin-top: 100px; }
+          #faq, #booking { scroll-margin-top: 46px; }
         }
 
         /* ── Text justify ── */
@@ -668,16 +666,6 @@ export default function TourDetails({ params }) {
               <div className="overview-block">
                 <div className="section-eyebrow">About This Tour</div>
                 <div className="section-title">Experience Overview</div>
-
-                {images.length >= 2 && (
-                  <div className="gallery-strip">
-                    <img src={images[0]} alt={`${tour.title} view 1`} onError={e => e.target.style.display='none'} />
-                    <div className="gallery-right">
-                      <img src={images[1] || images[0]} alt={`${tour.title} view 2`} onError={e => e.target.style.display='none'} />
-                      {images[2] && <img src={images[2]} alt={`${tour.title} view 3`} onError={e => e.target.style.display='none'} />}
-                    </div>
-                  </div>
-                )}
 
                 <div className='text-justify' dangerouslySetInnerHTML={{ __html: tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.` }} />
               </div>
