@@ -3,6 +3,19 @@ const router  = express.Router();
 const pool    = require('../db');
 const validatePatchFields = require('../utils/validatePatchFields');
 
+// ── JSON field helpers ────────────────────────────────────────────────────────
+const toJson  = (v) => JSON.stringify(Array.isArray(v) ? v : (v || []));
+const parseJsonField = (row, fields) => {
+  fields.forEach(f => {
+    if (row[f] && typeof row[f] === 'string') {
+      try { row[f] = JSON.parse(row[f]); } catch { row[f] = []; }
+    }
+    if (!row[f]) row[f] = [];
+  });
+  return row;
+};
+const JSON_FIELDS = ['highlights', 'why_choose', 'itinerary', 'faq', 'gallery_img', 'included', 'excluded'];
+
 // GET /api/tours
 router.get('/', async (req, res) => {
   try {
@@ -20,7 +33,8 @@ router.get('/', async (req, res) => {
     }
 
     const [rows] = await pool.query(query, params);
-    res.json({ success: true, count: rows.length, data: rows });
+    const data = rows.map(r => parseJsonField(r, JSON_FIELDS));
+    res.json({ success: true, count: data.length, data });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -33,7 +47,8 @@ router.get('/:id', async (req, res) => {
     const column = /^\d+$/.test(id) ? 'id' : 'slug';
     const [rows] = await pool.query(`SELECT * FROM tours WHERE ${column} = ?`, [id]);
     if (!rows.length) return res.status(404).json({ success: false, message: 'Tour not found' });
-    res.json({ success: true, data: rows[0] });
+    const data = parseJsonField(rows[0], JSON_FIELDS);
+    res.json({ success: true, data });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -42,21 +57,27 @@ router.get('/:id', async (req, res) => {
 // POST /api/tours
 router.post('/', async (req, res) => {
   try {
-    const { slug, title, overview, image_url, location, duration, group_size, price, rating, review_count, tour_type, isFeatured, highlights, why_choose, itinerary, trip_note, faq } = req.body;
+    const {
+      slug, title, overview, image_url, location, duration, group_size,
+      price, rating, review_count, tour_type, isFeatured,
+      highlights, why_choose, itinerary, trip_note, faq,
+      gallery_img, included, excluded,
+    } = req.body;
+
     if (!slug || !title) return res.status(400).json({ success: false, message: 'slug and title are required' });
 
-    const highlightsJson  = JSON.stringify(highlights  || []);
-    const whyChooseJson   = JSON.stringify(why_choose  || []);
-    const itineraryJson   = JSON.stringify(itinerary   || []);
-    const faqJson         = JSON.stringify(faq         || []);
-    const featuredVal     = isFeatured ? 1 : 0;
-
     const [result] = await pool.query(
-      `INSERT INTO tours (slug, title, overview, image_url, location, duration, group_size, price, rating,
-       review_count, tour_type, isFeatured, highlights, why_choose, itinerary, trip_note, faq)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [slug, title, overview ?? null, image_url, location, duration, group_size, price ?? null, rating ?? null,
-       review_count ?? 0, tour_type, featuredVal, highlightsJson, whyChooseJson, itineraryJson, trip_note ?? null, faqJson]
+      `INSERT INTO tours
+        (slug, title, overview, image_url, location, duration, group_size, price, rating,
+         review_count, tour_type, isFeatured, highlights, why_choose, itinerary, trip_note, faq,
+         gallery_img, included, excluded)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        slug, title, overview ?? null, image_url, location, duration, group_size,
+        price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
+        toJson(highlights), toJson(why_choose), toJson(itinerary), trip_note ?? null, toJson(faq),
+        toJson(gallery_img), toJson(included), toJson(excluded),
+      ]
     );
     res.status(201).json({ success: true, message: 'Tour created', data: { id: result.insertId, slug } });
   } catch (err) {
@@ -68,20 +89,27 @@ router.post('/', async (req, res) => {
 // PUT /api/tours/:id
 router.put('/:id', async (req, res) => {
   try {
-    const { slug, title, overview, image_url, location, duration, group_size, price, rating, review_count, tour_type, isFeatured, highlights, why_choose, itinerary, trip_note, faq } = req.body;
-
-    const highlightsJson  = JSON.stringify(highlights  || []);
-    const whyChooseJson   = JSON.stringify(why_choose  || []);
-    const itineraryJson   = JSON.stringify(itinerary   || []);
-    const faqJson         = JSON.stringify(faq         || []);
-    const featuredVal     = isFeatured ? 1 : 0;
+    const {
+      slug, title, overview, image_url, location, duration, group_size,
+      price, rating, review_count, tour_type, isFeatured,
+      highlights, why_choose, itinerary, trip_note, faq,
+      gallery_img, included, excluded,
+    } = req.body;
 
     const [result] = await pool.query(
-      `UPDATE tours SET slug=?, title=?, overview=?, image_url=?, location=?, duration=?, group_size=?,
-       price=?, rating=?, review_count=?, tour_type=?, isFeatured=?, highlights=?, why_choose=?, itinerary=?, trip_note=?, faq=?
+      `UPDATE tours SET
+        slug=?, title=?, overview=?, image_url=?, location=?, duration=?, group_size=?,
+        price=?, rating=?, review_count=?, tour_type=?, isFeatured=?,
+        highlights=?, why_choose=?, itinerary=?, trip_note=?, faq=?,
+        gallery_img=?, included=?, excluded=?
        WHERE id=?`,
-      [slug, title, overview ?? null, image_url, location, duration, group_size, price, rating,
-       review_count, tour_type, featuredVal, highlightsJson, whyChooseJson, itineraryJson, trip_note ?? null, faqJson, req.params.id]
+      [
+        slug, title, overview ?? null, image_url, location, duration, group_size,
+        price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
+        toJson(highlights), toJson(why_choose), toJson(itinerary), trip_note ?? null, toJson(faq),
+        toJson(gallery_img), toJson(included), toJson(excluded),
+        req.params.id,
+      ]
     );
     if (!result.affectedRows) return res.status(404).json({ success: false, message: 'Tour not found' });
     res.json({ success: true, message: 'Tour updated' });
@@ -90,7 +118,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// PATCH /api/tours/:id — ✅ Fix: whitelist fields + stringify JSON fields safely
+// PATCH /api/tours/:id
 router.patch('/:id', async (req, res) => {
   try {
     const { safeFields, rejected } = validatePatchFields('tours', req.body);
@@ -98,11 +126,10 @@ router.patch('/:id', async (req, res) => {
       return res.status(400).json({ success: false, message: 'No valid fields provided', ...(rejected.length ? { rejected } : {}) });
     }
 
-    // Stringify JSON fields if present
-    if (safeFields.highlights)  safeFields.highlights  = JSON.stringify(safeFields.highlights);
-    if (safeFields.why_choose)  safeFields.why_choose  = JSON.stringify(safeFields.why_choose);
-    if (safeFields.itinerary)   safeFields.itinerary   = JSON.stringify(safeFields.itinerary);
-    if (safeFields.faq)         safeFields.faq         = JSON.stringify(safeFields.faq);
+    // Stringify all JSON fields if present
+    JSON_FIELDS.forEach(f => {
+      if (safeFields[f] !== undefined) safeFields[f] = toJson(safeFields[f]);
+    });
 
     const setClauses = Object.keys(safeFields).map(k => `${k} = ?`).join(', ');
     const values     = [...Object.values(safeFields), req.params.id];
