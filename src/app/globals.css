@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+body.hide-layout header,
+body.hide-layout footer {
+  display: none !important;
+}
 
 :root {
   --background: #ffffff;

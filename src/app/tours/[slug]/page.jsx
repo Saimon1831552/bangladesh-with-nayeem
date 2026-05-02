@@ -183,17 +183,11 @@ export default function TourDetails({ params }) {
   const heroRef = useRef(null);
   const navRef  = useRef(null);
 
-  // Hide site-wide header AND footer only on this page, restore on unmount
+  // Add body class on mount → global CSS hides header/footer via globals.css rule
+  // Remove on unmount so other pages are unaffected
   useEffect(() => {
-    const targets = [
-      ...document.querySelectorAll('header'),
-      ...document.querySelectorAll('footer'),
-    ];
-    const prevValues = targets.map(el => el.style.display);
-    targets.forEach(el => el.style.setProperty('display', 'none', 'important'));
-    return () => {
-      targets.forEach((el, i) => { el.style.display = prevValues[i]; });
-    };
+    document.body.classList.add('hide-layout');
+    return () => { document.body.classList.remove('hide-layout'); };
   }, []);
   useEffect(() => {
     const ids = ['overview','highlights','itinerary','price','inclusion','trip-note','why-naim','faq','booking'];
@@ -291,20 +285,6 @@ export default function TourDetails({ params }) {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-        /* ── Hide global site header AND footer on this page only ── */
-        body > header,
-        body > footer,
-        body > div > header,
-        body > div > footer,
-        body > main > header,
-        body > main > footer,
-        header,
-        footer { display: none !important; }
-
-        /* Keep OUR section-nav visible even though it's inside a nav-like element */
-        .section-nav { display: block !important; }
-        .section-nav * { display: revert; }
 
         /* ── Base ── */
         .page-wrap { font-family: 'DM Sans', sans-serif; background: #f8f6f1; min-height: 100vh; color: #1c1c1c; }
