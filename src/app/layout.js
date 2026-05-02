@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navber from "@/components/shared/Navber/navber";
 import Footer from "@/components/ui/Footer/footer";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +20,7 @@ export const metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "Bangladesh Tour Packages | Explore Bangladesh With Naim",
+    default: "Explore Bangladesh With Naim — Private Local Tours",
     template: "%s | Bangladesh With Naim",
   },
 
@@ -45,9 +46,7 @@ export const metadata = {
   creator: "Naim",
   publisher: "Bangladesh With Naim",
 
-  alternates: {
-    canonical: "/",
-  },
+  alternates: { canonical: "/" },
 
   openGraph: {
     type: "website",
@@ -59,7 +58,7 @@ export const metadata = {
       "Private, personalized tours across Bangladesh. Heritage walks, Sundarbans safaris, tea garden escapes & more — all guided by your trusted local friend, Naim.",
     images: [
       {
-        url: "/og-image.jpg", // Place a 1200×630 image at /public/og-image.jpg
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Beautiful Bangladesh landscape — Bangladesh With Naim tours",
@@ -73,7 +72,7 @@ export const metadata = {
     description:
       "Skip the agencies. Book private Bangladesh tours directly with Naim — save 15–30% and travel like a local.",
     images: ["/og-image.jpg"],
-    creator: "@bangladeshwithnaim", // update if you have a Twitter/X handle
+    creator: "@bangladeshwithnaim",
   },
 
   robots: {
@@ -99,21 +98,29 @@ export const metadata = {
   manifest: "/site.webmanifest",
 
   verification: {
-    
     google: "google0112f4e428fe015b",
-    
   },
 };
 
-export default function RootLayout({ children }) {
+// Pages where Navber + Footer should be hidden
+const HIDE_LAYOUT_PATTERNS = [
+  /^\/tours\/[^/]+$/,   // /tours/any-slug
+];
+
+export default async function RootLayout({ children }) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") || headersList.get("x-invoke-path") || "";
+
+  const hideLayout = HIDE_LAYOUT_PATTERNS.some((pattern) =>
+    pattern.test(pathname)
+  );
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Navber />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {!hideLayout && <Navber />}
         {children}
-        <Footer />
+        {!hideLayout && <Footer />}
       </body>
     </html>
   );
