@@ -18,8 +18,8 @@ export default function Navbar() {
         
         {/* Inline SVG Logo */}
         <Link href="/">
-          <div className='bg-white rounded-lg'>
-            <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/tu_n4yxog' className='h-15' alt="" />
+          <div className='bg-white'>
+            <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/tu_n4yxog' className='h-14 rounded-xl' alt="" />
           </div>
         </Link>
 

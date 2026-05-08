@@ -1,5 +1,5 @@
 import React from 'react';
-import Review from './review';
+import TestimonialsPage from './testimonials';
 
 export default async function Page() {
   let reviews = [];
@@ -18,7 +18,7 @@ export default async function Page() {
 
   return (
     <div>
-      <Review reviews={reviews} />
+       <TestimonialsPage reviews={reviews} />
     </div>
   );
 }
