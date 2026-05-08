@@ -18,7 +18,9 @@ export default function Navbar() {
         
         {/* Inline SVG Logo */}
         <Link href="/">
-          <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/ty_j9l341' className='h-14' alt="" />
+          <div className='bg-white p-0.5'>
+            <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/ty_j9l341' className='h-30' alt="" />
+          </div>
         </Link>
 
         <nav className='hidden md:block'>
