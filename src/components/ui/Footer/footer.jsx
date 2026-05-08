@@ -34,7 +34,7 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <Link href="/" className="inline-block">
               <h3 className="text-2xl font-extrabold text-white tracking-tight">
-                Bangladesh with <span className="text-amber-500">Nayeem</span>
+                Bangladesh with <span className="text-amber-500">Naim</span>
               </h3>
             </Link>
             <p className="text-sm leading-relaxed text-gray-400">
@@ -163,8 +163,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-4">
                 <FontAwesomeIcon icon={faEnvelope} className="text-amber-500" />
-                <a href="mailto:info@bangladeshwithnayeem.com" className="text-sm hover:text-white transition-colors">
-                  info@bangladeshwithnayeem.com
+                <a href="mailto:info@bangladeshwithnaim.com" className="text-sm hover:text-white transition-colors">
+                  info@bangladeshwithnaim.com
                 </a>
               </li>
             </ul>
@@ -198,7 +198,7 @@ export default function Footer() {
         {/* Bottom Bar: Copyright & Legal */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500 text-center md:text-left">
-            &copy; {currentYear} Bangladesh with Nayeem. All rights reserved.
+            &copy; {currentYear} Bangladesh with Naim. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-gray-500">
             <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
