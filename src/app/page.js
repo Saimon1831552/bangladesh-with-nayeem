@@ -5,7 +5,7 @@ import Hero from "@/components/shared/Hero/hero";
 import Holiday from "@/components/shared/holiday-tour/holiday-tour";
 import SpeechDraft from "@/components/shared/landing-page-speech/speech-draft";
 import Multiday from "@/components/shared/multiday-tour/multiday-tour";
-import Testimonials from "@/components/shared/testimonials/testimonials";
+import Testimonials from "@/components/shared/testimonials/page";
 import Gallery from "@/components/shared/tours-gallary/gallary";
 import BlogShow from "@/components/shared/blog-show/page"
 
