@@ -17,12 +17,12 @@ const localBusinessSchema = {
   "@type": ["TravelAgency", "LocalBusiness"],
   "@id": `${SITE_URL}/#business`,
   name: "Bangladesh With Naim",
-  alternateName: "Bangladesh With Nayeem",
+  alternateName: "Bangladesh With Naim",
   description:
     "Private, personalized tour packages across Bangladesh — Dhaka, Sundarbans, Srimangal, Cox's Bazar & more. Guided by Naim, a trusted local expert with 3+ years of experience.",
   url: SITE_URL,
-  telephone: "+880-XXXXXXXXX", // ← replace with real number
-  email: "naim@bangladeshwithnaim.com", // ← replace with real email
+  telephone: "+8801750536667", 
+  email: "info@bangladeshwithnaim.com",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Dhaka",
@@ -71,7 +71,7 @@ const personSchema = {
   "@type": "Person",
   "@id": `${SITE_URL}/#naim`,
   name: "Naim",
-  alternateName: "Nayeem",
+  alternateName: "Naim",
   jobTitle: "Private Tour Guide",
   description:
     "Local tour guide from Bangladesh with 3+ years of experience leading cultural, heritage, and adventure tours for international travellers.",
@@ -185,14 +185,14 @@ const faqSchema = {
 // ── Page Metadata ─────────────────────────────────────────────────────────────
 
 export const metadata = {
-  title: "Bangladesh Tour Packages | Explore Bangladesh With Naim",
+  title: "Explore Bangladesh With Naim — Private Local Tours",
   description:
     "Discover Bangladesh with Naim — a trusted local guide offering private, affordable tour packages to Dhaka, Sundarbans, Srimangal, Cox's Bazar & more. Skip the agencies. Save 15–30%.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
+    title: "Explore Bangladesh With Naim — Private Local Tours",
     description:
       "Private, personalized tours across Bangladesh. Heritage walks, Sundarbans safaris, tea garden escapes & more — guided by your trusted local friend, Naim.",
     url: SITE_URL,

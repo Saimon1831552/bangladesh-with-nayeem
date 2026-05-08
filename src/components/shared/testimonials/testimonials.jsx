@@ -3,34 +3,38 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faQuoteRight, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-const reviews = [
-  {
-    id: 1,
-    name: "Sarah Jenkins",
-    country: "United Kingdom",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop",
-    text: "Nayeem made our trip absolutely unforgettable. His knowledge of the local culture and hidden spots was incredible. The attention to detail and 24/7 support made us feel completely safe and relaxed.",
-    rating: 5,
-  },
-  {
-    id: 2,
-    name: "David & Emma",
-    country: "Australia",
-    image: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=150&auto=format&fit=crop",
-    text: "We were initially hesitant about booking a private tour, but 'Bangladesh with Nayeem' exceeded all our expectations. The 5-star accommodations were spot on, and we saved so much compared to booking through a massive agency.",
-    rating: 5,
-  },
-  {
-    id: 3,
-    name: "Michael Chen",
-    country: "Singapore",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
-    text: "A truly authentic experience. We didn't just see Bangladesh; we felt it. The itinerary was perfectly balanced between sightseeing and actual cultural immersion.",
-    rating: 5,
-  },
-];
+// const reviews = [
+//   {
+//     id: 1,
+//     name: "Sarah Jenkins",
+//     country: "United Kingdom",
+//     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop",
+//     text: "Naim made our trip absolutely unforgettable. His knowledge of the local culture and hidden spots was incredible. The attention to detail and 24/7 support made us feel completely safe and relaxed.",
+//     rating: 5,
+//   },
+//   {
+//     id: 2,
+//     name: "David & Emma",
+//     country: "Australia",
+//     image: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=150&auto=format&fit=crop",
+//     text: "We were initially hesitant about booking a private tour, but 'Bangladesh with Naim' exceeded all our expectations. The 5-star accommodations were spot on, and we saved so much compared to booking through a massive agency.",
+//     rating: 5,
+//   },
+//   {
+//     id: 3,
+//     name: "Michael Chen",
+//     country: "Singapore",
+//     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
+//     text: "A truly authentic experience. We didn't just see Bangladesh; we felt it. The itinerary was perfectly balanced between sightseeing and actual cultural immersion.",
+//     rating: 5,
+//   },
+// ];
 
-export default function Testimonials() {
+export default function Testimonials({reviews = []}) {
+
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
+  
+
   return (
     <section className="py-20 bg-green-50/50 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -39,7 +43,7 @@ export default function Testimonials() {
           <span className="text-sm font-bold tracking-widest text-green-700 uppercase mb-3 block">Testimonials</span>
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
             What Our Guests <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-800 to-green-500">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-green-800 to-green-500">
               Say About Us
             </span>
           </h2>
@@ -56,7 +60,6 @@ export default function Testimonials() {
             >
               <FontAwesomeIcon icon={faQuoteRight} className="absolute top-6 right-8 text-gray-100 text-6xl rotate-12 z-0" />
 
-              {/* ✅ Fix: <img> → <Image> with proper fill container */}
               <div className="absolute -top-10 left-8">
                 <div className="relative w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden bg-gray-200">
                   <Image

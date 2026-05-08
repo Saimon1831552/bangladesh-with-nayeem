@@ -1,5 +1,6 @@
 import React from 'react';
 import Review from './review';
+import Testimonials from '@/components/shared/testimonials/testimonials';
 
 export default async function Page() {
   let reviews = [];
@@ -19,6 +20,7 @@ export default async function Page() {
   return (
     <div>
       <Review reviews={reviews} />
+      <Testimonials reviews={reviews}></Testimonials>
     </div>
   );
 }

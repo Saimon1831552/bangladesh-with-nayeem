@@ -19,7 +19,7 @@ export default function Navbar() {
         {/* Inline SVG Logo */}
         <Link href="/">
           <div className='bg-white'>
-            <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/ty_j9l341' className='h-22' alt="" />
+            <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/tu_n4yxog' className='' alt="" />
           </div>
         </Link>
 
