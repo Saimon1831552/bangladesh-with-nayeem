@@ -21,7 +21,7 @@ export default function Navbar() {
           <div className=' overflow-hidden'>
             <img
               src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/tu_n4yxog'
-              className='h-14 rounded-xl'
+              className='h-14 rounded-sm'
               alt="Bangladesh with Naim"
             />
           </div>

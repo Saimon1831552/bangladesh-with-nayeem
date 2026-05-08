@@ -1,8 +1,12 @@
+'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRef, useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClock, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faClock, faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+
+const VISIBLE = 3;
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -16,7 +20,8 @@ function BlogCard({ blog }) {
   return (
     <Link
       href={`/blogs/${blog.slug}`}
-      className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100 flex flex-col"
+      className="group bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-gray-200 flex flex-col transition-all duration-300 hover:shadow-xl"
+      style={{ minWidth: 'calc(33.333% - 11px)', marginRight: '16px' }}
     >
       {/* Image */}
       <div className="relative h-52 overflow-hidden">
@@ -36,7 +41,7 @@ function BlogCard({ blog }) {
       <div className="flex flex-col flex-grow p-6">
         {/* Author + date */}
         <div className="flex items-center gap-3 mb-3">
-          <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-green-100">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-green-100 flex-shrink-0">
             <Image
               src={blog.author_img}
               alt={blog.author}
@@ -51,7 +56,7 @@ function BlogCard({ blog }) {
         </div>
 
         {/* Title */}
-        <h3 className="font-extrabold text-gray-900 text-lg mb-3 group-hover:text-green-700 transition-colors">
+        <h3 className="font-extrabold text-gray-900 text-lg mb-3 group-hover:text-green-700 transition-colors leading-snug">
           {blog.title}
         </h3>
 
@@ -76,9 +81,30 @@ function BlogCard({ blog }) {
 }
 
 export default function BlogShow({ blogs = [] }) {
-  const safeBlogs = Array.isArray(blogs) ? blogs.slice(0, 3) : [];
+  const safeBlogs = Array.isArray(blogs) ? blogs : [];
+  const maxIndex = Math.max(0, safeBlogs.length - VISIBLE);
+
+  const [current, setCurrent] = useState(0);
+  const trackRef = useRef(null);
+
+  const goTo = useCallback(
+    (idx) => {
+      const next = Math.max(0, Math.min(idx, maxIndex));
+      setCurrent(next);
+      if (trackRef.current) {
+        const firstCard = trackRef.current.firstChild;
+        if (firstCard) {
+          const cardWidth = firstCard.getBoundingClientRect().width + 16; // 16px gap
+          trackRef.current.style.transform = `translateX(-${next * cardWidth}px)`;
+        }
+      }
+    },
+    [maxIndex]
+  );
 
   if (safeBlogs.length === 0) return null;
+
+  const showControls = safeBlogs.length > VISIBLE;
 
   return (
     <section className="py-20 bg-white">
@@ -100,12 +126,61 @@ export default function BlogShow({ blogs = [] }) {
           </p>
         </div>
 
-        {/* Cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {safeBlogs.map((blog) => (
-            <BlogCard key={blog.id} blog={blog} />
-          ))}
+        {/* Slider */}
+        <div className="overflow-hidden">
+          <div
+            ref={trackRef}
+            className="flex"
+            style={{
+              transition: 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+          >
+            {safeBlogs.map((blog) => (
+              <BlogCard key={blog.id} blog={blog} />
+            ))}
+          </div>
         </div>
+
+        {/* Controls: Prev · Dots · Next */}
+        {showControls && (
+          <div className="flex items-center justify-center gap-4 mt-8">
+            {/* Prev button */}
+            <button
+              onClick={() => goTo(current - 1)}
+              disabled={current === 0}
+              aria-label="Previous slide"
+              className="w-11 h-11 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-700 hover:bg-green-700 hover:text-white hover:border-green-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="text-sm" />
+            </button>
+
+            {/* Dots */}
+            <div className="flex items-center gap-2">
+              {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === current
+                      ? 'w-6 bg-green-700'
+                      : 'w-2 bg-gray-300 hover:bg-gray-400'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Next button */}
+            <button
+              onClick={() => goTo(current + 1)}
+              disabled={current >= maxIndex}
+              aria-label="Next slide"
+              className="w-11 h-11 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-700 hover:bg-green-700 hover:text-white hover:border-green-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
+            </button>
+          </div>
+        )}
 
         {/* View all */}
         <div className="mt-12 flex justify-center">
@@ -114,7 +189,10 @@ export default function BlogShow({ blogs = [] }) {
             className="group flex items-center gap-3 bg-white border-2 border-green-700 text-green-800 hover:bg-green-700 hover:text-white px-8 py-4 rounded-full font-bold transition-all duration-300 shadow-md hover:shadow-lg"
           >
             View all articles
-            <FontAwesomeIcon icon={faArrowRight} className="transition-transform duration-300 group-hover:translate-x-1" />
+            <FontAwesomeIcon
+              icon={faArrowRight}
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
           </Link>
         </div>
 
