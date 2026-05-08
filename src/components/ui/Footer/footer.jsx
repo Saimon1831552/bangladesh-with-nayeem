@@ -42,7 +42,7 @@ export default function Footer() {
             </p>
             {/* Social Icons */}
             <div className="flex gap-4 mt-2">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
+              <a href="https://www.facebook.com/Bangladeshwithnaim" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
                 <FontAwesomeIcon icon={faFacebookF} />
               </a>
               <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
@@ -153,7 +153,7 @@ export default function Footer() {
             <ul className="space-y-5">
               <li className="flex items-start gap-4">
                 <FontAwesomeIcon icon={faLocationDot} className="text-amber-500 mt-1" />
-                <span className="text-sm">Dhaka, Bangladesh<br/>(Available for nationwide tours)</span>
+                <span className="text-sm">Uttara, Sector- 09, House-2, Road-7/A<br/>Dhaka, 1230, Dhaka, Bangladesh, 1230</span>
               </li>
               <li className="flex items-center gap-4">
                 <FontAwesomeIcon icon={faWhatsapp} className="text-amber-500 text-lg" />

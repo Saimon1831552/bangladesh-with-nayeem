@@ -18,7 +18,7 @@ export default function Navbar() {
         
         {/* Logo */}
         <Link href="/">
-          <div className='bg-white rounded-xl overflow-hidden'>
+          <div className=' overflow-hidden'>
             <img
               src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/tu_n4yxog'
               className='h-14 rounded-xl'
