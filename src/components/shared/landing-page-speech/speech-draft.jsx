@@ -15,9 +15,9 @@ export default function SpeechDraft() {
           <div className="relative order-2 lg:order-1">
             <div className="absolute -inset-4 bg-green-100 rounded-3xl transform rotate-3 -z-10 hidden md:block" />
             {/* ✅ Fix: <img> → <Image> */}
-            <div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] rounded-2xl overflow-hidden shadow-xl">
+            <div className="relative w-full h-100 md:h-125 lg:h-150 rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src="https://i.ibb.co.com/htvtSnx/nature-photographer-29ez-CWt-Mtn-M-unsplash.jpg"
+                src="https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/debotakhum-natural-beauty-bangladesh-home-page_zoudty"
                 alt="Tourists exploring Bangladesh"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -31,7 +31,7 @@ export default function SpeechDraft() {
             {/* ✅ Fix: Typo "Fait IN" → "Faith In", <p> inside <h2> → <span> */}
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-8 text-center md:text-left">
               Why Travellers Keep Faith In{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-green-500">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-green-700 to-green-500">
                 NAIM
               </span>
             </h2>
@@ -59,8 +59,9 @@ export default function SpeechDraft() {
 
             <div className="space-y-4">
               {[
-                { title: 'Bangladesh with Nayeem vs Other Operators',     body: 'All our tours are private by default and fully flexible. We design each experience to be budget-friendly without compromising on quality. Our tour prices cover up to two guests at no additional cost.' },
-                { title: 'Foreign Platforms vs Bangladesh with Nayeem',   body: 'Major platforms such as ToursByLocals, Viator, TripAdvisor, Expedia, Booking.com, GetYourGuide, Klook, Airbnb Experiences, and others charge commissions of up to 30%.' },
+                { title: 'Bangladesh with Naim vs Other Operators',     body: 'All of my trips are private, so you can enjoy the pace that suits you best. I aim to provide excellent service at a fair price, which is why the basic rate covers up to two guests at no extra cost. If you have a larger group, you can add more people for a small fee and still enjoy the unique experience that Naim is known for.' },
+                { title: 'Global Travel Platforms vs Bangladesh with Naim',   
+                  body: 'Why let a middleman come between you and the real Bangladesh? Many major travel platforms, including ToursByLocals, Viator, TripAdvisor, Expedia, Booking.com, Trip.com, GetYourGuide, TourHQ, Klook, Airbnb Experiences, Tiqets, GoCity, and GoZayaan, charge commissions of up to 30%.  When you book directly with me, you avoid those extra marketplace fees. Your money goes straight into top-quality logistics, domestic flights, and my signature "Naim Standard" service, instead of hidden platform charges. It’s a direct, honest, and trust-based experience.' },
               ].map(({ title, body }) => (
                 <div key={title} className="bg-gray-50 border-l-4 border-amber-500 p-6 rounded-r-xl shadow-sm">
                   <div className="flex items-center gap-3 mb-3">

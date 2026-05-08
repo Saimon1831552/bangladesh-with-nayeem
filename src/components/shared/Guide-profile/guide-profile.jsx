@@ -22,7 +22,7 @@ export default function GuideProfile() {
                   alt="Naim - Local Guide"
                   fill
                   sizes="256px"
-                  className="object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-500"
+                  className="object-cover grayscale-20 group-hover:grayscale-0 transition-all duration-500"
                 />
               </div>
             </div>
@@ -50,7 +50,7 @@ export default function GuideProfile() {
         </div>
 
         {/* ✅ Fix: bg-linear-to-r → bg-gradient-to-r */}
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-stone-300 to-transparent my-10" />
+        <div className="h-px w-full bg-linear-to-r from-transparent via-stone-300 to-transparent my-10" />
 
         {/* Stats row */}
         <div className="flex flex-col md:flex-row justify-center md:justify-around items-center gap-8 text-stone-600 font-medium text-base md:text-lg">
@@ -59,7 +59,7 @@ export default function GuideProfile() {
             <div className="bg-amber-100 p-2 rounded-full transition-transform duration-300 group-hover:-translate-y-1">
               <FontAwesomeIcon icon={faUser} size="lg" style={{ color: "#b45309" }} />
             </div>
-            <span className="group-hover:text-stone-900 transition-colors">3+ Years Experience</span>
+            <span className="group-hover:text-stone-900 transition-colors">Local Guide</span>
           </div>
 
           <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-stone-300" />
@@ -68,7 +68,7 @@ export default function GuideProfile() {
             <div className="bg-rose-100 p-2 rounded-full transition-transform duration-300 group-hover:-translate-y-1">
               <FontAwesomeIcon icon={faHeart} className="text-rose-600 text-2xl" />
             </div>
-            <span className="group-hover:text-stone-900 transition-colors">Cultural & Heritage Tours</span>
+            <span className="group-hover:text-stone-900 transition-colors">Private Tours</span>
           </div>
 
           <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-stone-300" />
@@ -77,7 +77,14 @@ export default function GuideProfile() {
             <div className="bg-green-100 p-2 rounded-full transition-transform duration-300 group-hover:-translate-y-1">
               <FontAwesomeIcon icon={faCheckCircle} className="text-green-600 text-2xl" />
             </div>
-            <span className="group-hover:text-stone-900 transition-colors">Personalized Adventures</span>
+            <span className="group-hover:text-stone-900 transition-colors">Custom Itineraries </span>
+          </div>
+
+          <div className="flex items-center gap-3 group cursor-default">
+            <div className="bg-green-100 p-2 rounded-full transition-transform duration-300 group-hover:-translate-y-1">
+              <FontAwesomeIcon icon={faCheckCircle} className="text-green-600 text-2xl" />
+            </div>
+            <span className="group-hover:text-stone-900 transition-colors">Friendly Travel Support</span>
           </div>
 
         </div>

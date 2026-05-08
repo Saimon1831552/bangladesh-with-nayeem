@@ -23,11 +23,11 @@ export default function Hero() {
         <div className="flex flex-col items-center md:items-start justify-center h-full text-center md:text-left text-white px-6 md:px-12 lg:ml-40 max-w-3xl mx-auto lg:mx-0">
 
           <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold mb-4 drop-shadow-lg leading-tight">
-            Discover Beautiful <br className="hidden md:block" /> Bangladesh
+            Discover <br className="hidden md:block" /> Bangladesh with Naim
           </h1>
 
           <p className="text-base md:text-xl lg:text-2xl font-medium max-w-2xl drop-shadow-md mb-8">
-            Join Naim for an unforgettable journey through the hidden gems of the delta.
+            Private, authentic, and flexible Bangladesh tours for foreign travellers who want to experience real culture, local food, history, rivers, villages, and hidden gems.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
