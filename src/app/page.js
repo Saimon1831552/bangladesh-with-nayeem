@@ -7,6 +7,7 @@ import SpeechDraft from "@/components/shared/landing-page-speech/speech-draft";
 import Multiday from "@/components/shared/multiday-tour/multiday-tour";
 import Testimonials from "@/components/shared/testimonials/testimonials";
 import Gallery from "@/components/shared/tours-gallary/gallary";
+import BlogShow from "@/components/shared/blog-show/blog-show"
 
 const SITE_URL = "https://bangladeshwithnaim.com";
 
@@ -245,6 +246,7 @@ export default function Home() {
         <Multiday />
         <Testimonials />
         <Holiday />
+        <BlogShow />
       </main>
     </>
   );
