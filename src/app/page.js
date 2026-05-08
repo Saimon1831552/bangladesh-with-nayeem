@@ -239,7 +239,7 @@ export default function Home() {
       <main>
         <Hero />
         <GuideProfile />
-        <FeaturedTours />
+        {/* <FeaturedTours /> */}
         <SpeechDraft />
         <DayTour />
         <Gallery />

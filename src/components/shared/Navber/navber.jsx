@@ -13,41 +13,69 @@ export default function Navbar() {
   };
 
   return (
-    <div className='sticky top-0 z-50 bg-green-800/70 backdrop-blur-md border-b border-white/10'>
+    <div className='sticky top-0 z-50 backdrop-blur-md border-b border-[#6fcf47]/20' style={{ background: '#0d1f0d' }}>
       <div className='flex flex-row justify-between items-center px-4 md:px-10 py-3'>
         
-        {/* Inline SVG Logo */}
+        {/* Logo */}
         <Link href="/">
-          <div className='bg-white'>
-            <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/tu_n4yxog' className='h-14 rounded-xl' alt="" />
+          <div className='bg-white rounded-xl overflow-hidden'>
+            <img
+              src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/tu_n4yxog'
+              className='h-14 rounded-xl'
+              alt="Bangladesh with Naim"
+            />
           </div>
         </Link>
 
+        {/* Desktop Nav */}
         <nav className='hidden md:block'>
           <ul className='flex flex-row justify-center gap-6 items-center list-none m-0 p-0'>
-            <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/">Home</Link></li>
-            <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/tours">Tours</Link></li>
-            <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/blogs">Blogs</Link></li>
-            <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/review">Review</Link></li>
-            <li className='font-bold text-white hover:text-green-400 transition-colors'><Link href="/contact">Contact</Link></li>
+            {['/', '/tours', '/blogs', '/review', '/contact'].map((href, i) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className='font-bold transition-colors duration-200'
+                  style={{ color: '#a8d880' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#6fcf47'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#a8d880'}
+                >
+                  {['Home', 'Tours', 'Blogs', 'Review', 'Contact'][i]}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
 
-        <div className='hidden md:flex flex-row gap-3.5 items-center bg-green-600 hover:bg-green-500 px-5 py-2 rounded-full transition-all cursor-pointer'>
-          <a 
-            href="https://wa.me/8801602717233" 
-            target="_blank" 
+        {/* WhatsApp Button — Desktop */}
+        <div className='hidden md:flex'>
+          <a
+            href="https://wa.me/8801602717233"
+            target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center"
-          > 
-            <FontAwesomeIcon icon={faWhatsapp} size="xl" style={{color: "rgb(6, 255, 6)"}} />
-            <span className='text-white font-semibold ml-2'>Whatsapp</span>
+            className='flex flex-row gap-2.5 items-center px-5 py-2 rounded-full font-semibold transition-all duration-200 border'
+            style={{
+              borderColor: '#6fcf47',
+              color: '#6fcf47',
+              background: 'transparent',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = '#6fcf47';
+              e.currentTarget.style.color = '#0d1f0d';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = '#6fcf47';
+            }}
+          >
+            <FontAwesomeIcon icon={faWhatsapp} size="xl" style={{ color: 'inherit' }} />
+            <span>Whatsapp</span>
           </a>
         </div>
 
-        {/* Mobile Hamburger Button */}
-        <button 
-          className="md:hidden text-white focus:outline-none p-2" 
+        {/* Mobile Hamburger */}
+        <button
+          className="md:hidden focus:outline-none p-2"
+          style={{ color: '#a8d880' }}
           onClick={toggleMenu}
           aria-label="Toggle Menu"
         >
@@ -55,27 +83,41 @@ export default function Navbar() {
         </button>
       </div>
 
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-green-900/95 backdrop-blur-md border-b border-white/10 px-4 py-6 shadow-xl transition-all duration-300">
+        <div
+          className="md:hidden absolute top-full left-0 w-full backdrop-blur-md border-b px-4 py-6 shadow-xl"
+          style={{ background: '#0a180a', borderColor: '#6fcf47/20' }}
+        >
           <nav>
             <ul className='flex flex-col items-center gap-6 list-none m-0 p-0'>
-              <li className='font-bold text-white hover:text-green-400 transition-colors text-lg'><Link href="/" onClick={toggleMenu}>Home</Link></li>
-              <li className='font-bold text-white hover:text-green-400 transition-colors text-lg'><Link href="/tours" onClick={toggleMenu}>Tours</Link></li>
-              <li className='font-bold text-white hover:text-green-400 transition-colors text-lg'><Link href="/blogs" onClick={toggleMenu}>Blogs</Link></li>
-              <li className='font-bold text-white hover:text-green-400 transition-colors text-lg'><Link href="/review" onClick={toggleMenu}>Review</Link></li>
-              <li className='font-bold text-white hover:text-green-400 transition-colors text-lg'><Link href="/contact" onClick={toggleMenu}>Contact Us</Link></li>
+              {['/', '/tours', '/blogs', '/review', '/contact'].map((href, i) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    onClick={toggleMenu}
+                    className='font-bold text-lg transition-colors duration-200'
+                    style={{ color: '#a8d880' }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#6fcf47'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#a8d880'}
+                  >
+                    {['Home', 'Tours', 'Blogs', 'Review', 'Contact Us'][i]}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
 
           <div className='flex justify-center mt-8'>
-            <a 
-              href="https://wa.me/8801602717233" 
-              target="_blank" 
+            <a
+              href="https://wa.me/8801602717233"
+              target="_blank"
               rel="noopener noreferrer"
-              className='flex flex-row gap-3.5 items-center bg-green-600 hover:bg-green-500 px-8 py-3 rounded-full transition-all shadow-lg'
-            > 
-              <FontAwesomeIcon icon={faWhatsapp} size="xl" style={{color: "rgb(6, 255, 6)"}} />
-              <span className='text-white font-semibold text-lg ml-2'>Whatsapp</span>
+              className='flex flex-row gap-3 items-center px-8 py-3 rounded-full font-semibold text-lg border transition-all duration-200'
+              style={{ borderColor: '#6fcf47', color: '#6fcf47', background: 'transparent' }}
+            >
+              <FontAwesomeIcon icon={faWhatsapp} size="xl" style={{ color: '#6fcf47' }} />
+              <span>Whatsapp</span>
             </a>
           </div>
         </div>
