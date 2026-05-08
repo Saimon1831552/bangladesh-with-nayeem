@@ -23,7 +23,7 @@ export default function Footer() {
     <footer className="bg-green-950 text-gray-300 pt-20 pb-10 relative overflow-hidden">
       
       {/* Decorative Top Border (Matches your Amber theme) */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-green-500 to-amber-500"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-500 via-green-500 to-amber-500"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -157,8 +157,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-4">
                 <FontAwesomeIcon icon={faWhatsapp} className="text-amber-500 text-lg" />
-                <a href="https://wa.me/8801783377429" target="_blank" rel="noopener noreferrer" className="text-sm hover:text-white transition-colors">
-                  +880 1783 377429
+                <a href="https://wa.me/8801602717233" target="_blank" rel="noopener noreferrer" className="text-sm hover:text-white transition-colors">
+                  +8801602717233
                 </a>
               </li>
               <li className="flex items-center gap-4">

@@ -53,7 +53,7 @@ export default function GuideProfile() {
         <div className="h-px w-full bg-linear-to-r from-transparent via-stone-300 to-transparent my-10" />
 
         {/* Stats row */}
-        <div className="flex flex-col md:flex-row justify-center md:justify-around items-center gap-8 text-stone-600 font-medium text-base md:text-lg">
+        <div className="flex flex-col md:flex-row justify-center md:justify-around items-center gap-4 text-stone-600 font-medium text-base md:text-lg">
 
           <div className="flex items-center gap-3 group cursor-default">
             <div className="bg-amber-100 p-2 rounded-full transition-transform duration-300 group-hover:-translate-y-1">

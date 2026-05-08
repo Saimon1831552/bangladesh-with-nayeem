@@ -18,8 +18,8 @@ export default function Navbar() {
         
         {/* Inline SVG Logo */}
         <Link href="/">
-          <div className='bg-white p-0.5'>
-            <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/ty_j9l341' className='h-30' alt="" />
+          <div className='bg-white'>
+            <img src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/ty_j9l341' className='h-22' alt="" />
           </div>
         </Link>
 
@@ -35,7 +35,7 @@ export default function Navbar() {
 
         <div className='hidden md:flex flex-row gap-3.5 items-center bg-green-600 hover:bg-green-500 px-5 py-2 rounded-full transition-all cursor-pointer'>
           <a 
-            href="https://wa.me/8801783377429" 
+            href="https://wa.me/8801602717233" 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center"
@@ -69,7 +69,7 @@ export default function Navbar() {
 
           <div className='flex justify-center mt-8'>
             <a 
-              href="https://wa.me/8801783377429" 
+              href="https://wa.me/8801602717233" 
               target="_blank" 
               rel="noopener noreferrer"
               className='flex flex-row gap-3.5 items-center bg-green-600 hover:bg-green-500 px-8 py-3 rounded-full transition-all shadow-lg'
