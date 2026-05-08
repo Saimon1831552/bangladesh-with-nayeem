@@ -100,7 +100,7 @@ export default function ContactSection() {
                 <div className="ct-info-item">
                   <div className="ct-info-icon">💬</div>
                   <div className="ct-info-text">
-                    <span className="ct-info-main">+880 1601-652669</span>
+                    <span className="ct-info-main">+880160-2717233</span>
                     <span className="ct-info-hint">Fastest response · on-tour support</span>
                   </div>
                 </div>
@@ -111,7 +111,7 @@ export default function ContactSection() {
                 <div className="ct-info-item">
                   <div className="ct-info-icon">✉️</div>
                   <div className="ct-info-text">
-                    <span className="ct-info-main">info@bangladeshwithnayeem.com</span>
+                    <span className="ct-info-main">info@bangladeshwithnaim.com</span>
                     <span className="ct-info-hint">Bookings & payment confirmations</span>
                   </div>
                 </div>
@@ -122,8 +122,8 @@ export default function ContactSection() {
                 <div className="ct-info-item">
                   <div className="ct-info-icon">📍</div>
                   <div className="ct-info-text">
-                    <span className="ct-info-main">172, Sher-E-Bangla Road</span>
-                    <span className="ct-info-hint">Khulna 9100, Bangladesh</span>
+                    <span className="ct-info-main">Uttara, Sector- 09, House-2, Road-7/A</span>
+                    <span className="ct-info-hint"> Dhaka, 1230, Dhaka, Bangladesh, 1230</span>
                   </div>
                 </div>
               </div>
@@ -174,7 +174,7 @@ export default function ContactSection() {
                       </div>
                       <div className="ct-group">
                         <label className="ct-label">Mobile <span>*</span></label>
-                        <input className="ct-input" type="tel" name="mobile" placeholder="+1 234 567 8900" value={form.mobile} onChange={handle} required />
+                        <input className="ct-input" type="tel" name="mobile" placeholder="+880160-2717233" value={form.mobile} onChange={handle} required />
                       </div>
                     </div>
 
@@ -221,7 +221,7 @@ export default function ContactSection() {
                     <div className="ct-submit-row">
                       <button type="submit" className="ct-submit-btn">Send Enquiry</button>
                       <a
-                        href="https://wa.me/8801601652669"
+                        href="https://wa.me/8801602717233"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="ct-wa-btn"
