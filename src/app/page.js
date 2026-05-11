@@ -8,6 +8,7 @@ import Multiday from "@/components/shared/multiday-tour/multiday-tour";
 import Testimonials from "@/components/shared/testimonials/page";
 import Gallery from "@/components/shared/tours-gallary/gallary";
 import BlogShow from "@/components/shared/blog-show/page"
+import WhyChoose from "@/components/shared/why-choose/whychoose";
 
 const SITE_URL = "https://bangladeshwithnaim.com";
 
@@ -186,14 +187,14 @@ const faqSchema = {
 // ── Page Metadata ─────────────────────────────────────────────────────────────
 
 export const metadata = {
-  title: "Explore Bangladesh With Naim — Private Local Tours",
+  title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
   description:
     "Discover Bangladesh with Naim — a trusted local guide offering private, affordable tour packages to Dhaka, Sundarbans, Srimangal, Cox's Bazar & more. Skip the agencies. Save 15–30%.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Explore Bangladesh With Naim — Private Local Tours",
+    title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
     description:
       "Private, personalized tours across Bangladesh. Heritage walks, Sundarbans safaris, tea garden escapes & more — guided by your trusted local friend, Naim.",
     url: SITE_URL,
@@ -239,9 +240,10 @@ export default function Home() {
       <main>
         <Hero />
         <GuideProfile />
+        <WhyChoose />
+        <DayTour />
         {/* <FeaturedTours /> */}
         <SpeechDraft />
-        <DayTour />
         <Gallery />
         <Multiday />
         <Testimonials />

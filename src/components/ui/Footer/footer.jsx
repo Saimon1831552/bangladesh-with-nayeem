@@ -45,11 +45,14 @@ export default function Footer() {
               <a href="https://www.facebook.com/Bangladeshwithnaim" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
                 <FontAwesomeIcon icon={faFacebookF} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
+              <a href="https://www.instagram.com/bangladesh.with.naim/" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
                 <FontAwesomeIcon icon={faInstagram} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
-                <FontAwesomeIcon icon={faYoutube} />
+              <a href="https://x.com/naim55714" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
+                <FontAwesomeIcon icon={faXTwitter} />
+              </a>
+              <a href="https://www.threads.com/@bangladesh.with.naim" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-amber-500 hover:-translate-y-1 transition-all duration-300">
+                <FontAwesomeIcon icon={faThreads} />
               </a>
             </div>
           </div>
