@@ -115,10 +115,10 @@ export function TourCard({ tour }) {
       </div>
 
       {/* Gradient overlay */}
-      <div style={{
+      {/* <div style={{
         position: 'absolute', inset: 0,
         background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.04) 100%)',
-      }} />
+      }} /> */}
 
       {/* Shimmer */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
@@ -129,14 +129,14 @@ export function TourCard({ tour }) {
       </div>
 
       {/* Float particles */}
-      {[0, 1, 2, 3, 4, 5].map((i) => (
+      {/* {[0, 1, 2, 3, 4, 5].map((i) => (
         <span key={i} style={{
           position: 'absolute', width: 4, height: 4, borderRadius: '50%',
           background: 'rgba(255,255,255,0.55)',
           left: `${15 + i * 14}%`, bottom: 0,
           animation: `floatUp ${2 + i * 0.4}s ${i * 0.5}s linear infinite`,
         }} />
-      ))}
+      ))} */}
 
       {/* Price badge */}
       <div className="price-badge" style={{
