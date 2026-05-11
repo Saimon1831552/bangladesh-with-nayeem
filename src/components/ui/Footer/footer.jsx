@@ -6,8 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faFacebookF, 
   faInstagram, 
-  faYoutube, 
-  faWhatsapp 
+  faXTwitter, 
+  faThreads,
+  faWhatsapp
 } from '@fortawesome/free-brands-svg-icons';
 import { 
   faLocationDot, 
