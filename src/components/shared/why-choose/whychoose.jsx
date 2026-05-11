@@ -1,5 +1,3 @@
-// ─── components/WhyChoose.jsx ─────────────────────────────────────────────────
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -64,14 +62,18 @@ const reasons = [
   },
 ];
 
-
 function AnimatedCard({ item, index }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      ([entry]) => { 
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect(); 
+        }
+      },
       { threshold: 0.15 }
     );
     if (ref.current) observer.observe(ref.current);
@@ -81,30 +83,30 @@ function AnimatedCard({ item, index }) {
   return (
     <div
       ref={ref}
-      className="group relative bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col gap-5 overflow-hidden cursor-default"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(40px)',
-        transition: `opacity 0.6s ease ${index * 100}ms, transform 0.6s ease ${index * 100}ms, box-shadow 0.3s ease, translate 0.3s ease`,
+        transition: `opacity 0.6s ease ${index * 100}ms, transform 0.6s ease ${index * 100}ms`,
       }}
     >
-      {/* Animated background blob */}
-      <div className="absolute -bottom-8 -right-8 w-36 h-36 rounded-full bg-green-400 opacity-0 group-hover:opacity-10 scale-75 group-hover:scale-110 transition-all duration-500" />
+      <div className="group relative bg-white border border-gray-100 rounded-3xl p-8 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col gap-5 overflow-hidden cursor-default h-full">
+        
+        <div className="absolute -bottom-8 -right-8 w-36 h-36 rounded-full bg-green-400 opacity-0 group-hover:opacity-10 scale-75 group-hover:scale-110 transition-all duration-500" />
 
-      {/* Top accent line */}
-      <div className={`absolute top-0 left-8 right-8 h-[3px] rounded-b-full ${item.accentBar} scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
+        <div className={`absolute top-0 left-8 right-8 h-[3px] rounded-b-full ${item.accentBar} scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
 
-      {/* Icon — spins gently on hover */}
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${item.accent} flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300`}>
-        <FontAwesomeIcon icon={item.icon} className={`text-2xl ${item.iconColor}`} />
-      </div>
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${item.accent} flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300`}>
+          <FontAwesomeIcon icon={item.icon} className={`text-2xl ${item.iconColor}`} />
+        </div>
 
-      {/* Text */}
-      <div className="relative z-10">
-        <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-green-800 transition-colors duration-300">
-          {item.title}
-        </h3>
-        <p className="text-gray-500 leading-relaxed text-sm">{item.body}</p>
+        {/* Text */}
+        <div className="relative z-10">
+          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-green-800 transition-colors duration-300">
+            {item.title}
+          </h3>
+          {/* <p className="text-gray-500 leading-relaxed text-sm">{item.body}</p> */}
+        </div>
+
       </div>
     </div>
   );
@@ -118,7 +120,7 @@ export default function WhyChoose() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-sm font-bold tracking-widest text-green-700 uppercase mb-3 block">
-            Why Choose Us
+            Why Choose me
           </span>
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-5 tracking-tight">
             Bangladesh with{' '}
@@ -127,7 +129,7 @@ export default function WhyChoose() {
             </span>
           </h2>
           <p className="text-lg text-gray-500 leading-relaxed">
-            Not just a tour — a personal promise. Here's what makes every journey with Naim different.
+            Not just a tour — a personal promise. Here&apos;s what makes every journey with Naim different.
           </p>
         </div>
 
