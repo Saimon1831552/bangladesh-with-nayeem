@@ -263,9 +263,9 @@ const ReviewCard = memo(function ReviewCard({ review, palette, delay = 0 }) {
         <h5 className="font-bold text-gray-700 text-xs md:text-sm mb-2 relative z-10">{review.title}</h5>
       )}
 
-      <p className="text-gray-500 text-xs md:text-sm leading-relaxed flex-grow relative z-10 italic">
+      {/* <p className="text-gray-500 text-xs md:text-sm leading-relaxed flex-grow relative z-10 italic">
         &quot;{review.body?.trim()}&quot;
-      </p>
+      </p> */}
 
       <div
         className="flex items-center justify-between pt-4 mt-4 relative z-10 border-t"

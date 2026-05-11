@@ -120,7 +120,7 @@ export default function WhyChoose() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-sm font-bold tracking-widest text-green-700 uppercase mb-3 block">
-            Why Choose me
+            Why Choose
           </span>
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-5 tracking-tight">
             Bangladesh with{' '}
