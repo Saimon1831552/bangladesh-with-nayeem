@@ -64,9 +64,6 @@ const reasons = [
   },
 ];
 
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
 
 function AnimatedCard({ item, index }) {
   const ref = useRef(null);

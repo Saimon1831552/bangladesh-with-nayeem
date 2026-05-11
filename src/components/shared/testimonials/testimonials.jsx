@@ -126,7 +126,6 @@ function AnimatedStat({ target, label, delay = 0, inView }) {
     let step = 0;
     let iv;
 
-    // Set to '0' format right before interval begins
     setDisplay((isFloat ? '0.0' : '0') + (isPercent ? '%' : isPlus ? '+' : ''));
 
     const t = setTimeout(() => {
