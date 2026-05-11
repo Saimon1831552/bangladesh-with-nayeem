@@ -53,15 +53,11 @@ const STYLES = `
     background-clip: text;
     animation: shimmer 3s linear infinite;
   }
-
-  /* FIX: hover styles kept here but transition is NOT declared here —
-     transition is set fully inline on each card to avoid conflict */
   .card-hover:hover {
     transform: translateY(-7px) scale(1.015) !important;
     box-shadow: 0 24px 48px -12px rgba(59,109,17,0.14) !important;
     border-color: #b6dfa0 !important;
   }
-
   .star-anim {
     display: inline-block;
     animation: starPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
@@ -84,52 +80,81 @@ const PALETTES = [
 function useInView(threshold = 0.15) {
   const [ref, setRef] = useState(null);
   const [inView, setInView] = useState(false);
+  
   useEffect(() => {
-    if (!ref) return;
+    if (!ref || inView) return; // Prevent re-observing if already in view
+    
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
+      ([e]) => { 
+        if (e.isIntersecting) { 
+          setInView(true); 
+          obs.disconnect(); 
+        } 
+      },
       { threshold }
     );
     obs.observe(ref);
     return () => obs.disconnect();
-  }, [ref, threshold]);
+  }, [ref, threshold, inView]);
+  
   return [setRef, inView];
 }
 
-/* ── FIX 1: AnimatedStat accepts inView as prop instead of managing its own ── */
+/* ── AnimatedStat ── */
 function AnimatedStat({ target, label, delay = 0, inView }) {
-  const [display, setDisplay] = useState(() => {
-    // show final value immediately as placeholder so layout doesn't jump
-    return target;
-  });
-  const [animated, setAnimated] = useState(false);
+  const [display, setDisplay] = useState(target);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  // Sync state if the incoming target prop updates
+  useEffect(() => {
+    setDisplay(target);
+    setHasAnimated(false);
+  }, [target]);
 
   useEffect(() => {
-    if (!inView || animated) return;
-    setAnimated(true);
-    const isFloat   = target.includes('.');
-    const isPercent = target.includes('%');
-    const isPlus    = target.includes('+');
-    const num = parseFloat(target);
+    if (!inView || hasAnimated) return;
+
+    // Safely cast to string to prevent `.includes` crashes on raw numbers
+    const targetStr = String(target);
+    const isFloat   = targetStr.includes('.');
+    const isPercent = targetStr.includes('%');
+    const isPlus    = targetStr.includes('+');
+    const num = parseFloat(targetStr) || 0;
+    
     const steps = 40;
     const duration = 1200;
     let step = 0;
-    // Start from 0
+    let iv;
+
+    // Set to '0' format right before interval begins
     setDisplay((isFloat ? '0.0' : '0') + (isPercent ? '%' : isPlus ? '+' : ''));
+
     const t = setTimeout(() => {
-      const iv = setInterval(() => {
+      iv = setInterval(() => {
         step++;
         const eased = 1 - Math.pow(1 - step / steps, 3);
         const val = num * eased;
-        setDisplay(
-          (isFloat ? val.toFixed(1) : Math.round(val)) +
-          (isPercent ? '%' : isPlus ? '+' : '')
-        );
-        if (step >= steps) clearInterval(iv);
+        
+        if (step >= steps) {
+          clearInterval(iv);
+          setDisplay(targetStr); // Guarantee exact final output string
+          setHasAnimated(true);
+        } else {
+          setDisplay(
+            (isFloat ? val.toFixed(1) : Math.round(val)) +
+            (isPercent ? '%' : isPlus ? '+' : '')
+          );
+        }
       }, duration / steps);
     }, delay);
-    return () => clearTimeout(t);
-  }, [inView, animated, target, delay]);
+
+    // Strict cleanup handles unmounts gracefully
+    return () => {
+      clearTimeout(t);
+      if (iv) clearInterval(iv);
+      if (!hasAnimated) setDisplay(targetStr); // Resolve to final value if aborted
+    };
+  }, [inView, hasAnimated, target, delay]);
 
   return (
     <div
@@ -180,17 +205,19 @@ function Avatar({ initials, palette }) {
   );
 }
 
-/* ── FIX 2: ReviewCard — unified transition inline, wrapped with React.memo ── */
+/* ── ReviewCard ── */
 const ReviewCard = memo(function ReviewCard({ review, palette, delay = 0 }) {
   const [setRef, inView] = useInView(0.1);
 
-  // FIX: single unified transition string — no conflict with .card-hover class
   const transition = [
     `opacity 0.55s ease ${delay}ms`,
     `transform 0.55s ease ${delay}ms`,
     'box-shadow 0.35s ease',
     'border-color 0.35s ease',
   ].join(', ');
+
+  // Extract initials properly with a fallback
+  const userInitials = review.initials || review.name?.charAt(0).toUpperCase() || '?';
 
   return (
     <div
@@ -203,7 +230,6 @@ const ReviewCard = memo(function ReviewCard({ review, palette, delay = 0 }) {
         transition,
       }}
     >
-      {/* floating quote */}
       <div
         className="quote-float absolute top-4 right-5 text-4xl md:text-5xl leading-none select-none pointer-events-none"
         style={{ color: palette.color, opacity: 0.15 }}
@@ -212,9 +238,8 @@ const ReviewCard = memo(function ReviewCard({ review, palette, delay = 0 }) {
         <FontAwesomeIcon icon={faQuoteLeft} />
       </div>
 
-      {/* avatar + info */}
       <div className="flex items-center gap-3 mb-4 relative z-10">
-        <Avatar initials={review.initials} palette={palette} />
+        <Avatar initials={userInitials} palette={palette} />
         <div>
           <h4 className="font-bold text-gray-800 text-sm md:text-base leading-tight">{review.name}</h4>
           <p className="text-xs md:text-sm font-semibold mt-0.5" style={{ color: palette.color }}>{review.country}</p>
@@ -222,7 +247,6 @@ const ReviewCard = memo(function ReviewCard({ review, palette, delay = 0 }) {
         </div>
       </div>
 
-      {/* stars + tour badge */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3 relative z-10">
         <StarRating rating={review.rating} animate={inView} />
         {review.tour_name && (
@@ -235,17 +259,14 @@ const ReviewCard = memo(function ReviewCard({ review, palette, delay = 0 }) {
         )}
       </div>
 
-      {/* title */}
       {review.title && (
         <h5 className="font-bold text-gray-700 text-xs md:text-sm mb-2 relative z-10">{review.title}</h5>
       )}
 
-      {/* body */}
       <p className="text-gray-500 text-xs md:text-sm leading-relaxed flex-grow relative z-10 italic">
-        "{review.body?.trim()}"
+        &quot;{review.body?.trim()}&quot;
       </p>
 
-      {/* footer */}
       <div
         className="flex items-center justify-between pt-4 mt-4 relative z-10 border-t"
         style={{ borderColor: '#ede9e0' }}
@@ -265,7 +286,7 @@ const ReviewCard = memo(function ReviewCard({ review, palette, delay = 0 }) {
   );
 });
 
-/* ── FIX 1: StatsBar receives inView from parent, passes to each AnimatedStat ── */
+/* ── StatsBar ── */
 function StatsBar({ reviews, inView }) {
   const total = reviews.length;
   const avg = total
@@ -275,8 +296,8 @@ function StatsBar({ reviews, inView }) {
 
   return (
     <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-xs md:max-w-xl mx-auto mb-12 md:mb-16">
-      <AnimatedStat target={avg}                                                  label="Average rating"  delay={0}   inView={inView} />
-      <AnimatedStat target={`${total}+`}                                          label="Happy travelers" delay={150} inView={inView} />
+      <AnimatedStat target={avg}                                         label="Average rating"  delay={0}   inView={inView} />
+      <AnimatedStat target={`${total}+`}                                 label="Happy travelers" delay={150} inView={inView} />
       <AnimatedStat target={`${total ? Math.round((fiveStars / total) * 100) : 0}%`} label="5-star reviews"  delay={300} inView={inView} />
     </div>
   );
@@ -285,13 +306,12 @@ function StatsBar({ reviews, inView }) {
 /* ── Main ── */
 export default function TestimonialsPage({ reviews = [] }) {
   const safeReviews = Array.isArray(reviews) ? reviews : [];
-
-  // FIX 1: statsRef on the section, inView passed down — StatsBar always renders
   const [setStatsRef, statsInView] = useInView(0.1);
 
   return (
     <main className="min-h-screen" style={{ background: '#faf8f4' }}>
-      <style>{STYLES}</style>
+      {/* Safer injection of styles for Next.js app router */}
+      <style dangerouslySetInnerHTML={{ __html: STYLES }} />
 
       {/* ── Hero ── */}
       <section
@@ -333,8 +353,6 @@ export default function TestimonialsPage({ reviews = [] }) {
       {/* ── Stats + Grid ── */}
       <section className="py-12 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
-
-          {/* FIX: StatsBar always mounted; inView prop drives the animation */}
           {safeReviews.length > 0 && (
             <div ref={setStatsRef}>
               <StatsBar reviews={safeReviews} inView={statsInView} />
@@ -357,7 +375,6 @@ export default function TestimonialsPage({ reviews = [] }) {
               ))}
             </div>
           )}
-
         </div>
       </section>
     </main>
