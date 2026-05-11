@@ -104,7 +104,7 @@ function AnimatedCard({ item, index }) {
           <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-green-800 transition-colors duration-300">
             {item.title}
           </h3>
-          {/* <p className="text-gray-500 leading-relaxed text-sm">{item.body}</p> */}
+          <p className="text-gray-500 leading-relaxed text-sm">{item.body}</p>
         </div>
 
       </div>
