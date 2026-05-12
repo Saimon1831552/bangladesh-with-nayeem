@@ -9,7 +9,6 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 const FALLBACK_IMG =
   "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=2000&q=80";
 
-/* ── Reading progress ──────────────────────────────────────────────────────── */
 function ReadingProgress() {
   const [pct, setPct] = useState(0);
   useEffect(() => {
@@ -21,270 +20,123 @@ function ReadingProgress() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 3,
-        zIndex: 9999,
-        background: "#e8e4dc",
-      }}
-    >
-      <div
-        style={{
-          height: "100%",
-          width: `${pct}%`,
-          background: "linear-gradient(to right,#1a5c35,#3d9e68)",
-          transition: "width .1s linear",
-        }}
-      />
+    <div style={{ position:"fixed", top:0, left:0, right:0, height:3, zIndex:9999, background:"#e8e4dc" }}>
+      <div style={{ height:"100%", width:`${pct}%`, background:"linear-gradient(to right,#1a5c35,#3d9e68)", transition:"width .1s linear" }} />
     </div>
   );
 }
 
-/* ── Skeleton ──────────────────────────────────────────────────────────────── */
 function Skeleton() {
   return (
-    <div
-      data-blog-page="true"
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9999,
-        overflowY: "auto",
-        background: "#f5f2ec",
-      }}
-    >
+    <div data-blog-page="true" style={{ position:"fixed", inset:0, zIndex:9999, overflowY:"auto", background:"#f5f2ec" }}>
       <style>{`@keyframes sk{0%,100%{opacity:1}50%{opacity:.4}}.sk{background:#e2ddd5;border-radius:8px;animation:sk 1.6s ease infinite;}`}</style>
-      <div className="sk" style={{ height: "75vh" }} />
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 24px" }}>
-        <div
-          className="sk"
-          style={{ height: 20, width: "40%", marginBottom: 32 }}
-        />
-        <div className="sk" style={{ height: 52, marginBottom: 12 }} />
-        <div
-          className="sk"
-          style={{ height: 36, width: "70%", marginBottom: 48 }}
-        />
-        {[100, 88, 95, 72, 90].map((w, i) => (
-          <div
-            key={i}
-            className="sk"
-            style={{ height: 16, width: `${w}%`, marginBottom: 14 }}
-          />
+      <div className="sk" style={{ height:"75vh" }} />
+      <div style={{ maxWidth:780, margin:"0 auto", padding:"60px 24px" }}>
+        <div className="sk" style={{ height:20, width:"40%", marginBottom:32 }} />
+        <div className="sk" style={{ height:52, marginBottom:12 }} />
+        <div className="sk" style={{ height:36, width:"70%", marginBottom:48 }} />
+        {[100,88,95,72,90].map((w,i) => (
+          <div key={i} className="sk" style={{ height:16, width:`${w}%`, marginBottom:14 }} />
         ))}
       </div>
     </div>
   );
 }
 
-/* ── Error ─────────────────────────────────────────────────────────────────── */
 function ErrorState() {
   return (
-    <div
-      data-blog-page="true"
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9999,
-        background: "#f5f2ec",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 16,
-      }}
-    >
-      <p
-        style={{
-          fontFamily: "Georgia, serif",
-          fontSize: 18,
-          color: "#4a4540",
-          fontWeight: 600,
-        }}
-      >
-        Article not found.
-      </p>
-      <Link
-        href="/blogs"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          background: "#1a5c35",
-          color: "#fff",
-          padding: "10px 24px",
-          borderRadius: 100,
-          fontWeight: 700,
-          fontSize: 14,
-          textDecoration: "none",
-        }}
-      >
+    <div data-blog-page="true" style={{ position:"fixed", inset:0, zIndex:9999, background:"#f5f2ec", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:16 }}>
+      <p style={{ fontFamily:"Georgia, serif", fontSize:18, color:"#4a4540", fontWeight:600 }}>Article not found.</p>
+      <Link href="/blogs" style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#1a5c35", color:"#fff", padding:"10px 24px", borderRadius:100, fontWeight:700, fontSize:14, textDecoration:"none" }}>
         ← Back to Journal
       </Link>
     </div>
   );
 }
 
-/* ── Helpers ───────────────────────────────────────────────────────────────── */
 function fmtDate(str) {
   if (!str) return "";
   try {
-    return new Date(str).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return str;
-  }
+    return new Date(str).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+  } catch { return str; }
 }
 
 function ShareBtn({ label, color, href }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 7,
-        padding: "8px 18px",
-        borderRadius: 100,
-        background: color,
-        color: "#fff",
-        fontSize: 12,
-        fontWeight: 700,
-        textDecoration: "none",
-        transition: "opacity .15s",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.opacity = ".82")}
-      onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-    >
+    <a href={href} target="_blank" rel="noopener noreferrer"
+      style={{ display:"inline-flex", alignItems:"center", gap:7, padding:"8px 18px", borderRadius:100, background:color, color:"#fff", fontSize:12, fontWeight:700, textDecoration:"none", transition:"opacity .15s" }}
+      onMouseEnter={e => e.currentTarget.style.opacity=".82"}
+      onMouseLeave={e => e.currentTarget.style.opacity="1"}>
       {label}
     </a>
   );
 }
 
-function AuthorAvatar({ author, authorImg, size = 54 }) {
+function AuthorAvatar({ author, authorImg, size=54 }) {
   const [err, setErr] = useState(false);
   if (authorImg && !err) {
     return (
-      <div
-        style={{
-          position: "relative",
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          overflow: "hidden",
-          border: "3px solid #e8e2d8",
-          flexShrink: 0,
-        }}
-      >
-        <Image
-          src={authorImg}
-          alt={author || "Author"}
-          fill
-          sizes={`${size}px`}
-          className="object-cover"
-          onError={() => setErr(true)}
-        />
+      <div style={{ position:"relative", width:size, height:size, borderRadius:"50%", overflow:"hidden", border:"3px solid #e8e2d8", flexShrink:0 }}>
+        <Image src={authorImg} alt={author||"Author"} fill sizes={`${size}px`} className="object-cover" onError={() => setErr(true)} />
       </div>
     );
   }
   return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: "#d4e8dc",
-        color: "#1a5c35",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "Georgia, serif",
-        fontSize: size * 0.42,
-        fontWeight: 700,
-        flexShrink: 0,
-      }}
-    >
-      {author?.charAt(0)?.toUpperCase() || "A"}
+    <div style={{ width:size, height:size, borderRadius:"50%", background:"#d4e8dc", color:"#1a5c35", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"Georgia, serif", fontSize:size*0.42, fontWeight:700, flexShrink:0 }}>
+      {author?.charAt(0)?.toUpperCase()||"A"}
     </div>
   );
 }
 
-/* ── Main ──────────────────────────────────────────────────────────────────── */
 export default function Page() {
   const { slug } = useParams();
-  const [blog, setBlog] = useState(null);
-  const [error, setError] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [blog, setBlog]             = useState(null);
+  const [error, setError]           = useState(false);
+  const [copied, setCopied]         = useState(false);
   const [heroImgSrc, setHeroImgSrc] = useState(null);
   const heroImgRef = useRef(null);
 
-  /* hide site header/footer while mounted */
   useEffect(() => {
     const toHide = [];
-    ["header", "footer", "nav"].forEach((sel) => {
-      document.querySelectorAll(sel).forEach((el) => {
+    ["header","footer","nav"].forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
         if (!el.closest("[data-blog-page]")) {
           toHide.push({ el, prev: el.style.cssText });
-          el.style.setProperty("display", "none", "important");
+          el.style.setProperty("display","none","important");
         }
       });
     });
-    return () =>
-      toHide.forEach(({ el, prev }) => {
-        el.style.cssText = prev;
-      });
+    return () => toHide.forEach(({ el, prev }) => { el.style.cssText = prev; });
   }, []);
 
-  /* fetch */
   useEffect(() => {
     if (!slug) return;
-    setError(false);
-    setBlog(null);
+    setError(false); setBlog(null);
     fetch(`${API_BASE}/api/blogs/${slug}`)
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
-      .then((data) => {
-        if (!data?.data) throw new Error();
-        setBlog(data);
-        setHeroImgSrc(data.data.image_url || FALLBACK_IMG);
-      })
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => { if (!data?.data) throw new Error(); setBlog(data); setHeroImgSrc(data.data.image_url||FALLBACK_IMG); })
       .catch(() => setError(true));
   }, [slug]);
 
-  /* parallax */
   useEffect(() => {
     const el = heroImgRef.current;
-    if (!el || !blog) return;
-    const fn = () => {
-      el.style.transform = `translateY(${window.scrollY * 0.28}px)`;
-    };
-    window.addEventListener("scroll", fn, { passive: true });
+    if (!el||!blog) return;
+    const fn = () => { el.style.transform = `translateY(${window.scrollY*0.28}px)`; };
+    window.addEventListener("scroll", fn, { passive:true });
     return () => window.removeEventListener("scroll", fn);
   }, [blog]);
 
   const copyLink = useCallback(() => {
     navigator.clipboard.writeText(window.location.href).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
+      setCopied(true); setTimeout(() => setCopied(false), 2200);
     });
   }, []);
 
   if (error) return <ErrorState />;
-  if (!blog) return <Skeleton />;
+  if (!blog)  return <Skeleton />;
 
-  const d = blog.data;
-  const date = fmtDate(d.publish_date);
+  const d        = blog.data;
+  const date     = fmtDate(d.publish_date);
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
 
   return (
@@ -292,11 +144,11 @@ export default function Page() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 
         .bdp { font-family:'DM Sans',sans-serif; background:#f5f2ec; color:#1c1a16; min-height:100vh; -webkit-font-smoothing:antialiased; }
 
-        /* ── hero ── */
+        /* hero */
         .bdp-hero { position:relative; height:88vh; min-height:520px; overflow:hidden; }
         .bdp-hero-imgwrap { position:absolute; inset:0; overflow:hidden; }
         .bdp-hero-img { width:100%; height:115%; object-fit:cover; will-change:transform; }
@@ -314,7 +166,7 @@ export default function Page() {
           font-size:13px; font-weight:600; text-decoration:none;
           letter-spacing:.02em; transition:background .2s;
         }
-        .bdp-back-btn:hover{background:rgba(255,255,255,.22);}
+        .bdp-back-btn:hover { background:rgba(255,255,255,.22); }
         .bdp-hero-body { position:absolute; bottom:0; left:0; right:0; padding:0 40px 60px; z-index:10; max-width:960px; }
         .bdp-cat-pill { display:inline-flex;align-items:center;gap:6px;background:#1a5c35;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:6px 16px;border-radius:100px;margin-bottom:18px; }
         .bdp-featured-pill { display:inline-flex;align-items:center;background:linear-gradient(135deg,#c8a84b,#e8c96b);color:#5a3d00;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;padding:6px 14px;border-radius:100px;margin-bottom:18px;margin-left:8px; }
@@ -323,41 +175,75 @@ export default function Page() {
         .bdp-meta-item { display:flex;align-items:center;gap:7px;font-size:12.5px;color:rgba(255,255,255,.55);font-weight:500; }
         .bdp-meta-dot { width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.25); }
 
-        /* ── layout ── */
+        /* layout */
         .bdp-layout { display:grid; grid-template-columns:1fr 300px; gap:72px; max-width:1200px; margin:0 auto; padding:72px 40px 100px; align-items:start; }
         @media(max-width:1040px){ .bdp-layout{grid-template-columns:1fr;gap:40px;padding:48px 20px 80px;} }
         @media(max-width:600px){ .bdp-hero-body{padding:0 20px 36px;} .bdp-back-btn{top:20px;left:20px;} }
 
-        /* ── author strip ── */
-        .bdp-author { display:flex;align-items:center;gap:16px;background:#fff;border-radius:20px;padding:20px 24px;border:1px solid #e8e2d8;margin-bottom:44px;box-shadow:0 2px 12px rgba(0,0,0,.04); }
+        /* author strip */
+        .bdp-author { display:flex;align-items:center;gap:16px;background:#fff;border-radius:20px;padding:20px 24px;border:1px solid #e8e2d8;margin-bottom:36px;box-shadow:0 2px 12px rgba(0,0,0,.04); }
 
-        /* ── NEWSPAPER BODY ── */
+        /* excerpt lede */
         .bdp-excerpt-lede {
-          font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
-          font-size: clamp(1.05rem, 2.2vw, 1.22rem);
-          line-height: 1.95;
-          color: #2d2924;
-          text-align: justify;
-          hyphens: auto;
-          -webkit-hyphens: auto;
-          word-spacing: 0.04em;
-          letter-spacing: 0.005em;
-          margin-bottom: 0;
+          font-family:'Libre Baskerville',Georgia,'Times New Roman',serif;
+          font-size:clamp(1.05rem,2.2vw,1.22rem);
+          line-height:1.95; color:#2d2924;
+          text-align:justify; hyphens:auto; -webkit-hyphens:auto;
+          word-spacing:0.04em; letter-spacing:0.005em;
+          margin-bottom:32px;
         }
-
-        /* drop cap on first paragraph */
         .bdp-excerpt-lede::first-letter {
-          font-family: 'Playfair Display', Georgia, serif;
-          font-size: 4.8em;
-          font-weight: 900;
-          float: left;
-          line-height: 0.78;
-          margin: 0.06em 0.12em 0 0;
-          color: #1a5c35;
-          padding-top: 0.05em;
+          font-family:'Playfair Display',Georgia,serif;
+          font-size:4.8em; font-weight:900;
+          float:left; line-height:0.78;
+          margin:0.06em 0.12em 0 0;
+          color:#1a5c35; padding-top:0.05em;
         }
 
-        /* ── meta info block ── */
+        /* ── CONTENT BODY — fixes all inner HTML tags ── */
+        .bdp-content-body {
+          font-family:'Libre Baskerville',Georgia,'Times New Roman',serif;
+          font-size:clamp(1rem,2vw,1.1rem);
+          line-height:1.95; color:#2d2924;
+          text-align:justify; hyphens:auto; -webkit-hyphens:auto;
+          word-spacing:0.04em; letter-spacing:0.005em;
+          margin-top:8px;
+        }
+        .bdp-content-body h2 {
+          font-family:'Playfair Display',Georgia,serif;
+          font-size:clamp(1.45rem,2.8vw,1.9rem);
+          font-weight:700; color:#1c1a16;
+          line-height:1.2; letter-spacing:-0.02em;
+          margin:48px 0 16px;
+        }
+        .bdp-content-body h3 {
+          font-family:'Playfair Display',Georgia,serif;
+          font-size:clamp(1.1rem,2vw,1.35rem);
+          font-weight:700; color:#2d2924;
+          margin:32px 0 12px;
+        }
+        .bdp-content-body p {
+          margin-bottom:22px;
+        }
+        .bdp-content-body blockquote {
+          margin:36px 0; padding:8px 0 8px 28px;
+          border-left:3px solid #1a5c35;
+          font-style:italic; font-size:1.08rem;
+          color:#4a4540; line-height:1.75;
+        }
+        .bdp-content-body ul,
+        .bdp-content-body ol {
+          padding-left:26px; margin-bottom:22px;
+        }
+        .bdp-content-body li { margin-bottom:10px; }
+        .bdp-content-body strong { font-weight:700; color:#1c1a16; }
+        .bdp-content-body a { color:#1a5c35; text-decoration:underline; text-underline-offset:3px; }
+        .bdp-content-body img { width:100%; border-radius:16px; margin:32px 0; }
+
+        /* ornament */
+        .bdp-ornament { text-align:center; margin:40px 0; color:#c8a84b; font-size:20px; letter-spacing:12px; }
+
+        /* info grid */
         .bdp-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid #ddd8ce; border-radius:16px; overflow:hidden; margin:40px 0; background:#fff; }
         .bdp-info-cell { padding:16px 20px; border-right:1px solid #ddd8ce; border-bottom:1px solid #ddd8ce; }
         .bdp-info-cell:nth-child(even){ border-right:none; }
@@ -365,10 +251,7 @@ export default function Page() {
         .bdp-info-lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:#b0a898; margin-bottom:6px; }
         .bdp-info-val { font-family:'Playfair Display',Georgia,serif; font-size:15px; font-weight:600; color:#1c1a16; }
 
-        /* ── divider ornament ── */
-        .bdp-ornament { text-align:center; margin:40px 0; color:#c8a84b; font-size:20px; letter-spacing:12px; }
-
-        /* ── share ── */
+        /* share */
         .bdp-divider { height:1px; background:#e4dfd5; margin:48px 0; }
         .bdp-share { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
         .bdp-share-lbl { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#b0a898;margin-right:2px; }
@@ -376,7 +259,7 @@ export default function Page() {
         .bdp-copy:hover { border-color:#1a5c35;color:#1a5c35; }
         .bdp-copy.ok { border-color:#1a5c35;background:#edf7f1;color:#1a5c35; }
 
-        /* ── sidebar ── */
+        /* sidebar */
         .bdp-sidebar { position:sticky; top:28px; display:flex; flex-direction:column; gap:18px; }
         .bdp-card { background:#fff; border-radius:20px; border:1px solid #e8e2d8; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.04); }
         .bdp-card-head { background:#1a5c35; padding:16px 22px; font-family:'Playfair Display',Georgia,serif; font-size:17px; font-weight:700; color:#fff; }
@@ -389,7 +272,7 @@ export default function Page() {
         .bdp-all-link { display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:14px;background:#1c1a16;color:#fff;font-size:13.5px;font-weight:700;text-decoration:none;transition:background .18s,transform .15s;letter-spacing:.02em; }
         .bdp-all-link:hover { background:#1a5c35;transform:translateY(-1px); }
 
-        /* ── animations ── */
+        /* animations */
         @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
         .f1{animation:fadeUp .55s .05s ease both}
         .f2{animation:fadeUp .6s .18s ease both}
@@ -399,133 +282,83 @@ export default function Page() {
 
       <ReadingProgress />
 
-      <div
-        className="bdp"
-        data-blog-page="true"
-        style={{ position: "fixed", inset: 0, zIndex: 9999, overflowY: "auto" }}
-      >
-        {/* ── HERO ── */}
+      <div className="bdp" data-blog-page="true" style={{ position:"fixed", inset:0, zIndex:9999, overflowY:"auto" }}>
+
+        {/* HERO */}
         <div className="bdp-hero">
           <div className="bdp-hero-imgwrap">
-            <img
-              ref={heroImgRef}
-              className="bdp-hero-img"
-              src={heroImgSrc}
-              alt={d.title}
-              onError={() => setHeroImgSrc(FALLBACK_IMG)}
-            />
+            <img ref={heroImgRef} className="bdp-hero-img" src={heroImgSrc} alt={d.title} onError={() => setHeroImgSrc(FALLBACK_IMG)} />
           </div>
           <div className="bdp-hero-grad" />
-          <Link href="/blogs" className="bdp-back-btn">
-            ← Back to Journal
-          </Link>
-
+          <Link href="/blogs" className="bdp-back-btn">← Back to Journal</Link>
           <div className="bdp-hero-body">
-            <div
-              className="f1"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexWrap: "wrap",
-                gap: 8,
-                marginBottom: 18,
-              }}
-            >
-              {d.category && (
-                <span className="bdp-cat-pill">● {d.category}</span>
-              )}
-              {d.is_featured === 1 && (
-                <span className="bdp-featured-pill">★ Featured</span>
-              )}
+            <div className="f1" style={{ display:"flex", alignItems:"center", flexWrap:"wrap", gap:8, marginBottom:18 }}>
+              {d.category    && <span className="bdp-cat-pill">● {d.category}</span>}
+              {d.is_featured === 1 && <span className="bdp-featured-pill">★ Featured</span>}
             </div>
             <h1 className="bdp-hero-title f2">{d.title}</h1>
             <div className="bdp-hero-meta f3">
-              {date && <span className="bdp-meta-item">📅 {date}</span>}
+              {date         && <span className="bdp-meta-item">📅 {date}</span>}
               {date && d.read_time && <div className="bdp-meta-dot" />}
-              {d.read_time && (
-                <span className="bdp-meta-item">⏱ {d.read_time}</span>
-              )}
-              {d.author && (
-                <>
-                  <div className="bdp-meta-dot" />
-                  <span className="bdp-meta-item">✍ {d.author}</span>
-                </>
-              )}
+              {d.read_time  && <span className="bdp-meta-item">⏱ {d.read_time}</span>}
+              {d.author     && <><div className="bdp-meta-dot" /><span className="bdp-meta-item">✍ {d.author}</span></>}
             </div>
           </div>
         </div>
 
-        {/* ── BODY ── */}
+        {/* BODY */}
         <div className="bdp-layout">
-          {/* LEFT */}
+
+          {/* LEFT — article */}
           <div>
+
             {/* Author strip */}
             <div className="bdp-author f5">
-              <AuthorAvatar
-                author={d.author}
-                authorImg={d.author_img}
-                size={54}
-              />
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 15,
-                    color: "#1c1a16",
-                    marginBottom: 3,
-                  }}
-                >
+              <AuthorAvatar author={d.author} authorImg={d.author_img} size={54} />
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:700, fontSize:15, color:"#1c1a16", marginBottom:3 }}>
                   {d.author || "Editorial Team"}
                 </div>
-                <div style={{ fontSize: 12, color: "#9a9280" }}>
-                  {date}
-                  {d.read_time ? ` · ${d.read_time}` : ""}
+                <div style={{ fontSize:12, color:"#9a9280" }}>
+                  {date}{d.read_time ? ` · ${d.read_time}` : ""}
                 </div>
               </div>
               {d.is_featured === 1 && (
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: "#c8a84b",
-                    background: "#fdf8ed",
-                    border: "1px solid #e8d98a",
-                    padding: "4px 12px",
-                    borderRadius: 100,
-                  }}
-                >
+                <span style={{ fontSize:11, fontWeight:700, color:"#c8a84b", background:"#fdf8ed", border:"1px solid #e8d98a", padding:"4px 12px", borderRadius:100 }}>
                   Featured
                 </span>
               )}
             </div>
 
-            {/* Excerpt — newspaper justified serif with drop cap */}
-            {d.excerpt && <p className="bdp-excerpt-lede f5" dangerouslySetInnerHTML={{ __html: d.excerpt }} />}
-
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mt-8">
-              {d.content && (
+            {/* Excerpt with drop cap */}
+            {d.excerpt && (
               <p
-                className="bdp-content f5 text-justify p-6 mt-8"
+                className="bdp-excerpt-lede f5"
+                dangerouslySetInnerHTML={{ __html: d.excerpt }}
+              />
+            )}
+
+            {/* Full content */}
+            {d.content && (
+              <div
+                className="bdp-content-body f5"
                 dangerouslySetInnerHTML={{ __html: d.content }}
               />
             )}
-            </div>
 
-            {/* Ornamental divider */}
+            {/* Ornament */}
             <div className="bdp-ornament">✦ ✦ ✦</div>
 
-            {/* Info grid — all DB fields displayed elegantly */}
+            {/* Info grid */}
             <div className="bdp-info-grid f5">
               {[
-                { icon: "📅", label: "Published", value: date || "—" },
-                { icon: "⏱", label: "Read time", value: d.read_time || "—" },
-                { icon: "🏷", label: "Category", value: d.category || "—" },
-                { icon: "✍", label: "Written by", value: d.author || "—" },
+                { icon:"📅", label:"Published",  value: date || "—"          },
+                { icon:"⏱", label:"Read time",   value: d.read_time || "—"   },
+                { icon:"🏷", label:"Category",    value: d.category || "—"    },
+                { icon:"✍", label:"Written by",  value: d.author || "—"      },
               ].map(({ icon, label, value }) => (
                 <div key={label} className="bdp-info-cell">
-                  <div className="bdp-info-lbl">
-                    {icon} {label}
-                  </div>
+                  <div className="bdp-info-lbl">{icon} {label}</div>
                   <div className="bdp-info-val">{value}</div>
                 </div>
               ))}
@@ -536,25 +369,10 @@ export default function Page() {
             {/* Share */}
             <div className="bdp-share">
               <span className="bdp-share-lbl">Share</span>
-              <ShareBtn
-                label="𝕏 Twitter"
-                color="#000"
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(d.title)}&url=${encodeURIComponent(shareUrl)}`}
-              />
-              <ShareBtn
-                label="Facebook"
-                color="#1877F2"
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-              />
-              <ShareBtn
-                label="WhatsApp"
-                color="#25D366"
-                href={`https://wa.me/?text=${encodeURIComponent(d.title + " " + shareUrl)}`}
-              />
-              <button
-                className={`bdp-copy${copied ? " ok" : ""}`}
-                onClick={copyLink}
-              >
+              <ShareBtn label="𝕏 Twitter"  color="#000"    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(d.title)}&url=${encodeURIComponent(shareUrl)}`} />
+              <ShareBtn label="Facebook"   color="#1877F2" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} />
+              <ShareBtn label="WhatsApp"   color="#25D366" href={`https://wa.me/?text=${encodeURIComponent(d.title+" "+shareUrl)}`} />
+              <button className={`bdp-copy${copied?" ok":""}`} onClick={copyLink}>
                 {copied ? "✓ Copied!" : "Copy link"}
               </button>
             </div>
@@ -566,15 +384,11 @@ export default function Page() {
               <div className="bdp-card-head">Article Details</div>
               <div className="bdp-card-body">
                 {[
-                  { icon: "📅", label: "Published", value: date || "—" },
-                  { icon: "⏱", label: "Read time", value: d.read_time || "—" },
-                  { icon: "🏷", label: "Category", value: d.category || "—" },
-                  { icon: "✍", label: "Author", value: d.author || "—" },
-                  {
-                    icon: "⭐",
-                    label: "Status",
-                    value: d.is_featured === 1 ? "Featured" : "Standard",
-                  },
+                  { icon:"📅", label:"Published", value: date || "—"          },
+                  { icon:"⏱", label:"Read time",  value: d.read_time || "—"   },
+                  { icon:"🏷", label:"Category",   value: d.category || "—"    },
+                  { icon:"✍", label:"Author",     value: d.author || "—"      },
+                  { icon:"⭐", label:"Status",     value: d.is_featured===1 ? "Featured" : "Standard" },
                 ].map(({ icon, label, value }) => (
                   <div key={label} className="bdp-row">
                     <div className="bdp-row-icon">{icon}</div>
@@ -590,48 +404,21 @@ export default function Page() {
             {d.author && (
               <div className="bdp-card">
                 <div className="bdp-card-head">About the Author</div>
-                <div className="bdp-card-body" style={{ textAlign: "center" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginBottom: 14,
-                    }}
-                  >
-                    <AuthorAvatar
-                      author={d.author}
-                      authorImg={d.author_img}
-                      size={72}
-                    />
+                <div className="bdp-card-body" style={{ textAlign:"center" }}>
+                  <div style={{ display:"flex", justifyContent:"center", marginBottom:14 }}>
+                    <AuthorAvatar author={d.author} authorImg={d.author_img} size={72} />
                   </div>
-                  <p
-                    style={{
-                      fontFamily: "'Playfair Display',Georgia,serif",
-                      fontSize: 18,
-                      fontWeight: 700,
-                      color: "#1c1a16",
-                      marginBottom: 8,
-                    }}
-                  >
+                  <p style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:18, fontWeight:700, color:"#1c1a16", marginBottom:8 }}>
                     {d.author}
                   </p>
-                  <p
-                    style={{
-                      fontSize: 12.5,
-                      color: "#9a9280",
-                      lineHeight: 1.65,
-                    }}
-                  >
-                    Travel writer & guide specialising in authentic experiences
-                    across Bangladesh and South Asia.
+                  <p style={{ fontSize:12.5, color:"#9a9280", lineHeight:1.65 }}>
+                    Travel writer & guide specialising in authentic experiences across Bangladesh and South Asia.
                   </p>
                 </div>
               </div>
             )}
 
-            <Link href="/blogs" className="bdp-all-link">
-              ← All Articles
-            </Link>
+            <Link href="/blogs" className="bdp-all-link">← All Articles</Link>
           </aside>
         </div>
       </div>
