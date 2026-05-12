@@ -6,7 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=2000&q=80";
+const FALLBACK_IMG =
+  "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=2000&q=80";
 
 /* ── Reading progress ──────────────────────────────────────────────────────── */
 function ReadingProgress() {
@@ -20,8 +21,25 @@ function ReadingProgress() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
   return (
-    <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 9999, background: "#e8e4dc" }}>
-      <div style={{ height: "100%", width: `${pct}%`, background: "linear-gradient(to right,#1a5c35,#3d9e68)", transition: "width .1s linear" }} />
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        zIndex: 9999,
+        background: "#e8e4dc",
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${pct}%`,
+          background: "linear-gradient(to right,#1a5c35,#3d9e68)",
+          transition: "width .1s linear",
+        }}
+      />
     </div>
   );
 }
@@ -29,15 +47,34 @@ function ReadingProgress() {
 /* ── Skeleton ──────────────────────────────────────────────────────────────── */
 function Skeleton() {
   return (
-    <div data-blog-page="true" style={{ position: "fixed", inset: 0, zIndex: 9999, overflowY: "auto", background: "#f5f2ec" }}>
+    <div
+      data-blog-page="true"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        overflowY: "auto",
+        background: "#f5f2ec",
+      }}
+    >
       <style>{`@keyframes sk{0%,100%{opacity:1}50%{opacity:.4}}.sk{background:#e2ddd5;border-radius:8px;animation:sk 1.6s ease infinite;}`}</style>
       <div className="sk" style={{ height: "75vh" }} />
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 24px" }}>
-        <div className="sk" style={{ height: 20, width: "40%", marginBottom: 32 }} />
+        <div
+          className="sk"
+          style={{ height: 20, width: "40%", marginBottom: 32 }}
+        />
         <div className="sk" style={{ height: 52, marginBottom: 12 }} />
-        <div className="sk" style={{ height: 36, width: "70%", marginBottom: 48 }} />
+        <div
+          className="sk"
+          style={{ height: 36, width: "70%", marginBottom: 48 }}
+        />
         {[100, 88, 95, 72, 90].map((w, i) => (
-          <div key={i} className="sk" style={{ height: 16, width: `${w}%`, marginBottom: 14 }} />
+          <div
+            key={i}
+            className="sk"
+            style={{ height: 16, width: `${w}%`, marginBottom: 14 }}
+          />
         ))}
       </div>
     </div>
@@ -47,9 +84,45 @@ function Skeleton() {
 /* ── Error ─────────────────────────────────────────────────────────────────── */
 function ErrorState() {
   return (
-    <div data-blog-page="true" style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#f5f2ec", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-      <p style={{ fontFamily: "Georgia, serif", fontSize: 18, color: "#4a4540", fontWeight: 600 }}>Article not found.</p>
-      <Link href="/blogs" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#1a5c35", color: "#fff", padding: "10px 24px", borderRadius: 100, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
+    <div
+      data-blog-page="true"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        background: "#f5f2ec",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 16,
+      }}
+    >
+      <p
+        style={{
+          fontFamily: "Georgia, serif",
+          fontSize: 18,
+          color: "#4a4540",
+          fontWeight: 600,
+        }}
+      >
+        Article not found.
+      </p>
+      <Link
+        href="/blogs"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          background: "#1a5c35",
+          color: "#fff",
+          padding: "10px 24px",
+          borderRadius: 100,
+          fontWeight: 700,
+          fontSize: 14,
+          textDecoration: "none",
+        }}
+      >
         ← Back to Journal
       </Link>
     </div>
@@ -59,16 +132,39 @@ function ErrorState() {
 /* ── Helpers ───────────────────────────────────────────────────────────────── */
 function fmtDate(str) {
   if (!str) return "";
-  try { return new Date(str).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }); }
-  catch { return str; }
+  try {
+    return new Date(str).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return str;
+  }
 }
 
 function ShareBtn({ label, color, href }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer"
-      style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 18px", borderRadius: 100, background: color, color: "#fff", fontSize: 12, fontWeight: 700, textDecoration: "none", transition: "opacity .15s" }}
-      onMouseEnter={e => e.currentTarget.style.opacity = ".82"}
-      onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 7,
+        padding: "8px 18px",
+        borderRadius: 100,
+        background: color,
+        color: "#fff",
+        fontSize: 12,
+        fontWeight: 700,
+        textDecoration: "none",
+        transition: "opacity .15s",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.opacity = ".82")}
+      onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+    >
       {label}
     </a>
   );
@@ -78,13 +174,45 @@ function AuthorAvatar({ author, authorImg, size = 54 }) {
   const [err, setErr] = useState(false);
   if (authorImg && !err) {
     return (
-      <div style={{ position: "relative", width: size, height: size, borderRadius: "50%", overflow: "hidden", border: "3px solid #e8e2d8", flexShrink: 0 }}>
-        <Image src={authorImg} alt={author || "Author"} fill sizes={`${size}px`} className="object-cover" onError={() => setErr(true)} />
+      <div
+        style={{
+          position: "relative",
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          overflow: "hidden",
+          border: "3px solid #e8e2d8",
+          flexShrink: 0,
+        }}
+      >
+        <Image
+          src={authorImg}
+          alt={author || "Author"}
+          fill
+          sizes={`${size}px`}
+          className="object-cover"
+          onError={() => setErr(true)}
+        />
       </div>
     );
   }
   return (
-    <div style={{ width: size, height: size, borderRadius: "50%", background: "#d4e8dc", color: "#1a5c35", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia, serif", fontSize: size * 0.42, fontWeight: 700, flexShrink: 0 }}>
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: "#d4e8dc",
+        color: "#1a5c35",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "Georgia, serif",
+        fontSize: size * 0.42,
+        fontWeight: 700,
+        flexShrink: 0,
+      }}
+    >
       {author?.charAt(0)?.toUpperCase() || "A"}
     </div>
   );
@@ -93,33 +221,44 @@ function AuthorAvatar({ author, authorImg, size = 54 }) {
 /* ── Main ──────────────────────────────────────────────────────────────────── */
 export default function Page() {
   const { slug } = useParams();
-  const [blog, setBlog]         = useState(null);
-  const [error, setError]       = useState(false);
-  const [copied, setCopied]     = useState(false);
+  const [blog, setBlog] = useState(null);
+  const [error, setError] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [heroImgSrc, setHeroImgSrc] = useState(null);
   const heroImgRef = useRef(null);
 
   /* hide site header/footer while mounted */
   useEffect(() => {
     const toHide = [];
-    ["header", "footer", "nav"].forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
+    ["header", "footer", "nav"].forEach((sel) => {
+      document.querySelectorAll(sel).forEach((el) => {
         if (!el.closest("[data-blog-page]")) {
           toHide.push({ el, prev: el.style.cssText });
           el.style.setProperty("display", "none", "important");
         }
       });
     });
-    return () => toHide.forEach(({ el, prev }) => { el.style.cssText = prev; });
+    return () =>
+      toHide.forEach(({ el, prev }) => {
+        el.style.cssText = prev;
+      });
   }, []);
 
   /* fetch */
   useEffect(() => {
     if (!slug) return;
-    setError(false); setBlog(null);
+    setError(false);
+    setBlog(null);
     fetch(`${API_BASE}/api/blogs/${slug}`)
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(data => { if (!data?.data) throw new Error(); setBlog(data); setHeroImgSrc(data.data.image_url || FALLBACK_IMG); })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((data) => {
+        if (!data?.data) throw new Error();
+        setBlog(data);
+        setHeroImgSrc(data.data.image_url || FALLBACK_IMG);
+      })
       .catch(() => setError(true));
   }, [slug]);
 
@@ -127,20 +266,25 @@ export default function Page() {
   useEffect(() => {
     const el = heroImgRef.current;
     if (!el || !blog) return;
-    const fn = () => { el.style.transform = `translateY(${window.scrollY * 0.28}px)`; };
+    const fn = () => {
+      el.style.transform = `translateY(${window.scrollY * 0.28}px)`;
+    };
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, [blog]);
 
   const copyLink = useCallback(() => {
-    navigator.clipboard.writeText(window.location.href).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2200); });
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    });
   }, []);
 
   if (error) return <ErrorState />;
-  if (!blog)  return <Skeleton />;
+  if (!blog) return <Skeleton />;
 
   const d = blog.data;
-  const date     = fmtDate(d.publish_date);
+  const date = fmtDate(d.publish_date);
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
 
   return (
@@ -255,8 +399,11 @@ export default function Page() {
 
       <ReadingProgress />
 
-      <div className="bdp" data-blog-page="true" style={{ position: "fixed", inset: 0, zIndex: 9999, overflowY: "auto" }}>
-
+      <div
+        className="bdp"
+        data-blog-page="true"
+        style={{ position: "fixed", inset: 0, zIndex: 9999, overflowY: "auto" }}
+      >
         {/* ── HERO ── */}
         <div className="bdp-hero">
           <div className="bdp-hero-imgwrap">
@@ -269,52 +416,97 @@ export default function Page() {
             />
           </div>
           <div className="bdp-hero-grad" />
-          <Link href="/blogs" className="bdp-back-btn">← Back to Journal</Link>
+          <Link href="/blogs" className="bdp-back-btn">
+            ← Back to Journal
+          </Link>
 
           <div className="bdp-hero-body">
-            <div className="f1" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 18 }}>
-              {d.category    && <span className="bdp-cat-pill">● {d.category}</span>}
-              {d.is_featured === 1 && <span className="bdp-featured-pill">★ Featured</span>}
+            <div
+              className="f1"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 8,
+                marginBottom: 18,
+              }}
+            >
+              {d.category && (
+                <span className="bdp-cat-pill">● {d.category}</span>
+              )}
+              {d.is_featured === 1 && (
+                <span className="bdp-featured-pill">★ Featured</span>
+              )}
             </div>
             <h1 className="bdp-hero-title f2">{d.title}</h1>
             <div className="bdp-hero-meta f3">
-              {date         && <span className="bdp-meta-item">📅 {date}</span>}
+              {date && <span className="bdp-meta-item">📅 {date}</span>}
               {date && d.read_time && <div className="bdp-meta-dot" />}
-              {d.read_time  && <span className="bdp-meta-item">⏱ {d.read_time}</span>}
-              {d.author     && <><div className="bdp-meta-dot" /><span className="bdp-meta-item">✍ {d.author}</span></>}
+              {d.read_time && (
+                <span className="bdp-meta-item">⏱ {d.read_time}</span>
+              )}
+              {d.author && (
+                <>
+                  <div className="bdp-meta-dot" />
+                  <span className="bdp-meta-item">✍ {d.author}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
 
         {/* ── BODY ── */}
         <div className="bdp-layout">
-
           {/* LEFT */}
           <div>
             {/* Author strip */}
             <div className="bdp-author f5">
-              <AuthorAvatar author={d.author} authorImg={d.author_img} size={54} />
+              <AuthorAvatar
+                author={d.author}
+                authorImg={d.author_img}
+                size={54}
+              />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: "#1c1a16", marginBottom: 3 }}>{d.author || "Editorial Team"}</div>
-                <div style={{ fontSize: 12, color: "#9a9280" }}>{date}{d.read_time ? ` · ${d.read_time}` : ""}</div>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 15,
+                    color: "#1c1a16",
+                    marginBottom: 3,
+                  }}
+                >
+                  {d.author || "Editorial Team"}
+                </div>
+                <div style={{ fontSize: 12, color: "#9a9280" }}>
+                  {date}
+                  {d.read_time ? ` · ${d.read_time}` : ""}
+                </div>
               </div>
               {d.is_featured === 1 && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#c8a84b", background: "#fdf8ed", border: "1px solid #e8d98a", padding: "4px 12px", borderRadius: 100 }}>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#c8a84b",
+                    background: "#fdf8ed",
+                    border: "1px solid #e8d98a",
+                    padding: "4px 12px",
+                    borderRadius: 100,
+                  }}
+                >
                   Featured
                 </span>
               )}
             </div>
 
             {/* Excerpt — newspaper justified serif with drop cap */}
-            {d.excerpt && (
-              <p className="bdp-excerpt-lede f5">{d.excerpt}</p>
-            )}
-            {d.excerpt && (
-              <p className="bdp-excerpt-lede f5">{d.excerpt}</p>
-            )}
+            {d.excerpt && <p className="bdp-excerpt-lede f5">{d.excerpt}</p>}
 
             {d.content && (
-              <p className="bdp-content f5">{d.content}</p>
+              <p
+                className="bdp-content f5"
+                dangerouslySetInnerHTML={{ __html: d.content }}
+              />
             )}
 
             {/* Ornamental divider */}
@@ -323,13 +515,15 @@ export default function Page() {
             {/* Info grid — all DB fields displayed elegantly */}
             <div className="bdp-info-grid f5">
               {[
-                { icon: "📅", label: "Published",  value: date || "—"            },
-                { icon: "⏱", label: "Read time",   value: d.read_time || "—"     },
-                { icon: "🏷", label: "Category",    value: d.category || "—"      },
-                { icon: "✍", label: "Written by",  value: d.author || "—"        },
+                { icon: "📅", label: "Published", value: date || "—" },
+                { icon: "⏱", label: "Read time", value: d.read_time || "—" },
+                { icon: "🏷", label: "Category", value: d.category || "—" },
+                { icon: "✍", label: "Written by", value: d.author || "—" },
               ].map(({ icon, label, value }) => (
                 <div key={label} className="bdp-info-cell">
-                  <div className="bdp-info-lbl">{icon} {label}</div>
+                  <div className="bdp-info-lbl">
+                    {icon} {label}
+                  </div>
                   <div className="bdp-info-val">{value}</div>
                 </div>
               ))}
@@ -340,10 +534,25 @@ export default function Page() {
             {/* Share */}
             <div className="bdp-share">
               <span className="bdp-share-lbl">Share</span>
-              <ShareBtn label="𝕏 Twitter"  color="#000"    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(d.title)}&url=${encodeURIComponent(shareUrl)}`} />
-              <ShareBtn label="Facebook"   color="#1877F2" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} />
-              <ShareBtn label="WhatsApp"   color="#25D366" href={`https://wa.me/?text=${encodeURIComponent(d.title + " " + shareUrl)}`} />
-              <button className={`bdp-copy${copied ? " ok" : ""}`} onClick={copyLink}>
+              <ShareBtn
+                label="𝕏 Twitter"
+                color="#000"
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(d.title)}&url=${encodeURIComponent(shareUrl)}`}
+              />
+              <ShareBtn
+                label="Facebook"
+                color="#1877F2"
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+              />
+              <ShareBtn
+                label="WhatsApp"
+                color="#25D366"
+                href={`https://wa.me/?text=${encodeURIComponent(d.title + " " + shareUrl)}`}
+              />
+              <button
+                className={`bdp-copy${copied ? " ok" : ""}`}
+                onClick={copyLink}
+              >
                 {copied ? "✓ Copied!" : "Copy link"}
               </button>
             </div>
@@ -355,11 +564,15 @@ export default function Page() {
               <div className="bdp-card-head">Article Details</div>
               <div className="bdp-card-body">
                 {[
-                  { icon: "📅", label: "Published", value: date || "—"          },
-                  { icon: "⏱", label: "Read time",  value: d.read_time || "—"   },
-                  { icon: "🏷", label: "Category",   value: d.category || "—"    },
-                  { icon: "✍", label: "Author",     value: d.author || "—"      },
-                  { icon: "⭐", label: "Status",     value: d.is_featured === 1 ? "Featured" : "Standard" },
+                  { icon: "📅", label: "Published", value: date || "—" },
+                  { icon: "⏱", label: "Read time", value: d.read_time || "—" },
+                  { icon: "🏷", label: "Category", value: d.category || "—" },
+                  { icon: "✍", label: "Author", value: d.author || "—" },
+                  {
+                    icon: "⭐",
+                    label: "Status",
+                    value: d.is_featured === 1 ? "Featured" : "Standard",
+                  },
                 ].map(({ icon, label, value }) => (
                   <div key={label} className="bdp-row">
                     <div className="bdp-row-icon">{icon}</div>
@@ -376,18 +589,47 @@ export default function Page() {
               <div className="bdp-card">
                 <div className="bdp-card-head">About the Author</div>
                 <div className="bdp-card-body" style={{ textAlign: "center" }}>
-                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
-                    <AuthorAvatar author={d.author} authorImg={d.author_img} size={72} />
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      marginBottom: 14,
+                    }}
+                  >
+                    <AuthorAvatar
+                      author={d.author}
+                      authorImg={d.author_img}
+                      size={72}
+                    />
                   </div>
-                  <p style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: "#1c1a16", marginBottom: 8 }}>{d.author}</p>
-                  <p style={{ fontSize: 12.5, color: "#9a9280", lineHeight: 1.65 }}>
-                    Travel writer & guide specialising in authentic experiences across Bangladesh and South Asia.
+                  <p
+                    style={{
+                      fontFamily: "'Playfair Display',Georgia,serif",
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: "#1c1a16",
+                      marginBottom: 8,
+                    }}
+                  >
+                    {d.author}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 12.5,
+                      color: "#9a9280",
+                      lineHeight: 1.65,
+                    }}
+                  >
+                    Travel writer & guide specialising in authentic experiences
+                    across Bangladesh and South Asia.
                   </p>
                 </div>
               </div>
             )}
 
-            <Link href="/blogs" className="bdp-all-link">← All Articles</Link>
+            <Link href="/blogs" className="bdp-all-link">
+              ← All Articles
+            </Link>
           </aside>
         </div>
       </div>
