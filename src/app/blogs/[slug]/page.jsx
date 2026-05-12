@@ -207,7 +207,15 @@ export default function Page() {
           line-height:1.95; color:#2d2924;
           text-align:justify; hyphens:auto; -webkit-hyphens:auto;
           word-spacing:0.04em; letter-spacing:0.005em;
-          margin-top:8px;
+          background:#ffffff;
+          border:1px solid #e8e2d8;
+          border-radius:20px;
+          padding:36px 40px;
+          margin-top:36px;
+          box-shadow:0 2px 12px rgba(0,0,0,.04);
+        }
+        @media(max-width:600px){
+          .bdp-content-body { padding:24px 20px; border-radius:14px; }
         }
         .bdp-content-body h2 {
           font-family:'Playfair Display',Georgia,serif;
