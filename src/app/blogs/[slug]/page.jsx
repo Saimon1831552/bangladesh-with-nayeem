@@ -505,7 +505,7 @@ export default function Page() {
             <div className="bg-white rounded-lg border border-gray-200 p-6 mt-8">
               {d.content && (
               <p
-                className="bdp-content f5 text-justify"
+                className="bdp-content f5 text-justify p-6 mt-8"
                 dangerouslySetInnerHTML={{ __html: d.content }}
               />
             )}
