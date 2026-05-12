@@ -709,7 +709,7 @@ function ToursSection({ toast }) {
 }
 
 // ── BLOGS SECTION ─────────────────────────────────────────────────────────────
-const BLOG_DEFAULTS={slug:"",title:"",excerpt:"",image_url:"",category:"",publish_date:"",read_time:"",author:"",author_img:"",is_featured:0};
+const BLOG_DEFAULTS={slug:"",title:"",excerpt:"",content:"",image_url:"",category:"",publish_date:"",read_time:"",author:"",author_img:"",is_featured:0};
 const BLOG_CATS=["Wilderness","Adventure","Culture","Food","Travel Tips","Wildlife"];
 
 function BlogsSection({toast}){
@@ -785,41 +785,93 @@ function BlogsSection({toast}){
         )}
       />
 
-      {modal&&(
-        <Modal title={modal==="add"?"Write Blog Post":"Edit Blog Post"} onClose={()=>setModal(null)} wide>
-          <Grid cols={2} gap={16}>
-            <Field label="Article Title" required><input className="inp" value={form.title} onChange={f("title")} placeholder="Eye-catching headline…" /></Field>
-            <Field label="URL Slug" required><input className="inp" value={form.slug} onChange={f("slug")} placeholder="my-post" /></Field>
-            <Field label="Category">
-              <select className="inp" value={form.category} onChange={f("category")}>
-                <option value="">Select category</option>
-                {BLOG_CATS.map(c=><option key={c} value={c}>{c}</option>)}
-              </select>
-            </Field>
-            <Field label="Publish Date"><input type="date" className="inp" value={form.publish_date} onChange={f("publish_date")} /></Field>
-            <Field label="Author Name"><input className="inp" value={form.author} onChange={f("author")} placeholder="Jane Doe" /></Field>
-            <Field label="Read Time"><input className="inp" value={form.read_time} onChange={f("read_time")} placeholder="5 min read" /></Field>
-            <div style={{gridColumn:"1/-1"}}><Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://…" /></Field></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="Author Avatar URL"><input className="inp" value={form.author_img} onChange={f("author_img")} placeholder="https://…" /></Field></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="Excerpt"><textarea className="inp" rows={3} value={form.excerpt} onChange={f("excerpt")} placeholder="Brief summary for the preview card…" /></Field></div>
-            <div style={{gridColumn:"1/-1",background:"var(--amber-soft)",border:"1px solid #f5d98a",borderRadius:"var(--radius-md)",padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <div>
-                <p style={{fontWeight:700,fontSize:14,color:"var(--ink)"}}>Feature this post</p>
-                <p style={{fontSize:12,color:"var(--ink-3)",marginTop:2}}>Featured posts appear at the top of the blog page</p>
-              </div>
-              <label className="toggle-wrap">
-                <input type="checkbox" checked={!!form.is_featured} onChange={e=>setForm(p=>({...p,is_featured:e.target.checked?1:0}))} />
-                <div className="toggle-track"></div>
-                <div className="toggle-thumb"></div>
-              </label>
-            </div>
-          </Grid>
-          <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginTop:24,paddingTop:20,borderTop:"1px solid var(--border)"}}>
-            <button className="btn btn-ghost" onClick={()=>setModal(null)}>Cancel</button>
-            <button className="btn btn-primary" onClick={save}>{modal==="add"?"Publish Post":"Save Update"}</button>
+      
+{modal&&(
+  <Modal title={modal==="add"?"Write Blog Post":"Edit Blog Post"} onClose={()=>setModal(null)} wide>
+    <Grid cols={2} gap={16}>
+      <Field label="Article Title" required><input className="inp" value={form.title} onChange={f("title")} placeholder="Eye-catching headline…" /></Field>
+      <Field label="URL Slug" required><input className="inp" value={form.slug} onChange={f("slug")} placeholder="my-post" /></Field>
+      <Field label="Category">
+        <select className="inp" value={form.category} onChange={f("category")}>
+          <option value="">Select category</option>
+          {BLOG_CATS.map(c=><option key={c} value={c}>{c}</option>)}
+        </select>
+      </Field>
+      <Field label="Publish Date"><input type="date" className="inp" value={form.publish_date} onChange={f("publish_date")} /></Field>
+      <Field label="Author Name"><input className="inp" value={form.author} onChange={f("author")} placeholder="Jane Doe" /></Field>
+      <Field label="Read Time"><input className="inp" value={form.read_time} onChange={f("read_time")} placeholder="5 min read" /></Field>
+      <div style={{gridColumn:"1/-1"}}><Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://…" /></Field></div>
+      <div style={{gridColumn:"1/-1"}}><Field label="Author Avatar URL"><input className="inp" value={form.author_img} onChange={f("author_img")} placeholder="https://…" /></Field></div>
+      <div style={{gridColumn:"1/-1"}}><Field label="Excerpt"><textarea className="inp" rows={3} value={form.excerpt} onChange={f("excerpt")} placeholder="Brief summary for the preview card…" /></Field></div>
+
+      {/* ── Content field ── */}
+      <div style={{gridColumn:"1/-1"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>
+              Full Article Content
+              <span style={{marginLeft:8,fontSize:11,fontWeight:500,color:"var(--ink-4)",textTransform:"none",letterSpacing:"normal"}}>
+                (HTML supported — {"<h2>"}, {"<p>"}, {"<ul>"}, {"<blockquote>"} etc.)
+              </span>
+            </label>
+            {/* Live word count */}
+            <span style={{fontSize:11,fontWeight:600,color:"var(--ink-4)",background:"var(--surface-3)",padding:"2px 10px",borderRadius:99,border:"1px solid var(--border)",whiteSpace:"nowrap"}}>
+              {(form.content||"").trim().split(/\s+/).filter(Boolean).length} words
+            </span>
           </div>
-        </Modal>
-      )}
+          <textarea
+            className="inp"
+            rows={14}
+            value={form.content}
+            onChange={f("content")}
+            placeholder={`Write the full article here. HTML is supported:\n\n<h2>Why Visit Bangladesh?</h2>\n<p>Bangladesh is a land of extraordinary contrasts...</p>\n<blockquote>Every journey reveals a new layer of beauty.</blockquote>\n<ul>\n  <li>Sundarbans mangrove forest</li>\n  <li>Cox's Bazar beach</li>\n</ul>`}
+            style={{fontFamily:"'JetBrains Mono','Fira Code','Courier New',monospace",fontSize:13,lineHeight:1.7,minHeight:280}}
+          />
+          {/* Preview strip — shows rendered HTML if content exists */}
+          {form.content?.trim() && (
+            <div style={{marginTop:8}}>
+              <div style={{fontSize:11,fontWeight:700,color:"var(--ink-4)",textTransform:"uppercase",letterSpacing:".06em",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                <Ico d={P.arrow} size={12}/> Live Preview
+              </div>
+              <div
+                style={{
+                  background:"var(--surface-2)",
+                  border:"1px solid var(--border)",
+                  borderRadius:"var(--radius-md)",
+                  padding:"16px 20px",
+                  maxHeight:200,
+                  overflowY:"auto",
+                  fontSize:14,
+                  lineHeight:1.75,
+                  color:"var(--ink-2)",
+                  fontFamily:"Georgia, serif",
+                }}
+                dangerouslySetInnerHTML={{__html: form.content}}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{gridColumn:"1/-1",background:"var(--amber-soft)",border:"1px solid #f5d98a",borderRadius:"var(--radius-md)",padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div>
+          <p style={{fontWeight:700,fontSize:14,color:"var(--ink)"}}>Feature this post</p>
+          <p style={{fontSize:12,color:"var(--ink-3)",marginTop:2}}>Featured posts appear at the top of the blog page</p>
+        </div>
+        <label className="toggle-wrap">
+          <input type="checkbox" checked={!!form.is_featured} onChange={e=>setForm(p=>({...p,is_featured:e.target.checked?1:0}))} />
+          <div className="toggle-track"></div>
+          <div className="toggle-thumb"></div>
+        </label>
+      </div>
+    </Grid>
+    <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginTop:24,paddingTop:20,borderTop:"1px solid var(--border)"}}>
+      <button className="btn btn-ghost" onClick={()=>setModal(null)}>Cancel</button>
+      <button className="btn btn-primary" onClick={save}>{modal==="add"?"Publish Post":"Save Update"}</button>
+    </div>
+  </Modal>
+)}
+
       {confirm&&<ConfirmDialog msg={`Delete the article "${confirm.title}"?`} onConfirm={remove} onCancel={()=>setConfirm(null)} />}
     </Section>
   );

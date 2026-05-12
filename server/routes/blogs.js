@@ -37,13 +37,13 @@ router.get('/:id', async (req, res) => {
 // POST /api/blogs
 router.post('/', async (req, res) => {
   try {
-    const { slug, title, excerpt, image_url, category, publish_date, read_time, author, author_img, is_featured } = req.body;
+    const { slug, title, excerpt, content , image_url, category, publish_date, read_time, author, author_img, is_featured } = req.body;
     if (!slug || !title) return res.status(400).json({ success: false, message: 'slug and title are required' });
 
     const [result] = await pool.query(
-      `INSERT INTO blogs (slug, title, excerpt, image_url, category, publish_date, read_time, author, author_img, is_featured)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [slug, title, excerpt, image_url, category, publish_date, read_time, author, author_img, is_featured ?? 0]
+      `INSERT INTO blogs (slug, title, excerpt, content, image_url, category, publish_date, read_time, author, author_img, is_featured)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [slug, title, excerpt, content, image_url, category, publish_date, read_time, author, author_img, is_featured ?? 0]
     );
     res.status(201).json({ success: true, message: 'Blog created', data: { id: result.insertId, slug } });
   } catch (err) {
@@ -55,11 +55,11 @@ router.post('/', async (req, res) => {
 // PUT /api/blogs/:id
 router.put('/:id', async (req, res) => {
   try {
-    const { slug, title, excerpt, image_url, category, publish_date, read_time, author, author_img, is_featured } = req.body;
+    const { slug, title, excerpt, content, image_url, category, publish_date, read_time, author, author_img, is_featured } = req.body;
     const [result] = await pool.query(
-      `UPDATE blogs SET slug=?, title=?, excerpt=?, image_url=?, category=?, publish_date=?,
+      `UPDATE blogs SET slug=?, title=?, excerpt=?, content=?, image_url=?, category=?, publish_date=?,
        read_time=?, author=?, author_img=?, is_featured=? WHERE id=?`,
-      [slug, title, excerpt, image_url, category, publish_date, read_time, author, author_img, is_featured, req.params.id]
+      [slug, title, excerpt, content, image_url, category, publish_date, read_time, author, author_img, is_featured, req.params.id]
     );
     if (!result.affectedRows) return res.status(404).json({ success: false, message: 'Blog not found' });
     res.json({ success: true, message: 'Blog updated' });
