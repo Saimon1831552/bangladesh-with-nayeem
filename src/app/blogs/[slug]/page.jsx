@@ -309,9 +309,12 @@ export default function Page() {
             {d.excerpt && (
               <p className="bdp-excerpt-lede f5">{d.excerpt}</p>
             )}
-            {/* Content — newspaper justified serif with drop cap */}
+            {d.excerpt && (
+              <p className="bdp-excerpt-lede f5">{d.excerpt}</p>
+            )}
+
             {d.content && (
-              <p className="bdp-excerpt-lede f5">{d.content}</p>
+              <p className="bdp-content f5">{d.content}</p>
             )}
 
             {/* Ornamental divider */}
