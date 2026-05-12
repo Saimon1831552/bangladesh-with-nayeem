@@ -500,14 +500,16 @@ export default function Page() {
             </div>
 
             {/* Excerpt — newspaper justified serif with drop cap */}
-            {d.excerpt && <p className="bdp-excerpt-lede f5">{d.excerpt}</p>}
+            {d.excerpt && <p className="bdp-excerpt-lede f5" dangerouslySetInnerHTML={{ __html: d.excerpt }} />}
 
-            {d.content && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mt-8">
+              {d.content && (
               <p
                 className="bdp-content f5"
                 dangerouslySetInnerHTML={{ __html: d.content }}
               />
             )}
+            </div>
 
             {/* Ornamental divider */}
             <div className="bdp-ornament">✦ ✦ ✦</div>
