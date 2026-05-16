@@ -304,7 +304,7 @@ export default function Tour() {
               <span className="text-transparent bg-clip-text bg-linear-to-r from-green-700 to-green-500">Private Tours</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-              Carefully curated experiences designed for international travelers seeking authenticity, comfort, and unforgettable memories.
+              Discover handcrafted private tours across Bangladesh designed for travelers seeking authentic culture, hidden stories, local connection, and unforgettable experiences. From vibrant cities and ancient heritage sites to peaceful villages and river life, every journey with Bangladesh with Naim is personally guided, thoughtfully curated, and created to help you experience the real soul of Bangladesh beyond the tourist trail.
             </p>
           </div>
 
