@@ -20,7 +20,7 @@ export default function Navbar() {
         <Link href="/">
           <div className=' overflow-hidden'>
             <img
-              src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/tu_n4yxog'
+              src='https://res.cloudinary.com/dx4o0i6c2/image/upload/f_auto,q_auto/bangladesh-with-naim-logo_pubs5n'
               className='h-14 rounded-sm'
               alt="Bangladesh with Naim"
             />
