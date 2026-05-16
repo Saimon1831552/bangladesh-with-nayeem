@@ -14,7 +14,7 @@ export default function Navbar() {
 
   return (
     <div className='sticky top-0 z-50 backdrop-blur-md border-b border-[#6fcf47]/20' style={{ background: '#0d1f0d' }}>
-      <div className='flex flex-row justify-between items-center px-4 md:px-10 py-3'>
+      <div className='flex flex-row justify-between items-center px-7 md:px-10 py-3'>
         
         {/* Logo */}
         <Link href="/">
