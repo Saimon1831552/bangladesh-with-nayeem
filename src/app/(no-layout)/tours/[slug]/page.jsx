@@ -7,12 +7,13 @@ import { FaHandPointRight } from "react-icons/fa6";
 import {
   faLocationDot, faClock, faUserGroup, faCheck, faXmark,
   faChevronLeft, faStar, faCalendarDays, faShieldHalved, faRoute,
-  faLeaf, faWater, faBinoculars, faSpinner, faTriangleExclamation,
-  faImage, faTag, faCircleInfo, faArrowRotateLeft, faMagnifyingGlass,
-  faUsers, faBus, faPlus, faBolt
+  faLeaf, faWater, faBinoculars, faTriangleExclamation,
+  faTag, faCircleInfo, faArrowRotateLeft, faMagnifyingGlass,
+  faBolt
 } from '@fortawesome/free-solid-svg-icons';
 
 const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api`;
+
 async function fetchTour(slug) {
   const res = await fetch(`${API_BASE}/tours/${slug}`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`Tour not found (${res.status})`);
@@ -26,9 +27,7 @@ async function fetchGallery(tourId) {
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || [];
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 }
 
 async function fetchReviews(tourId) {
@@ -37,9 +36,7 @@ async function fetchReviews(tourId) {
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || [];
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -55,57 +52,45 @@ const formatPrice = (p) => {
   return String(p).startsWith('$') ? p : `$${p}`;
 };
 
-function getHighlights(tour) {
-  let parsed = tour.highlights;
-  if (typeof parsed === 'string') {
-    try { parsed = JSON.parse(parsed); } catch (e) { return []; }
-  }
-  return Array.isArray(parsed) ? parsed : [];
+function parseJsonField(val) {
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') { try { return JSON.parse(val); } catch { return []; } }
+  return [];
 }
 
-function getWhyChoose(tour) {
-  let parsed = tour.why_choose;
-  if (typeof parsed === 'string') {
-    try { parsed = JSON.parse(parsed); } catch (e) { return []; }
-  }
-  return Array.isArray(parsed) ? parsed : [];
+function parseJsonObj(val) {
+  if (val && typeof val === 'object' && !Array.isArray(val)) return val;
+  if (typeof val === 'string') { try { const p = JSON.parse(val); return p && typeof p === 'object' ? p : null; } catch { return null; } }
+  return null;
 }
 
-function getFaq(tour) {
-  let parsed = tour.faq;
-  if (typeof parsed === 'string') {
-    try { parsed = JSON.parse(parsed); } catch (e) { return []; }
-  }
-  return Array.isArray(parsed) ? parsed : [];
-}
+function getHighlights(tour)  { const p = parseJsonField(tour.highlights);  return Array.isArray(p) ? p : []; }
+function getWhyChoose(tour)   { const p = parseJsonField(tour.why_choose);  return Array.isArray(p) ? p : []; }
+function getFaq(tour)         { const p = parseJsonField(tour.faq);         return Array.isArray(p) ? p : []; }
+function getQuickView(tour)   { return parseJsonObj(tour.quick_view); }
+function getPricePackages(tour) { const p = parseJsonField(tour.price_packages); return Array.isArray(p) ? p : []; }
 
 function buildItinerary(tour) {
-  let parsedItinerary = tour.itinerary;
-  if (typeof parsedItinerary === 'string') {
-    try { parsedItinerary = JSON.parse(parsedItinerary); } catch (e) {}
-  }
-  if (Array.isArray(parsedItinerary) && parsedItinerary.length > 0) return parsedItinerary;
-
+  const parsed = parseJsonField(tour.itinerary);
+  if (parsed.length > 0) return parsed;
   const durationStr = tour.duration || '1 Day';
   const dayMatch = durationStr.match(/(\d+)\s*day/i);
   const days = dayMatch ? parseInt(dayMatch[1]) : 1;
   const dayColors = ['#d97706', '#15803d', '#1d4ed8', '#7c3aed', '#b91c1c'];
-
   return Array.from({ length: days }, (_, i) => ({
     day: i + 1,
     color: dayColors[i % dayColors.length],
     title: i === 0 ? 'Arrival & Orientation' : i === days - 1 ? 'Farewell & Departure' : `Exploration Day ${i + 1}`,
     desc: `Day ${i + 1} of your ${tour.title} experience. Your expert guide will lead you through the highlights of this incredible destination.`,
-    icon: i === 0 ? faWater : i === days - 1 ? faLeaf : faBinoculars,
   }));
 }
 
 function buildStats(tour) {
   const stats = [];
-  if (tour.duration)   stats.push({ icon: faClock,        label: 'Duration',   value: tour.duration });
-  if (tour.group_size) stats.push({ icon: faUserGroup,    label: 'Group Size', value: tour.group_size });
-  stats.push({ icon: faLeaf,         label: 'Meals',      value: 'Included' });
-  stats.push({ icon: faShieldHalved, label: 'Security',   value: 'Expert Guide' });
+  if (tour.duration)   stats.push({ icon: faClock,        label: 'Duration',    value: tour.duration });
+  if (tour.group_size) stats.push({ icon: faUserGroup,    label: 'Group Size',  value: tour.group_size });
+  stats.push({ icon: faLeaf,         label: 'Meals',       value: 'Included' });
+  stats.push({ icon: faShieldHalved, label: 'Security',    value: 'Expert Guide' });
   return stats;
 }
 
@@ -183,15 +168,13 @@ export default function TourDetails({ params }) {
   const heroRef = useRef(null);
   const navRef  = useRef(null);
 
-  // Add body class on mount → global CSS hides header/footer via globals.css rule
-  // Remove on unmount so other pages are unaffected
   useEffect(() => {
     document.body.classList.add('hide-layout');
     return () => { document.body.classList.remove('hide-layout'); };
   }, []);
+
   useEffect(() => {
     const ids = ['overview','highlights','itinerary','price','inclusion','trip-note','why-naim','faq','booking'];
-    // site header is hidden on this page — only section nav (~46px) + buffer = 60px
     const OFFSET = 60;
     const onScroll = () => {
       let active = ids[0];
@@ -207,7 +190,7 @@ export default function TourDetails({ params }) {
       });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll(); // highlight correct link on initial load
+    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -244,8 +227,6 @@ export default function TourDetails({ params }) {
   if (error || !tour) return <ErrorPage msg={error || 'Tour data unavailable.'} />;
 
   // ── Derived data ──────────────────────────────────────────────────────────
-
-  // Parse gallery_img stored directly on the tour (set from dashboard)
   const parseArr = (v) => {
     if (Array.isArray(v)) return v.filter(Boolean);
     if (typeof v === 'string') { try { const p = JSON.parse(v); return Array.isArray(p) ? p.filter(Boolean) : []; } catch { return []; } }
@@ -254,8 +235,6 @@ export default function TourDetails({ params }) {
 
   const tourGalleryImgs = parseArr(tour.gallery_img);
   const galleryApiImgs  = gallery.map(g => g.image_url).filter(Boolean);
-
-  // Priority: tour.gallery_img → gallery API → tour.image_url → fallback
   const images = tourGalleryImgs.length > 0
     ? tourGalleryImgs
     : galleryApiImgs.length > 0
@@ -264,22 +243,30 @@ export default function TourDetails({ params }) {
         ? [tour.image_url]
         : ['https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=2000&q=80'];
 
-  // Parse included / excluded — from tour directly (set from dashboard)
-  const includedItems = parseArr(tour.included);
-  const excludedItems = parseArr(tour.excluded);
+  const includedItems  = parseArr(tour.included);
+  const excludedItems  = parseArr(tour.excluded);
+  const priceNum       = parsePrice(tour.price);
+  const priceFmt       = formatPrice(tour.price);
+  const total          = priceNum * guests;
+  const stats          = buildStats(tour);
+  const itinerary      = buildItinerary(tour);
+  const highlights     = getHighlights(tour);
+  const whyChoose      = getWhyChoose(tour);
+  const faqItems       = getFaq(tour);
+  const quickView      = getQuickView(tour);
+  const pricePackages  = getPricePackages(tour);
+  const tripNote       = tour.trip_note || '';
+  const rating         = tour.rating || 0;
+  const fullStars      = Math.floor(rating);
+  const typeTags       = (tour.tour_type || '').split(',').map(t => t.trim()).filter(Boolean);
 
-  const priceNum  = parsePrice(tour.price);
-  const priceFmt  = formatPrice(tour.price);
-  const total     = priceNum * guests;
-  const stats     = buildStats(tour);
-  const itinerary = buildItinerary(tour);
-  const highlights  = getHighlights(tour);
-  const whyChoose   = getWhyChoose(tour);
-  const faqItems    = getFaq(tour);
-  const tripNote    = tour.trip_note || '';
-  const rating      = tour.rating || 0;
-  const fullStars   = Math.floor(rating);
-  const typeTags    = (tour.tour_type || '').split(',').map(t => t.trim()).filter(Boolean);
+  // Build quick view rows
+  const qvRows = quickView ? [
+    { icon: '📍', key: 'Locations:',         val: quickView.location    },
+    { icon: '🕐', key: 'Tour Duration:',      val: quickView.duration    },
+    { icon: '🏛️', key: 'Tour Attractions:',   val: quickView.attractions },
+    { icon: '📅', key: 'Best Time To Visit:', val: quickView.best_time   },
+  ].filter(r => r.val) : [];
 
   return (
     <>
@@ -290,7 +277,7 @@ export default function TourDetails({ params }) {
         .page-wrap { font-family: 'DM Sans', sans-serif; background: #f8f6f1; min-height: 100vh; color: #1c1c1c; }
         .display-font { font-family: 'Cormorant Garamond', serif; }
 
-        /* ── Hero (UNCHANGED) ── */
+        /* ── Hero ── */
         .hero { position: relative; height: 92vh; overflow: hidden; }
         .hero-img-wrap { position: absolute; inset: 0; overflow: hidden; }
         .hero-img { width: 100%; height: 110%; object-fit: cover; }
@@ -334,8 +321,6 @@ export default function TourDetails({ params }) {
         }
 
         /* ── Right column sticky wrapper ── */
-        /*
-          /* top = section nav (~46px) + 16px gap = 62px (no site header) */
         .right-col {
           position: sticky;
           top: 62px;
@@ -344,9 +329,7 @@ export default function TourDetails({ params }) {
           gap: 24px;
           align-self: start;
         }
-        @media(max-width: 1024px) {
-          .right-col { position: static; top: auto; }
-        }
+        @media(max-width: 1024px) { .right-col { position: static; top: auto; } }
 
         /* ── Stats grid ── */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 48px; }
@@ -360,8 +343,6 @@ export default function TourDetails({ params }) {
         /* ── Section headings ── */
         .section-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #d97706; margin-bottom: 8px; }
         .section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 700; color: #1c1c1c; line-height: 1.1; margin-bottom: 24px; }
-
-        /* ── Section spacing ── */
         .section-block { margin-bottom: 52px; }
         .section-block:last-child { margin-bottom: 0; }
 
@@ -406,7 +387,6 @@ export default function TourDetails({ params }) {
         .why-grid { display: flex; flex-direction: column; gap: 12px; }
         .why-card { background: #fff; border: 1px solid #ede9e0; border-radius: 16px; padding: 20px 24px; display: flex; align-items: flex-start; gap: 14px; transition: transform 0.2s, box-shadow 0.2s; }
         .why-card:hover { transform: translateX(6px); box-shadow: 0 8px 28px rgba(0,0,0,0.07); }
-        .why-icon { width: 36px; height: 36px; border-radius: 50%; background: #f0faf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .why-text { font-size: 14.5px; color: #444; line-height: 1.65; font-weight: 400; }
 
         /* ── Trip Note ── */
@@ -420,10 +400,6 @@ export default function TourDetails({ params }) {
 
         /* ── Price & Offers ── */
         .price-offers-box { background: #fff; border: 1px solid #ede9e0; border-radius: 28px; padding: 36px; }
-        .price-tour-subtitle { font-size: 13px; font-weight: 700; color: #15803d; background: #f0faf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 14px; margin-bottom: 20px; }
-        .price-row-item { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #444; margin-bottom: 12px; line-height: 1.6; }
-        .price-row-icon { width: 20px; text-align: center; flex-shrink: 0; margin-top: 1px; }
-        .price-highlight { font-weight: 700; color: #1c1c1c; }
         .price-italic-tagline { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; color: #15803d; margin: 20px 0; font-weight: 600; }
         .price-divider { height: 1px; background: #ede9e0; margin: 20px 0; }
         .price-sub-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #1c1c1c; margin-bottom: 12px; }
@@ -432,6 +408,61 @@ export default function TourDetails({ params }) {
         .price-bullet-dot { width: 6px; height: 6px; border-radius: 50%; background: #d97706; flex-shrink: 0; margin-top: 7px; }
         .contact-link { color: #15803d; font-weight: 700; text-decoration: none; }
         .contact-link:hover { text-decoration: underline; }
+
+        /* ── Quick View bar ── */
+        .qv-section-label { font-size: 13px; font-weight: 700; color: #1d4ed8; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .qv-bar {
+          background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+          border: 1px solid #bfdbfe;
+          border-radius: 16px;
+          padding: 20px 24px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px 32px;
+          margin-bottom: 28px;
+        }
+        @media(max-width: 640px) { .qv-bar { grid-template-columns: 1fr; gap: 10px; padding: 16px 18px; } }
+        .qv-row { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: #1e3a5f; line-height: 1.5; }
+        .qv-icon { width: 28px; height: 28px; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-size: 14px; }
+        .qv-key { font-weight: 700; color: #1d4ed8; margin-right: 4px; white-space: nowrap; }
+
+        /* ── Price packages grid ── */
+        .pkg-section-label { font-size: 13px; font-weight: 700; color: #1d4ed8; margin-bottom: 12px; }
+        .pkg-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+          margin-bottom: 24px;
+        }
+        @media(max-width: 900px) { .pkg-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 500px)  { .pkg-grid { grid-template-columns: 1fr 1fr; } }
+        .pkg-card {
+          background: #fff;
+          border: 1.5px solid #ede9e0;
+          border-radius: 18px;
+          padding: 20px 14px;
+          text-align: center;
+          position: relative;
+          overflow: hidden;
+          transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+        .pkg-card:hover { border-color: #1d4ed8; box-shadow: 0 8px 24px rgba(29,78,216,0.12); transform: translateY(-3px); }
+        .pkg-card.best-value { border-color: #15803d; background: linear-gradient(160deg, #f0fdf4 0%, #fff 100%); }
+        .pkg-card.best-value::before {
+          content: 'Best Value';
+          position: absolute; top: 10px; right: -24px;
+          background: #15803d; color: #fff;
+          font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+          padding: 3px 30px;
+          transform: rotate(45deg);
+        }
+        .pkg-num { font-size: 10px; font-weight: 700; color: #1d4ed8; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
+        .pkg-label { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 700; color: #1c1c1c; margin-bottom: 3px; line-height: 1.2; }
+        .pkg-pax { font-size: 11px; color: #999; margin-bottom: 10px; }
+        .pkg-price { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: #1d4ed8; line-height: 1; margin-bottom: 2px; }
+        .pkg-card.best-value .pkg-price { color: #15803d; }
+        .pkg-unit { font-size: 10px; color: #bbb; }
+        .pkg-note { font-size: 11px; color: #999; margin-top: 6px; }
 
         /* ── Reviews ── */
         .review-card { background: #fff; border: 1px solid #ede9e0; border-radius: 20px; padding: 28px; margin-bottom: 14px; }
@@ -483,66 +514,34 @@ export default function TourDetails({ params }) {
         .fade-up-3 { animation-delay: 0.4s; }
 
         /* ── Section Nav ── */
-        /*
-          Site header is hidden on this page (display:none).
-          Section nav is the only sticky element → top: 0.
-          scroll-margin-top = section nav height (~46px) + 8px = 54px.
-        */
         .section-nav {
-          position: sticky;
-          top: 0;
-          z-index: 999;
+          position: sticky; top: 0; z-index: 999;
           background: rgba(248,246,241,0.98);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
+          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
           border-bottom: 2px solid #ede9e0;
           box-shadow: 0 2px 16px rgba(0,0,0,0.07);
         }
         .section-nav-inner {
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 0 40px;
-          display: flex;
-          align-items: center;
-          overflow-x: auto;
-          scrollbar-width: none;
+          max-width: 1280px; margin: 0 auto; padding: 0 40px;
+          display: flex; align-items: center; overflow-x: auto; scrollbar-width: none;
         }
         .section-nav-inner::-webkit-scrollbar { display: none; }
         .section-nav-inner a {
-          flex-shrink: 0;
-          display: block;
-          padding: 14px 15px;
-          font-size: 11.5px;
-          font-weight: 600;
-          color: #666;
-          text-decoration: none;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
-          border-bottom: 2px solid transparent;
-          margin-bottom: -2px;
-          transition: color 0.2s, border-color 0.2s;
-          white-space: nowrap;
+          flex-shrink: 0; display: block; padding: 14px 15px;
+          font-size: 11.5px; font-weight: 600; color: #666; text-decoration: none;
+          letter-spacing: 0.04em; text-transform: uppercase;
+          border-bottom: 2px solid transparent; margin-bottom: -2px;
+          transition: color 0.2s, border-color 0.2s; white-space: nowrap;
         }
-        .section-nav-inner a:hover,
-        .section-nav-inner a.nav-active {
-          color: #d97706;
-          border-bottom-color: #d97706;
-        }
+        .section-nav-inner a:hover, .section-nav-inner a.nav-active { color: #d97706; border-bottom-color: #d97706; }
         @media(max-width: 640px) {
           .section-nav-inner { padding: 0 12px; }
           .section-nav-inner a { padding: 12px 10px; font-size: 10px; }
         }
 
-        /* scroll-margin-top = section nav only (no site header) */
-        #overview, #highlights, #itinerary,
-        #price, #inclusion, #why-naim, #trip-note,
-        #faq, #booking {
-          scroll-margin-top: 54px;
-        }
+        #overview, #highlights, #itinerary, #price, #inclusion, #why-naim, #trip-note, #faq, #booking { scroll-margin-top: 54px; }
         @media(max-width: 640px) {
-          #overview, #highlights, #itinerary,
-          #price, #inclusion, #why-naim, #trip-note,
-          #faq, #booking { scroll-margin-top: 46px; }
+          #overview, #highlights, #itinerary, #price, #inclusion, #why-naim, #trip-note, #faq, #booking { scroll-margin-top: 46px; }
         }
 
         /* ── Text justify ── */
@@ -553,15 +552,15 @@ export default function TourDetails({ params }) {
         .inc-list li, .exc-list li { text-align: justify; }
         .why-text { text-align: justify; }
         .trip-note-list li { text-align: justify; }
-        .price-row-item { text-align: justify; }
         .price-bullet-list li { text-align: justify; }
         .faq-answer { text-align: justify; }
         .review-card p { text-align: justify; }
+        .qv-row { text-align: left; }
       `}</style>
 
       <div className="page-wrap">
 
-        {/* ══════════════════════════════ HERO (UNCHANGED) ══════════════════════════════ */}
+        {/* ══════════════ HERO ══════════════ */}
         <div id="hero" className="hero">
           <div className="hero-img-wrap">
             <img ref={heroRef} className="hero-img" src={images[activeImg]} alt={tour.title}
@@ -589,7 +588,6 @@ export default function TourDetails({ params }) {
               ))}
             </div>
           )}
-
           {images.length > 1 && (
             <div className="img-counter">{activeImg + 1} / {images.length}</div>
           )}
@@ -620,9 +618,8 @@ export default function TourDetails({ params }) {
             </p>
           </div>
         </div>
-        {/* ══════════════════════════════ END HERO ══════════════════════════════ */}
 
-        {/* ══════════════════════════════ SECTION NAV ══════════════════════════════ */}
+        {/* ══════════════ SECTION NAV ══════════════ */}
         <nav className="section-nav">
           <div ref={navRef} className="section-nav-inner">
             <a href="#overview">Overview</a>
@@ -637,10 +634,10 @@ export default function TourDetails({ params }) {
           </div>
         </nav>
 
-        {/* ══════════════════════════════ MAIN CONTENT ══════════════════════════════ */}
+        {/* ══════════════ MAIN CONTENT ══════════════ */}
         <div className="main">
 
-          {/* ════════════════ LEFT COLUMN ════════════════ */}
+          {/* ════════ LEFT COLUMN ════════ */}
           <div>
 
             {/* Stats bar */}
@@ -661,8 +658,7 @@ export default function TourDetails({ params }) {
               <div className="overview-block">
                 <div className="section-eyebrow">About This Tour</div>
                 <div className="section-title">Experience Overview</div>
-
-                <div className='text-justify' dangerouslySetInnerHTML={{ __html: tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.` }} />
+                <div className="text-justify" dangerouslySetInnerHTML={{ __html: tour.overview || `Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.` }} />
               </div>
             </div>
 
@@ -691,48 +687,69 @@ export default function TourDetails({ params }) {
                   <div key={item.day} className="timeline-item">
                     <div className="day-bubble" style={{ background: item.color }}>{item.day}</div>
                     <div className="timeline-card">
-                      <div className="day-label">{(item.day>1)? `Day ${item.day}` : 'Day'}</div>
-                      <h3 className='text-justify'>{item.title}</h3>
-                      <p className='text-justify'>{item.desc}</p>
+                      <div className="day-label">{item.day > 1 ? `Day ${item.day}` : 'Day'}</div>
+                      <h3 className="text-justify">{item.title}</h3>
+                      <p className="text-justify">{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-
-            {/* 7. Price & Offers */}
+            {/* 4. Price & Offers — with Quick View + dynamic packages */}
             <div id="price" className="section-block">
               <div className="section-eyebrow">Pricing</div>
               <div className="section-title">Tour Price &amp; Offers</div>
               <div className="price-offers-box">
-                <div className="price-tour-subtitle">
-                  🔒 {tour.title} – Affordable Private Experience
-                </div>
 
-                <div className="price-row-item">
-                  <span className="price-row-icon" style={{ color: '#15803d' }}>$</span>
-                  <span><strong>Start:</strong> The first <span className="price-highlight">1–2 guests</span> are a flat fee of{' '}
-                    <span className="price-highlight">{priceFmt} USD total.</span>
-                  </span>
-                </div>
-                <div className="price-row-item">
-                  <span className="price-row-icon" style={{ color: '#1d4ed8' }}><FontAwesomeIcon icon={faPlus} style={{ fontSize: 12 }} /></span>
-                  <span><strong>Add-On:</strong> Each additional guest (up to 2 more) is <span className="price-highlight">$70 USD per person</span></span>
-                </div>
-                <div className="price-row-item">
-                  <span className="price-row-icon" style={{ color: '#7c3aed' }}><FontAwesomeIcon icon={faUsers} style={{ fontSize: 12 }} /></span>
-                  <span><strong>Group Size:</strong> A maximum of <span className="price-highlight">6 guests</span> on <span className="price-highlight">regular departures</span></span>
-                </div>
-                <div className="price-row-item">
-                  <span className="price-row-icon" style={{ color: '#d97706' }}><FontAwesomeIcon icon={faBus} style={{ fontSize: 12 }} /></span>
-                  <span><strong>Custom Tour?</strong> Solo, groups &amp; families — <a href="/contact" className="contact-link">contact us</a> for a personalised quote.</span>
-                </div>
+                {/* ── Quick View on Details ── */}
+                {qvRows.length > 0 && (
+                  <>
+                    <div className="qv-section-label">🔍 Quick View on Details</div>
+                    <div className="qv-bar">
+                      {qvRows.map((r, i) => (
+                        <div key={i} className="qv-row">
+                          <div className="qv-icon">{r.icon}</div>
+                          <div>
+                            <span className="qv-key">{r.key}</span>
+                            <span>{r.val}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* ── Dynamic Price Packages ── */}
+                {pricePackages.length > 0 ? (
+                  <>
+                    <div className="pkg-section-label">💲 Price Details</div>
+                    <div className="pkg-grid">
+                      {pricePackages.map((pkg, i) => (
+                        <div key={i} className={`pkg-card${i === 0 ? ' best-value' : ''}`}>
+                          <div className="pkg-num">({i + 1})</div>
+                          <div className="pkg-label">{pkg.label}</div>
+                          <div className="pkg-pax">{pkg.pax}</div>
+                          <div className="pkg-price">${pkg.price_usd}</div>
+                          <div className="pkg-unit">USD / person</div>
+                          {pkg.note && <div className="pkg-note">{pkg.note}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  /* fallback if no packages in DB yet */
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d', background: '#f0faf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '8px 14px', marginBottom: 20 }}>
+                    🔒 {tour.title} – from <strong>{priceFmt} USD</strong> per person
+                  </div>
+                )}
 
                 <p className="price-italic-tagline">Your Day, Your Way – A Fully Tailored Tour for Ultimate Experience</p>
 
                 <div className="price-divider" />
-                <div className="price-sub-heading"><FontAwesomeIcon icon={faBolt} style={{ fontSize: 14, color: '#d97706' }} /> Special Offer</div>
+                <div className="price-sub-heading">
+                  <FontAwesomeIcon icon={faBolt} style={{ fontSize: 14, color: '#d97706' }} /> Special Offer
+                </div>
                 <ul className="price-bullet-list">
                   <li><span className="price-bullet-dot" /><span><strong>Early-Bird Deals:</strong> Save <strong>flat 10%</strong> when you <strong>book 60+ days in advance.</strong></span></li>
                   <li><span className="price-bullet-dot" /><span><strong>Multi-Tour Bonus:</strong> Book <strong>1+ days</strong> and <strong>receive a handicraft souvenir.</strong></span></li>
@@ -740,28 +757,35 @@ export default function TourDetails({ params }) {
                 </ul>
 
                 <div className="price-divider" />
-                <div className="price-sub-heading"><FontAwesomeIcon icon={faTag} style={{ fontSize: 14, color: '#d97706' }} /> Fair Pricing Promise</div>
+                <div className="price-sub-heading">
+                  <FontAwesomeIcon icon={faTag} style={{ fontSize: 14, color: '#d97706' }} /> Fair Pricing Promise
+                </div>
                 <ul className="price-bullet-list">
                   <li><span className="price-bullet-dot" /><span><strong>Transparent Inclusions:</strong> All entry fees, rickshaw &amp; boat rides included.</span></li>
                   <li><span className="price-bullet-dot" /><span><strong>No Surprise Costs:</strong> No "factory" visits or shopping commissions—ever.</span></li>
                 </ul>
 
                 <div className="price-divider" />
-                <div className="price-sub-heading"><FontAwesomeIcon icon={faArrowRotateLeft} style={{ fontSize: 14, color: '#d97706' }} /> Free Rescheduling &amp; Cancellation</div>
+                <div className="price-sub-heading">
+                  <FontAwesomeIcon icon={faArrowRotateLeft} style={{ fontSize: 14, color: '#d97706' }} /> Free Rescheduling &amp; Cancellation
+                </div>
                 <ul className="price-bullet-list">
                   <li><span className="price-bullet-dot" /><span><strong>Complimentary Rescheduling:</strong> Change your date up to 72 hours before the tour.</span></li>
                   <li><span className="price-bullet-dot" /><span><strong>Fair Cancellation:</strong> Full refund if cancelled 30+ days before; see <a href="/cancellation-policy" className="contact-link">cancellation policy.</a></span></li>
                 </ul>
 
                 <div className="price-divider" />
-                <div className="price-sub-heading"><FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 14, color: '#d97706' }} /> Fixed Departures or B2B Tours?</div>
+                <div className="price-sub-heading">
+                  <FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 14, color: '#d97706' }} /> Fixed Departures or B2B Tours?
+                </div>
                 <p style={{ fontSize: 13.5, color: '#555', lineHeight: 1.7, marginTop: 4 }}>
-                  We offer fixed-departure group tours and bespoke B2B packages. <a href="/contact" className="contact-link">Get in touch</a> to discuss your requirements.
+                  We offer fixed-departure group tours and bespoke B2B packages.{' '}
+                  <a href="/contact" className="contact-link">Get in touch</a> to discuss your requirements.
                 </p>
               </div>
             </div>
 
-            {/* 4. Included / Excluded */}
+            {/* 5. Included / Excluded */}
             <div id="inclusion" className="section-block">
               <div className="section-eyebrow">What's Covered</div>
               <div className="section-title">Inclusions &amp; Exclusions</div>
@@ -806,8 +830,6 @@ export default function TourDetails({ params }) {
               </div>
             </div>
 
-
-
             {/* 6. Trip Note */}
             {tripNote && (
               <div id="trip-note" className="section-block">
@@ -819,26 +841,24 @@ export default function TourDetails({ params }) {
                     <span className="trip-note-title">Please read before booking</span>
                   </div>
                   <ul className="trip-note-list">
-                  {(() => {
-                    const raw = tripNote.trim();
-                    // If data uses <strong> tags as bullet headers, split before each <strong>
-                    const items = raw.includes('<strong>')
-                      ? raw.split(/(?=<strong>)/).map(s => s.trim()).filter(s => s.length > 0)
-                      : raw.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4);
-                    return items.map((item, i) => (
-                      <li key={i}>
-                        <span className="trip-note-bullet text-justify" />
-                        <span dangerouslySetInnerHTML={{ __html: item.trim() }} />
-                      </li>
-                    ));
-                  })()}
-                </ul>
+                    {(() => {
+                      const raw = tripNote.trim();
+                      const items = raw.includes('<strong>')
+                        ? raw.split(/(?=<strong>)/).map(s => s.trim()).filter(s => s.length > 0)
+                        : raw.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 4);
+                      return items.map((item, i) => (
+                        <li key={i}>
+                          <span className="trip-note-bullet" />
+                          <span dangerouslySetInnerHTML={{ __html: item.trim() }} />
+                        </li>
+                      ));
+                    })()}
+                  </ul>
                 </div>
               </div>
             )}
 
-
-           {/* 5. Why Choose Us */}
+            {/* 7. Why Choose Us */}
             {whyChoose.length > 0 && (
               <div id="why-naim" className="section-block">
                 <div className="section-eyebrow">Our Promise</div>
@@ -846,7 +866,6 @@ export default function TourDetails({ params }) {
                 <div className="why-grid">
                   {whyChoose.map((item, i) => (
                     <div key={i} className="why-card">
-                      
                       <span className="why-text" dangerouslySetInnerHTML={{ __html: item }} />
                     </div>
                   ))}
@@ -888,12 +907,12 @@ export default function TourDetails({ params }) {
             )}
 
           </div>
-          {/* ════════════════ END LEFT COLUMN ════════════════ */}
+          {/* ════════ END LEFT COLUMN ════════ */}
 
-          {/* ════════════════ RIGHT COLUMN (sticky) ════════════════ */}
+          {/* ════════ RIGHT COLUMN (sticky) ════════ */}
           <div className="right-col">
 
-            {/* 1. Booking Widget */}
+            {/* Booking Widget */}
             <div id="booking" className="booking-widget">
               <div style={{ marginBottom: 6 }}>
                 <span className="widget-pp">From</span>
@@ -956,7 +975,7 @@ export default function TourDetails({ params }) {
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', letterSpacing: '0.03em' }}>You won't be charged yet</p>
             </div>
 
-            {/* 2. FAQ */}
+            {/* FAQ */}
             {faqItems.length > 0 && (
               <div id="faq">
                 <FaqSection faqItems={faqItems} />
@@ -964,10 +983,10 @@ export default function TourDetails({ params }) {
             )}
 
           </div>
-          {/* ════════════════ END RIGHT COLUMN ════════════════ */}
+          {/* ════════ END RIGHT COLUMN ════════ */}
 
         </div>
-        {/* ══════════════════════════════ END MAIN CONTENT ══════════════════════════════ */}
+        {/* ══════════════ END MAIN CONTENT ══════════════ */}
 
       </div>
     </>
