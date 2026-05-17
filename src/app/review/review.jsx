@@ -79,79 +79,165 @@ export default function Review({ reviews = [] }) {
 
         .rv-page { font-family: 'DM Sans', sans-serif; background: #f8f6f1; }
 
-        /* ── Hero ── */
+        /* ══════════════════════════════════
+           HERO — reference design
+           Deep green · no blur · corner brackets
+           lock icon · stats bar · wave · safe pill
+        ══════════════════════════════════ */
         .rv-hero {
-          position: relative; overflow: hidden;
-          background: #14532d;
-          padding: 88px 40px 80px;
+          position: relative;
+          overflow: hidden;
+          background: #0f3d22;
+          padding: 88px 40px 0;
           text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
-        @media(max-width:640px){ .rv-hero { padding: 64px 20px 60px; } }
-        .rv-hero-blob-a {
-          position: absolute; top: -60px; left: -60px;
-          width: 320px; height: 320px; border-radius: 50%;
-          background: #bbf7d0; filter: blur(100px); opacity: 0.1; pointer-events: none;
+        @media(max-width:640px){ .rv-hero { padding: 70px 20px 0; } }
+
+        /* faint radial circles */
+        .rv-hero::before {
+          content: '';
+          position: absolute; top: -100px; left: -100px;
+          width: 400px; height: 400px; border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.05);
+          pointer-events: none;
         }
-        .rv-hero-blob-b {
-          position: absolute; bottom: -40px; right: -40px;
-          width: 260px; height: 260px; border-radius: 50%;
-          background: #fde68a; filter: blur(90px); opacity: 0.1; pointer-events: none;
+        .rv-hero::after {
+          content: '';
+          position: absolute; bottom: 80px; right: -80px;
+          width: 300px; height: 300px; border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.04);
+          pointer-events: none;
         }
-        .rv-hero-grid {
-          position: absolute; inset: 0; pointer-events: none;
-          background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-          background-size: 48px 48px;
+
+        /* corner brackets */
+        .rv-corner { position: absolute; width: 34px; height: 34px; pointer-events: none; }
+        .rv-corner-tl { top: 22px; left: 22px; border-top: 2px solid rgba(255,255,255,0.18); border-left: 2px solid rgba(255,255,255,0.18); }
+        .rv-corner-tr { top: 22px; right: 22px; border-top: 2px solid rgba(255,255,255,0.18); border-right: 2px solid rgba(255,255,255,0.18); }
+        .rv-corner-bl { bottom: 90px; left: 22px; border-bottom: 2px solid rgba(255,255,255,0.18); border-left: 2px solid rgba(255,255,255,0.18); }
+        .rv-corner-br { bottom: 90px; right: 22px; border-bottom: 2px solid rgba(255,255,255,0.18); border-right: 2px solid rgba(255,255,255,0.18); }
+
+        /* lock icon box */
+        .rv-hero-icon {
+          width: 80px; height: 80px;
+          background: rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 22px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 36px;
+          margin-bottom: 26px;
+          position: relative; z-index: 2;
         }
-        .rv-hero-inner { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; }
-        .rv-hero-label {
-          display: inline-flex; align-items: center; gap: 10px;
-          margin-bottom: 20px;
+
+        /* eyebrow with side lines */
+        .rv-hero-eyebrow {
+          display: flex; align-items: center; gap: 14px;
+          justify-content: center;
+          font-size: 11px; font-weight: 700;
+          letter-spacing: 0.22em; text-transform: uppercase;
+          color: #c8a84b;
+          margin-bottom: 24px;
+          position: relative; z-index: 2;
         }
-        .rv-hero-label-line { width: 28px; height: 1px; background: #d97706; }
-        .rv-hero-label-text {
-          font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
-          text-transform: uppercase; color: #d97706;
+        .rv-hero-eyebrow::before,
+        .rv-hero-eyebrow::after {
+          content: '';
+          width: 52px; height: 1px;
+          background: linear-gradient(to right, transparent, #c8a84b);
         }
+        .rv-hero-eyebrow::after {
+          background: linear-gradient(to left, transparent, #c8a84b);
+        }
+
+        /* title */
         .rv-hero-title {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: clamp(2.2rem, 5vw, 3.8rem);
+          font-size: clamp(2.4rem, 5.5vw, 4.6rem);
           font-weight: 900; color: #fff;
-          line-height: 1.1; letter-spacing: -0.02em;
-          margin-bottom: 20px;
+          line-height: 1.06; letter-spacing: -0.02em;
+          margin-bottom: 10px;
+          position: relative; z-index: 2;
         }
-        .rv-hero-title-accent {
-          background: linear-gradient(90deg, #86efac 0%, #fde68a 60%, #86efac 100%);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: rv-shimmer 3s linear infinite;
-          font-style: italic;
+
+        /* italic subtitle */
+        .rv-hero-subtitle {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(1.8rem, 4vw, 3.6rem);
+          font-weight: 700; font-style: italic;
+          color: #6fcf47;
+          line-height: 1.1;
+          margin-bottom: 24px;
+          position: relative; z-index: 2;
         }
-        @keyframes rv-shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+
+        /* description */
         .rv-hero-desc {
-          font-size: clamp(14px, 2vw, 16px);
-          color: rgba(255,255,255,0.6);
-          line-height: 1.85; max-width: 680px; margin: 0 auto 32px;
+          font-size: clamp(14px, 2vw, 15.5px);
+          color: rgba(255,255,255,0.65);
+          line-height: 1.85; max-width: 580px; margin: 0 auto 36px;
+          position: relative; z-index: 2;
         }
-        .rv-hero-desc a {
-          color: #fde68a; font-weight: 600;
-          text-decoration: underline; text-underline-offset: 3px;
-          transition: color 0.2s;
-        }
+        .rv-hero-desc a { color: #fde68a; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
         .rv-hero-desc a:hover { color: #fbbf24; }
+
+        /* stats box */
         .rv-hero-stats {
-          display: flex; flex-wrap: wrap; align-items: center;
-          justify-content: center; gap: 32px;
+          display: flex; align-items: stretch;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 18px;
+          overflow: hidden;
+          max-width: 480px;
+          width: 100%;
+          margin: 0 auto 28px;
+          position: relative; z-index: 2;
         }
-        .rv-hero-stat-num { font-size: 24px; font-weight: 800; color: #fff; line-height: 1; }
-        .rv-hero-stat-lbl { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
-        .rv-hero-stat-div { width: 1px; height: 36px; background: rgba(255,255,255,0.1); }
-        .rv-hero-fade {
-          position: absolute; bottom: 0; left: 0; right: 0; height: 56px; pointer-events: none;
-          background: linear-gradient(to bottom, transparent, #f8f6f1);
+        .rv-hero-stat {
+          flex: 1; padding: 20px 20px; text-align: center;
         }
+        .rv-hero-stat + .rv-hero-stat { border-left: 1px solid rgba(255,255,255,0.10); }
+        .rv-hero-stat-val {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 1.85rem; font-weight: 700; color: #fff;
+          line-height: 1; margin-bottom: 6px;
+        }
+        .rv-hero-stat-lbl {
+          font-size: 9px; font-weight: 700;
+          text-transform: uppercase; letter-spacing: 0.16em;
+          color: rgba(255,255,255,0.42);
+        }
+
+        /* safe pill */
+        .rv-safe-pill {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 100px; padding: 10px 22px;
+          font-size: 13px; font-weight: 600; color: #fff;
+          margin-bottom: 52px;
+          position: relative; z-index: 2;
+        }
+        .rv-safe-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          background: #6fcf47; flex-shrink: 0;
+          animation: rv-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes rv-pulse {
+          0%,100%{ box-shadow: 0 0 0 0 rgba(111,207,71,0.4); }
+          50%{ box-shadow: 0 0 0 6px rgba(111,207,71,0); }
+        }
+
+        /* wave */
+        .rv-hero-wave {
+          position: relative; bottom: -1px; left: 0; right: 0;
+          width: 100%; line-height: 0; z-index: 3;
+        }
+        .rv-hero-wave svg { display: block; width: 100%; }
+
+        /* shimmer for subtitle variant */
+        @keyframes rv-shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
 
         /* ── Body ── */
         .rv-wrap { padding: 56px 40px 80px; }
@@ -203,55 +289,67 @@ export default function Review({ reviews = [] }) {
 
       <div className="rv-page">
 
-        {/* ── Hero header ── */}
+        {/* ══════════════ HERO ══════════════ */}
         <div className="rv-hero">
-          <div className="rv-hero-blob-a" />
-          <div className="rv-hero-blob-b" />
-          <div className="rv-hero-grid" />
 
-          <div className="rv-hero-inner">
-            <div className="rv-hero-label">
-              <span className="rv-hero-label-line" />
-              <span className="rv-hero-label-text">Traveller Stories</span>
-              <span className="rv-hero-label-line" />
+          {/* corner brackets */}
+          <div className="rv-corner rv-corner-tl" />
+          <div className="rv-corner rv-corner-tr" />
+          <div className="rv-corner rv-corner-bl" />
+          <div className="rv-corner rv-corner-br" />
+
+          {/* lock icon */}
+          <div className="rv-hero-icon">⭐</div>
+
+          {/* eyebrow */}
+          <div className="rv-hero-eyebrow">Traveller Stories</div>
+
+          {/* title */}
+          <h1 className="rv-hero-title">Real Stories from</h1>
+
+          {/* italic subtitle */}
+          <div className="rv-hero-subtitle">Real Travelers</div>
+
+          {/* description */}
+          <p className="rv-hero-desc">
+            Discover genuine experiences shared by travelers who explored Bangladesh with{' '}
+            <a href="https://www.bangladeshwithnaim.com" target="_blank" rel="noopener noreferrer">
+              Bangladesh with Naim
+            </a>. From cultural journeys and village homestays to hidden local experiences and
+            unforgettable human connections — these reviews reflect authentic memories and trust.
+          </p>
+
+          {/* stats box */}
+          <div className="rv-hero-stats">
+            <div className="rv-hero-stat">
+              <div className="rv-hero-stat-val">{stats.total}+</div>
+              <div className="rv-hero-stat-lbl">Reviews</div>
             </div>
-
-            <h1 className="rv-hero-title">
-              Real Stories from{' '}
-              <span className="rv-hero-title-accent">Real Travelers</span>
-            </h1>
-
-            <p className="rv-hero-desc">
-              Discover genuine experiences shared by travelers who explored Bangladesh with{' '}
-              <a href="https://www.bangladeshwithnaim.com" target="_blank" rel="noopener noreferrer">
-                Bangladesh with Naim
-              </a>. From cultural journeys and village homestays to hidden local experiences and
-              unforgettable human connections, these reviews reflect the authentic memories, trust,
-              and personal experiences created throughout each journey across Bangladesh.
-            </p>
-
-            <div className="rv-hero-stats">
-              <div>
-                <div className="rv-hero-stat-num">{stats.total}+</div>
-                <div className="rv-hero-stat-lbl">Reviews</div>
-              </div>
-              <div className="rv-hero-stat-div" />
-              <div>
-                <div className="rv-hero-stat-num">{stats.avg}</div>
-                <div className="rv-hero-stat-lbl">Avg Rating</div>
-              </div>
-              <div className="rv-hero-stat-div" />
-              <div>
-                <div className="rv-hero-stat-num">{stats.label}</div>
-                <div className="rv-hero-stat-lbl">Overall Score</div>
-              </div>
+            <div className="rv-hero-stat">
+              <div className="rv-hero-stat-val">{stats.avg}</div>
+              <div className="rv-hero-stat-lbl">Avg Rating</div>
+            </div>
+            <div className="rv-hero-stat">
+              <div className="rv-hero-stat-val">{stats.label}</div>
+              <div className="rv-hero-stat-lbl">Score</div>
             </div>
           </div>
 
-          <div className="rv-hero-fade" />
+          {/* safe pill */}
+          <div className="rv-safe-pill">
+            <span className="rv-safe-dot" />
+            Genuine reviews from verified travelers
+          </div>
+
+          {/* wave */}
+          <div className="rv-hero-wave">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+              <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#f8f6f1"/>
+            </svg>
+          </div>
         </div>
 
-        {/* ── Body ── */}
+        {/* ══════════════ BODY ══════════════ */}
         <div className="rv-wrap">
           <div className="rv-inner">
 

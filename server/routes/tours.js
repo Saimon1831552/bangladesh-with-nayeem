@@ -61,7 +61,7 @@ router.post('/', async (req, res) => {
       slug, title, overview, image_url, location, duration, group_size,
       price, rating, review_count, tour_type, isFeatured,
       highlights, why_choose, itinerary, trip_note, faq,
-      gallery_img, included, excluded,
+      gallery_img, included, excluded,quick_view,price_packages
     } = req.body;
 
     if (!slug || !title) return res.status(400).json({ success: false, message: 'slug and title are required' });
@@ -70,13 +70,13 @@ router.post('/', async (req, res) => {
       `INSERT INTO tours
         (slug, title, overview, image_url, location, duration, group_size, price, rating,
          review_count, tour_type, isFeatured, highlights, why_choose, itinerary, trip_note, faq,
-         gallery_img, included, excluded)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         gallery_img, included, excluded, quick_view, price_packages)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         slug, title, overview ?? null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
         toJson(highlights), toJson(why_choose), toJson(itinerary), trip_note ?? null, toJson(faq),
-        toJson(gallery_img), toJson(included), toJson(excluded),
+        toJson(gallery_img), toJson(included), toJson(excluded), toJson(quick_view), toJson(price_packages),
       ]
     );
     res.status(201).json({ success: true, message: 'Tour created', data: { id: result.insertId, slug } });
@@ -93,7 +93,7 @@ router.put('/:id', async (req, res) => {
       slug, title, overview, image_url, location, duration, group_size,
       price, rating, review_count, tour_type, isFeatured,
       highlights, why_choose, itinerary, trip_note, faq,
-      gallery_img, included, excluded,
+      gallery_img, included, excluded,quick_view,price_packages
     } = req.body;
 
     const [result] = await pool.query(
@@ -101,13 +101,13 @@ router.put('/:id', async (req, res) => {
         slug=?, title=?, overview=?, image_url=?, location=?, duration=?, group_size=?,
         price=?, rating=?, review_count=?, tour_type=?, isFeatured=?,
         highlights=?, why_choose=?, itinerary=?, trip_note=?, faq=?,
-        gallery_img=?, included=?, excluded=?
+        gallery_img=?, included=?, excluded=?, quick_view=?, price_packages=?
        WHERE id=?`,
       [
         slug, title, overview ?? null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
         toJson(highlights), toJson(why_choose), toJson(itinerary), trip_note ?? null, toJson(faq),
-        toJson(gallery_img), toJson(included), toJson(excluded),
+        toJson(gallery_img), toJson(included), toJson(excluded), toJson(quick_view), toJson(price_packages),
         req.params.id,
       ]
     );

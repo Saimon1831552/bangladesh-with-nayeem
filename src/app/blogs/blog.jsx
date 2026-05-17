@@ -34,123 +34,262 @@ export default function Blog({ blogs = [] }) {
   }));
 
   return (
-    <div className="bg-slate-50">
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-      {/* ── Hero Header ── */}
-      <section className="relative overflow-hidden bg-green-900 py-24 md:py-32 px-4">
-        {/* Background blobs */}
-        <div className="absolute top-0 left-0 w-80 h-80 rounded-full pointer-events-none"
-          style={{ background: '#bbf7d0', filter: 'blur(100px)', opacity: 0.12 }} />
-        <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full pointer-events-none"
-          style={{ background: '#fde68a', filter: 'blur(90px)', opacity: 0.1 }} />
+        /* ══════════════════════════════════
+           HERO — reference design
+           Deep green · no blur · corner brackets
+           book icon · stats bar · wave · safe pill
+        ══════════════════════════════════ */
+        .bl-hero {
+          position: relative;
+          background: #0f3d22;
+          overflow: hidden;
+          padding: 88px 40px 0;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          font-family: 'DM Sans', sans-serif;
+        }
+        @media(max-width:640px){ .bl-hero { padding: 70px 20px 0; } }
 
-        {/* Grid texture overlay */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }} />
+        /* faint radial circles */
+        .bl-hero::before {
+          content: '';
+          position: absolute; top: -100px; left: -100px;
+          width: 400px; height: 400px; border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.05);
+          pointer-events: none;
+        }
+        .bl-hero::after {
+          content: '';
+          position: absolute; bottom: 80px; right: -80px;
+          width: 300px; height: 300px; border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.04);
+          pointer-events: none;
+        }
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          {/* Label */}
-          <div className="inline-flex items-center gap-2 mb-6">
-            <span className="w-6 h-px bg-amber-400" />
-            <span className="text-xs font-bold tracking-widest text-amber-400 uppercase">
-              Travel Journal
-            </span>
-            <span className="w-6 h-px bg-amber-400" />
-          </div>
+        /* corner brackets */
+        .bl-corner { position: absolute; width: 34px; height: 34px; pointer-events: none; }
+        .bl-corner-tl { top: 22px; left: 22px; border-top: 2px solid rgba(255,255,255,0.18); border-left: 2px solid rgba(255,255,255,0.18); }
+        .bl-corner-tr { top: 22px; right: 22px; border-top: 2px solid rgba(255,255,255,0.18); border-right: 2px solid rgba(255,255,255,0.18); }
+        .bl-corner-bl { bottom: 90px; left: 22px; border-bottom: 2px solid rgba(255,255,255,0.18); border-left: 2px solid rgba(255,255,255,0.18); }
+        .bl-corner-br { bottom: 90px; right: 22px; border-bottom: 2px solid rgba(255,255,255,0.18); border-right: 2px solid rgba(255,255,255,0.18); }
 
-          {/* Heading */}
-          <h1
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-tight mb-6"
-            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-          >
-            Discover the Untold Stories
-            <br className="hidden sm:block" />
-            <span
-              style={{
-                background: 'linear-gradient(90deg, #86efac 0%, #fde68a 60%, #86efac 100%)',
-                backgroundSize: '200% auto',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                animation: 'shimmer 3s linear infinite',
-              }}
-            >
-              of Bangladesh
-            </span>
-          </h1>
+        /* icon box */
+        .bl-hero-icon {
+          width: 80px; height: 80px;
+          background: rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 22px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 36px;
+          margin-bottom: 26px;
+          position: relative; z-index: 2;
+        }
 
-          {/* Description */}
-          <p className="text-base md:text-lg text-green-100/70 max-w-2xl mx-auto leading-relaxed mb-10">
-            Stories, travel guides, local culture, hidden destinations, photography journeys, and authentic experiences from across Bangladesh. Insightful articles and real travel stories from{' '}
-            <a
-              href="https://www.bangladeshwithnaim.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-amber-300 font-semibold underline underline-offset-2 hover:text-amber-200 transition-colors"
-            >
+        /* eyebrow with side lines */
+        .bl-hero-eyebrow {
+          display: flex; align-items: center; gap: 14px;
+          justify-content: center;
+          font-size: 11px; font-weight: 700;
+          letter-spacing: 0.22em; text-transform: uppercase;
+          color: #c8a84b;
+          margin-bottom: 24px;
+          position: relative; z-index: 2;
+        }
+        .bl-hero-eyebrow::before,
+        .bl-hero-eyebrow::after {
+          content: '';
+          width: 52px; height: 1px;
+          background: linear-gradient(to right, transparent, #c8a84b);
+        }
+        .bl-hero-eyebrow::after {
+          background: linear-gradient(to left, transparent, #c8a84b);
+        }
+
+        /* main title */
+        .bl-hero-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(2.4rem, 5.5vw, 4.6rem);
+          font-weight: 900; color: #fff;
+          line-height: 1.06; letter-spacing: -0.02em;
+          margin-bottom: 10px;
+          position: relative; z-index: 2;
+        }
+
+        /* italic subtitle — shimmer green */
+        .bl-hero-subtitle {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(1.8rem, 4vw, 3.6rem);
+          font-weight: 700; font-style: italic;
+          color: #6fcf47;
+          line-height: 1.1;
+          margin-bottom: 24px;
+          position: relative; z-index: 2;
+        }
+
+        /* description */
+        .bl-hero-desc {
+          font-size: clamp(14px, 2vw, 15.5px);
+          color: rgba(255,255,255,0.65);
+          line-height: 1.85; max-width: 600px; margin: 0 auto 36px;
+          position: relative; z-index: 2;
+        }
+        .bl-hero-desc a { color: #fde68a; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+        .bl-hero-desc a:hover { color: #fbbf24; }
+
+        /* stats box */
+        .bl-hero-stats {
+          display: flex; align-items: stretch;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 18px;
+          overflow: hidden;
+          max-width: 460px; width: 100%;
+          margin: 0 auto 28px;
+          position: relative; z-index: 2;
+        }
+        .bl-hero-stat { flex: 1; padding: 20px 20px; text-align: center; }
+        .bl-hero-stat + .bl-hero-stat { border-left: 1px solid rgba(255,255,255,0.10); }
+        .bl-hero-stat-val {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 1.85rem; font-weight: 700; color: #fff;
+          line-height: 1; margin-bottom: 6px;
+        }
+        .bl-hero-stat-lbl {
+          font-size: 9px; font-weight: 700;
+          text-transform: uppercase; letter-spacing: 0.16em;
+          color: rgba(255,255,255,0.42);
+        }
+
+        /* safe pill */
+        .bl-safe-pill {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 100px; padding: 10px 22px;
+          font-size: 13px; font-weight: 600; color: #fff;
+          margin-bottom: 52px;
+          position: relative; z-index: 2;
+          font-family: 'DM Sans', sans-serif;
+        }
+        .bl-safe-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          background: #6fcf47; flex-shrink: 0;
+          animation: bl-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes bl-pulse {
+          0%,100%{ box-shadow: 0 0 0 0 rgba(111,207,71,0.4); }
+          50%{ box-shadow: 0 0 0 6px rgba(111,207,71,0); }
+        }
+
+        /* wave */
+        .bl-hero-wave {
+          position: relative; bottom: -1px;
+          width: 100%; line-height: 0; z-index: 3;
+        }
+        .bl-hero-wave svg { display: block; width: 100%; }
+      `}</style>
+
+      <div className="bg-slate-50">
+
+        {/* ══════════════ HERO ══════════════ */}
+        <div className="bl-hero">
+
+          {/* corner brackets */}
+          <div className="bl-corner bl-corner-tl" />
+          <div className="bl-corner bl-corner-tr" />
+          <div className="bl-corner bl-corner-bl" />
+          <div className="bl-corner bl-corner-br" />
+
+          {/* icon */}
+          <div className="bl-hero-icon">📖</div>
+
+          {/* eyebrow */}
+          <div className="bl-hero-eyebrow">Travel Journal</div>
+
+          {/* title */}
+          <h1 className="bl-hero-title">Discover the Untold Stories</h1>
+
+          {/* italic subtitle */}
+          <div className="bl-hero-subtitle">of Bangladesh</div>
+
+          {/* description */}
+          <p className="bl-hero-desc">
+            Stories, travel guides, local culture, hidden destinations, and authentic experiences
+            from across Bangladesh — by{' '}
+            <a href="https://www.bangladeshwithnaim.com" target="_blank" rel="noopener noreferrer">
               Bangladesh with Naim
-            </a>{' '}
-            — helping travelers discover the people, traditions, food, nature, and untold beauty beyond the usual tourist path.
+            </a>
+            . Helping travelers discover the people, traditions, food, and untold beauty beyond
+            the usual tourist path.
           </p>
 
-          {/* Stats row */}
-          <div className="flex flex-wrap items-center justify-center gap-8 text-center">
-            {[
-              { value: `${blogs.length}+`, label: 'Articles' },
-              { value: '100%', label: 'Authentic' },
-              { value: '∞',   label: 'Discoveries' },
-            ].map(({ value, label }) => (
-              <div key={label}>
-                <p className="text-2xl font-extrabold text-white">{value}</p>
-                <p className="text-xs font-semibold text-green-300/70 uppercase tracking-widest mt-0.5">{label}</p>
-              </div>
-            ))}
+          {/* stats box */}
+          <div className="bl-hero-stats">
+            <div className="bl-hero-stat">
+              <div className="bl-hero-stat-val">{blogs.length}+</div>
+              <div className="bl-hero-stat-lbl">Articles</div>
+            </div>
+            <div className="bl-hero-stat">
+              <div className="bl-hero-stat-val">100%</div>
+              <div className="bl-hero-stat-lbl">Authentic</div>
+            </div>
+            <div className="bl-hero-stat">
+              <div className="bl-hero-stat-val">∞</div>
+              <div className="bl-hero-stat-lbl">Discoveries</div>
+            </div>
+          </div>
+
+          {/* safe pill */}
+          <div className="bl-safe-pill">
+            <span className="bl-safe-dot" />
+            Real stories from real travelers
+          </div>
+
+          {/* wave */}
+          <div className="bl-hero-wave">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+              <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#f8fafc"/>
+            </svg>
           </div>
         </div>
 
-        {/* Bottom fade into page bg */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, #f8fafc)' }} />
+        {/* ══════════════ BLOG GRID ══════════════ */}
+        <section className="py-16 md:py-24 relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-40 -mt-40 w-96 h-96 bg-green-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-40 pointer-events-none" />
 
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap');
-          @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
-        `}</style>
-      </section>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-      {/* ── Blog Grid ── */}
-      <section className="py-16 md:py-24 relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-40 -mt-40 w-96 h-96 bg-green-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-40 pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-          {/* Section label + view all */}
-          <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center gap-3">
-              <span className="w-8 h-0.5 bg-amber-500" />
-              <span className="text-sm font-bold tracking-widest text-green-800 uppercase">
-                All Articles
+            {/* Section label */}
+            <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-0.5 bg-amber-500" />
+                <span className="text-sm font-bold tracking-widest text-green-800 uppercase">
+                  All Articles
+                </span>
+              </div>
+              <span className="text-sm text-gray-400 font-medium">
+                {blogs.length} {blogs.length === 1 ? 'article' : 'articles'} published
               </span>
             </div>
-            <span className="text-sm text-gray-400 font-medium">
-              {blogs.length} {blogs.length === 1 ? 'article' : 'articles'} published
-            </span>
+
+            {/* Bento Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {finalBlogs.map((blog) => (
+                <BlogCard key={blog.id} blog={blog} />
+              ))}
+            </div>
+
           </div>
+        </section>
 
-          {/* Bento Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {finalBlogs.map((blog) => (
-              <BlogCard key={blog.id} blog={blog} />
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-    </div>
+      </div>
+    </>
   );
 }
 
