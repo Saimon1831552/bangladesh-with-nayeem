@@ -419,7 +419,7 @@ function Section({ title, icon, onAdd, count, loading, onRefresh, extra, childre
 }
 
 // ── TOURS SECTION ─────────────────────────────────────────────────────────────
-const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", why_choose:"[]", itinerary:"[]", trip_note:"", faq:"[]", isFeatured:0, gallery_img:[], included:[], excluded:[], quick_view:[], price_packages:[] };
+const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", why_choose:"[]", itinerary:"[]", trip_note:"", faq:"[]", isFeatured:0, gallery_img:[], included:[], excluded:[], quick_view:{}, price_packages:[] };
 
 // ── Dynamic list editor (gallery images / included / excluded) ─────────────────
 function ListEditor({ label, color="teal", icon, items, onChange, placeholder }) {
@@ -455,45 +455,75 @@ function ListEditor({ label, color="teal", icon, items, onChange, placeholder })
   );
 }
 
-// ── Quick View Editor [{label, value}] ────────────────────────────────────────
-function QuickViewEditor({ items, onChange }) {
-  const add    = () => onChange([...items, { label:"", value:"" }]);
-  const update = (i, key, val) => { const n=[...items]; n[i]={...n[i],[key]:val}; onChange(n); };
-  const remove = (i) => onChange(items.filter((_,j)=>j!==i));
+// ── Quick View Editor — saves as plain object {key: value, …} ────────────────
+// e.g. {location:"Dhaka",duration:"1 Full Day",attractions:"…",best_time:"…"}
+function QuickViewEditor({ obj, onChange }) {
+  // Convert object → [{key,value}] for editing
+  const pairs = Object.entries(obj||{});
+
+  const addPair = () => {
+    const updated = {...(obj||{}), "": ""};
+    onChange(updated);
+  };
+  const updateKey = (oldKey, newKey) => {
+    const entries = Object.entries(obj||{});
+    const rebuilt = {};
+    entries.forEach(([k,v]) => { rebuilt[k===oldKey ? newKey : k] = v; });
+    onChange(rebuilt);
+  };
+  const updateVal = (key, val) => onChange({...(obj||{}), [key]: val});
+  const removePair = (key) => {
+    const copy = {...(obj||{})};
+    delete copy[key];
+    onChange(copy);
+  };
+
   return (
     <div style={{display:"flex",flexDirection:"column",gap:8}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:2}}>
-        <label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>Quick View Items</label>
-        <button type="button" className="btn btn-ghost" style={{padding:"5px 12px",fontSize:12,gap:5}} onClick={add}>
-          <Ico d={P.plus} size={12} stroke={2.5}/> Add Item
+        <div>
+          <label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>Quick View</label>
+          <p style={{fontSize:11,color:"var(--ink-4)",marginTop:2}}>Saved as an object — e.g. location, duration, best_time …</p>
+        </div>
+        <button type="button" className="btn btn-ghost" style={{padding:"5px 12px",fontSize:12,gap:5}} onClick={addPair}>
+          <Ico d={P.plus} size={12} stroke={2.5}/> Add Field
         </button>
       </div>
-      {items.length===0 && (
+      {pairs.length===0 && (
         <div style={{padding:"12px 16px",background:"var(--surface-2)",borderRadius:"var(--radius-md)",border:"1.5px dashed var(--border)",fontSize:13,color:"var(--ink-4)",textAlign:"center"}}>
-          No quick view items — click Add Item
+          No fields yet — click Add Field
         </div>
       )}
-      {items.map((item,i)=>(
+      {pairs.map(([key,val],i)=>(
         <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
-          <div style={{width:28,height:28,borderRadius:"50%",background:"var(--violet-soft)",border:"1.5px solid #c4b5f4",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"var(--violet)",fontSize:12,fontWeight:700}}>{i+1}</div>
-          <input className="inp" value={item.label||""} onChange={e=>update(i,"label",e.target.value)} placeholder="Label (e.g. Duration)" style={{flex:1}}/>
-          <input className="inp" value={item.value||""} onChange={e=>update(i,"value",e.target.value)} placeholder="Value (e.g. 3 Days)" style={{flex:1}}/>
-          <button type="button" className="btn-icon del" style={{flexShrink:0}} onClick={()=>remove(i)} title="Remove"><Ico d={P.close} size={13}/></button>
+          <div style={{width:28,height:28,borderRadius:"50%",background:"var(--violet-soft)",border:"1.5px solid #c4b5f4",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"var(--violet)",fontSize:11,fontWeight:700}}>{i+1}</div>
+          <input className="inp" value={key} onChange={e=>updateKey(key,e.target.value)} placeholder="Field key (e.g. location)" style={{flex:"0 0 38%"}}/>
+          <input className="inp" value={val} onChange={e=>updateVal(key,e.target.value)} placeholder="Value" style={{flex:1}}/>
+          <button type="button" className="btn-icon del" style={{flexShrink:0}} onClick={()=>removePair(key)} title="Remove"><Ico d={P.close} size={13}/></button>
         </div>
       ))}
+      {pairs.length>0&&(
+        <div style={{marginTop:4,padding:"8px 12px",background:"var(--surface-2)",borderRadius:"var(--radius-sm)",border:"1px solid var(--border)"}}>
+          <code style={{fontSize:11,color:"var(--ink-3)",wordBreak:"break-all"}}>{JSON.stringify(obj,null,0)}</code>
+        </div>
+      )}
     </div>
   );
 }
 
-// ── Price Package Editor [{name, price, description}] ─────────────────────────
+// ── Price Package Editor — [{label, pax, price_usd, note}] ───────────────────
+// e.g. {label:"Four Pax Group", pax:"4 persons", price_usd:70, note:"Best value"}
 function PricePackageEditor({ items, onChange }) {
-  const add    = () => onChange([...items, { name:"", price:"", description:"" }]);
+  const add    = () => onChange([...items, { label:"", pax:"", price_usd:"", note:"" }]);
   const update = (i, key, val) => { const n=[...items]; n[i]={...n[i],[key]:val}; onChange(n); };
   const remove = (i) => onChange(items.filter((_,j)=>j!==i));
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:2}}>
-        <label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>Price Packages</label>
+        <div>
+          <label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>Price Packages</label>
+          <p style={{fontSize:11,color:"var(--ink-4)",marginTop:2}}>Each package: label · pax · price_usd · note</p>
+        </div>
         <button type="button" className="btn btn-ghost" style={{padding:"5px 12px",fontSize:12,gap:5}} onClick={add}>
           <Ico d={P.plus} size={12} stroke={2.5}/> Add Package
         </button>
@@ -508,22 +538,26 @@ function PricePackageEditor({ items, onChange }) {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
               <div style={{width:26,height:26,borderRadius:8,background:"var(--accent-soft)",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--accent)",fontSize:12,fontWeight:800}}>{i+1}</div>
-              <span style={{fontSize:13,fontWeight:700,color:"var(--ink-2)"}}>Package {i+1}</span>
+              <span style={{fontSize:13,fontWeight:700,color:"var(--ink-2)"}}>{item.label||`Package ${i+1}`}</span>
             </div>
-            <button type="button" className="btn-icon del" onClick={()=>remove(i)} title="Remove package"><Ico d={P.trash} size={13}/></button>
+            <button type="button" className="btn-icon del" onClick={()=>remove(i)} title="Remove"><Ico d={P.trash} size={13}/></button>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              <label style={{fontSize:11,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".05em"}}>Package Name</label>
-              <input className="inp" value={item.name||""} onChange={e=>update(i,"name",e.target.value)} placeholder="e.g. Standard, Premium"/>
+              <label style={{fontSize:11,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".05em"}}>Label <span style={{color:"var(--rose)"}}>*</span></label>
+              <input className="inp" value={item.label||""} onChange={e=>update(i,"label",e.target.value)} placeholder="e.g. Four Pax Group"/>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              <label style={{fontSize:11,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".05em"}}>Price (USD)</label>
-              <input type="number" className="inp" value={item.price||""} onChange={e=>update(i,"price",e.target.value)} placeholder="0.00"/>
+              <label style={{fontSize:11,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".05em"}}>Pax <span style={{color:"var(--rose)"}}>*</span></label>
+              <input className="inp" value={item.pax||""} onChange={e=>update(i,"pax",e.target.value)} placeholder="e.g. 4 persons"/>
             </div>
-            <div style={{gridColumn:"1/-1",display:"flex",flexDirection:"column",gap:5}}>
-              <label style={{fontSize:11,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".05em"}}>Description</label>
-              <textarea className="inp" rows={2} value={item.description||""} onChange={e=>update(i,"description",e.target.value)} placeholder="What's included in this package…"/>
+            <div style={{display:"flex",flexDirection:"column",gap:5}}>
+              <label style={{fontSize:11,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".05em"}}>Price USD <span style={{color:"var(--rose)"}}>*</span></label>
+              <input type="number" className="inp" value={item.price_usd||""} onChange={e=>update(i,"price_usd",Number(e.target.value)||"")} placeholder="70"/>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:5}}>
+              <label style={{fontSize:11,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".05em"}}>Note</label>
+              <input className="inp" value={item.note||""} onChange={e=>update(i,"note",e.target.value)} placeholder="e.g. Per person — best value"/>
             </div>
           </div>
         </div>
@@ -561,7 +595,7 @@ function ToursSection({ toast }) {
       gallery_img: parseArr(r.gallery_img),
       included: parseArr(r.included),
       excluded: parseArr(r.excluded),
-      quick_view: parseArr(r.quick_view),
+      quick_view: (()=>{ const v=r.quick_view; if(v&&typeof v==='object'&&!Array.isArray(v))return v; if(typeof v==='string'){try{const p=JSON.parse(v);return(p&&typeof p==='object'&&!Array.isArray(p))?p:{};}catch{return{};}} return{}; })(),
       price_packages: parseArr(r.price_packages),
     });
     setModal("edit");
@@ -598,7 +632,7 @@ function ToursSection({ toast }) {
       gallery_img: form.gallery_img || [],
       included:   form.included   || [],
       excluded:   form.excluded   || [],
-      quick_view: form.quick_view || [],
+      quick_view: form.quick_view || {},
       price_packages: form.price_packages || [],
     };
 
@@ -689,16 +723,21 @@ function ToursSection({ toast }) {
 
             {/* ── Quick View column ── */}
             <td style={{padding:"14px 18px"}}>
-              {(() => { const qv=parseArr(r.quick_view); return qv.length>0
-                ?<div style={{display:"flex",flexDirection:"column",gap:3}}>
-                    {qv.slice(0,2).map((item,i)=>(
-                      <span key={i} style={{fontSize:11,color:"var(--ink-2)",display:"flex",alignItems:"center",gap:4}}>
-                        <span style={{fontWeight:700,color:"var(--violet)",fontSize:10,textTransform:"uppercase"}}>{item.label}:</span> {item.value}
-                      </span>
-                    ))}
-                    {qv.length>2&&<span style={{fontSize:10,color:"var(--ink-4)"}}>+{qv.length-2} more</span>}
-                  </div>
-                :<span style={{color:"var(--ink-4)",fontSize:12}}>—</span>;
+              {(() => {
+                const qv=r.quick_view; let obj={};
+                if(qv&&typeof qv==='object'&&!Array.isArray(qv))obj=qv;
+                else if(typeof qv==='string'){try{const p=JSON.parse(qv);if(p&&typeof p==='object'&&!Array.isArray(p))obj=p;}catch{}}
+                const entries=Object.entries(obj);
+                return entries.length>0
+                  ?<div style={{display:"flex",flexDirection:"column",gap:3}}>
+                      {entries.slice(0,2).map(([k,v],i)=>(
+                        <span key={i} style={{fontSize:11,color:"var(--ink-2)",display:"flex",alignItems:"center",gap:4}}>
+                          <span style={{fontWeight:700,color:"var(--violet)",fontSize:10,textTransform:"capitalize"}}>{k.replace(/_/g," ")}:</span>{String(v)}
+                        </span>
+                      ))}
+                      {entries.length>2&&<span style={{fontSize:10,color:"var(--ink-4)"}}>+{entries.length-2} more</span>}
+                    </div>
+                  :<span style={{color:"var(--ink-4)",fontSize:12}}>—</span>;
               })()}
             </td>
 
@@ -708,8 +747,8 @@ function ToursSection({ toast }) {
                 ?<div style={{display:"flex",flexDirection:"column",gap:4}}>
                     {pkgs.slice(0,2).map((pkg,i)=>(
                       <div key={i} style={{display:"flex",alignItems:"center",gap:5}}>
-                        <span style={{fontSize:12,fontWeight:600,color:"var(--ink-2)"}}>{pkg.name||`Pkg ${i+1}`}</span>
-                        {pkg.price&&<span style={{fontSize:12,fontWeight:800,color:"var(--accent)"}}>  ${pkg.price}</span>}
+                        <span style={{fontSize:12,fontWeight:600,color:"var(--ink-2)"}}>{pkg.label||`Pkg ${i+1}`}</span>
+                        {pkg.price_usd&&<span style={{fontSize:12,fontWeight:800,color:"var(--accent)"}}>${pkg.price_usd}</span>}
                       </div>
                     ))}
                     {pkgs.length>2&&<span style={{fontSize:10,color:"var(--ink-4)"}}>+{pkgs.length-2} more</span>}
@@ -799,7 +838,7 @@ function ToursSection({ toast }) {
             {/* ── Quick View ── */}
             <div style={{gridColumn:"1/-1",background:"var(--violet-soft)",border:"1px solid #c4b5f4",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>
               <QuickViewEditor
-                items={form.quick_view||[]}
+                obj={form.quick_view||{}}
                 onChange={v=>setForm(p=>({...p,quick_view:v}))}
               />
             </div>
