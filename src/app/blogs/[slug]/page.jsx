@@ -434,8 +434,8 @@ export default function Page() {
   );
 }
 
-export async function generateMetadata({ params }) {
-  const { slug } = await params;
-  const blog = await getBlog(slug);
-  return { title: blog.title };
-}
+// export async function generateMetadata({ params }) {
+//   const { slug } = await params;
+//   const blog = await getBlog(slug);
+//   return { title: blog.title };
+// }
