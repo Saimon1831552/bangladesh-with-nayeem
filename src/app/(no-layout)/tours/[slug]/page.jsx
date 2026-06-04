@@ -947,7 +947,10 @@ export default function TourDetails({ params }) {
     </>
   );
 }
+
+
 export async function generateMetadata({ params }) {
-  const tour = await getTour(params.slug);
+  const { slug } = await params;
+  const tour = await getTour(slug);
   return { title: tour.name };
 }
