@@ -179,9 +179,19 @@ export function TourCard({ tour }) {
 
         {/* Title */}
         <h3 className="card-title" style={{
-          fontSize: 20, fontWeight: 800, color: '#fff',
-          lineHeight: 1.25, marginBottom: 12,
-          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.6)', padding: '4px 5px', borderRadius: 8,
+          fontSize: 20, 
+          fontWeight: 800, 
+          color: '#fff',
+          lineHeight: 1.25, 
+          marginBottom: 12,
+          display: '-webkit-box', 
+          WebkitLineClamp: 2, 
+          WebkitBoxOrient: 'vertical', 
+          overflow: 'hidden', 
+          backgroundColor: 'rgba(0,0,0,0.6)', 
+          padding: '4px 8px', 
+          borderRadius: 8,
+          width: 'fit-content'
         }}>
           {tour.title}
         </h3>
