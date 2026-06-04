@@ -688,15 +688,19 @@ export default function TourDetails({ params }) {
 
           {/* ── LEFT COLUMN ── */}
           <div>
-            <div className="stats-grid">
-              {stats.map((s,i) => (
-                <div key={i} className="stat-card">
-                  <div className="stat-icon-wrap"><FontAwesomeIcon icon={s.icon} style={{ fontSize:18, color:'#15803d' }} /></div>
-                  <span className="stat-label">{s.label}</span>
-                  <span className="stat-value">{s.value}</span>
-                </div>
-              ))}
-            </div>
+            {qvRows.length>0 && (
+                  <>
+                    <div className="qv-section-label">🔍 Quick View on Details</div>
+                    <div className="qv-bar">
+                      {qvRows.map((r,i) => (
+                        <div key={i} className="qv-row">
+                          <div className="qv-icon">{r.icon}</div>
+                          <div><span className="qv-key">{r.key}</span><span>{r.val}</span></div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
 
             {/* Overview */}
             <div id="overview" className="section-block">
@@ -744,19 +748,7 @@ export default function TourDetails({ params }) {
               <div className="section-title">Tour Price &amp; Offers</div>
               <div className="price-offers-box">
 
-                {qvRows.length>0 && (
-                  <>
-                    <div className="qv-section-label">🔍 Quick View on Details</div>
-                    <div className="qv-bar">
-                      {qvRows.map((r,i) => (
-                        <div key={i} className="qv-row">
-                          <div className="qv-icon">{r.icon}</div>
-                          <div><span className="qv-key">{r.key}</span><span>{r.val}</span></div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
+                
 
                 {pricePackages.length>0 ? (
                   <>
