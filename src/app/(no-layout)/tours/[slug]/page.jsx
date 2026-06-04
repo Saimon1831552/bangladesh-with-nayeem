@@ -12,6 +12,7 @@ import {
   faBolt, faXmark as faClose, faPaperPlane,
 } from '@fortawesome/free-solid-svg-icons';
 
+
 const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 async function fetchTour(slug) {
@@ -945,4 +946,8 @@ export default function TourDetails({ params }) {
       </div>
     </>
   );
+}
+export async function generateMetadata({ params }) {
+  const tour = await getTour(params.slug);
+  return { title: tour.name };
 }

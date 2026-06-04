@@ -101,7 +101,7 @@ export default function FAQS() {
               ✉️ Email Naim
             </a>
             <a
-              href="https://wa.me/8801783377429"
+              href="https://wa.me/8801602717233"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white font-semibold px-6 py-3 rounded-full transition-colors text-sm"

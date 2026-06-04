@@ -22,3 +22,7 @@ export default async function Page() {
     </div>
   );
 }
+
+export const metadata = {
+  title: "Guest Reviews & Testimonials | Bangladesh With Naim",
+};

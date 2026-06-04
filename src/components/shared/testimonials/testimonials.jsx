@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, memo } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faStar,
@@ -303,54 +303,99 @@ function StatsBar({ reviews, inView }) {
   );
 }
 
+/* ── Slider extra styles ── */
+const SLIDER_STYLES = `
+  .slider-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+  .slider-btn {
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .slider-btn:hover:not(:disabled) {
+    background: #3B6D11 !important;
+    color: #fff !important;
+    transform: scale(1.08);
+    box-shadow: 0 8px 24px -6px rgba(59,109,17,0.35);
+  }
+  .slider-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .dot-pill {
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+  }
+`;
+
 /* ── Main ── */
 export default function TestimonialsPage({ reviews = [] }) {
   const safeReviews = Array.isArray(reviews) ? reviews : [];
   const [setStatsRef, statsInView] = useInView(0.1);
+  const [perPage, setPerPage] = useState(3);
+  const [current, setCurrent] = useState(0);
+  const touchStart = useRef(null);
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      setPerPage(w < 640 ? 1 : w < 1024 ? 2 : 3);
+      setCurrent(0);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  const totalPages = Math.ceil(safeReviews.length / perPage);
+
+  useEffect(() => {
+    const max = Math.max(0, totalPages - 1);
+    if (current > max) setCurrent(max);
+  }, [perPage, totalPages]);
+
+  const prev = () => setCurrent((p) => Math.max(0, p - 1));
+  const next = () => setCurrent((p) => Math.min(totalPages - 1, p + 1));
+
+  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
+  const onTouchEnd   = (e) => {
+    if (touchStart.current === null) return;
+    const diff = touchStart.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) diff > 0 ? next() : prev();
+    touchStart.current = null;
+  };
 
   return (
     <main className="min-h-screen" style={{ background: '#faf8f4' }}>
-      {/* Safer injection of styles for Next.js app router */}
-      <style dangerouslySetInnerHTML={{ __html: STYLES }} />
+      <style dangerouslySetInnerHTML={{ __html: STYLES + SLIDER_STYLES }} />
 
       {/* ── Hero ── */}
       <section
         className="relative py-20 md:py-28 px-4 text-center overflow-hidden"
         style={{ background: 'linear-gradient(135deg,#f0faf0 0%,#fefce8 50%,#f0fdf4 100%)' }}
       >
-        <div
-          className="absolute top-0 left-0 w-64 md:w-96 h-64 md:h-96 rounded-full pointer-events-none"
-          style={{ background: '#bbf7d0', filter: 'blur(80px)', opacity: 0.3, animation: 'floatA 7s ease-in-out infinite' }}
-        />
-        <div
-          className="absolute bottom-0 right-0 w-56 md:w-80 h-56 md:h-80 rounded-full pointer-events-none"
-          style={{ background: '#fde68a', filter: 'blur(70px)', opacity: 0.22, animation: 'floatB 9s ease-in-out infinite' }}
-        />
-
+        <div className="absolute top-0 left-0 w-64 md:w-96 h-64 md:h-96 rounded-full pointer-events-none"
+          style={{ background: '#bbf7d0', filter: 'blur(80px)', opacity: 0.3, animation: 'floatA 7s ease-in-out infinite' }} />
+        <div className="absolute bottom-0 right-0 w-56 md:w-80 h-56 md:h-80 rounded-full pointer-events-none"
+          style={{ background: '#fde68a', filter: 'blur(70px)', opacity: 0.22, animation: 'floatB 9s ease-in-out infinite' }} />
         <div className="relative z-10">
-          <span
-            className="badge-pulse inline-block text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5"
-            style={{ background: '#D1FAE5', color: '#065F46' }}
-          >
+          <span className="badge-pulse inline-block text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5"
+            style={{ background: '#D1FAE5', color: '#065F46' }}>
             Testimonials
           </span>
-          <h1
-            className="text-3xl sm:text-5xl md:text-6xl font-extrabold mb-4 tracking-tight"
-            style={{ color: '#1a2e1a', animation: 'fadeUp 0.6s ease both' }}
-          >
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold mb-4 tracking-tight"
+            style={{ color: '#1a2e1a', animation: 'fadeUp 0.6s ease both' }}>
             What Our Guests{' '}
             <span className="shimmer-text">Say About Us</span>
           </h1>
-          <p
-            className="text-sm md:text-base text-gray-500 max-w-sm md:max-w-lg mx-auto leading-relaxed"
-            style={{ animation: 'fadeUp 0.6s 0.12s ease both' }}
-          >
+          <p className="text-sm md:text-base text-gray-500 max-w-sm md:max-w-lg mx-auto leading-relaxed"
+            style={{ animation: 'fadeUp 0.6s 0.12s ease both' }}>
             Real stories from real travelers who explored Bangladesh with us.
           </p>
         </div>
       </section>
 
-      {/* ── Stats + Grid ── */}
+      {/* ── Stats + Slider ── */}
       <section className="py-12 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
           {safeReviews.length > 0 && (
@@ -364,16 +409,76 @@ export default function TestimonialsPage({ reviews = [] }) {
               No reviews yet. Be the first to share your experience!
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {safeReviews.map((review, i) => (
-                <ReviewCard
-                  key={review.id}
-                  review={review}
-                  palette={PALETTES[i % PALETTES.length]}
-                  delay={Math.min(i % 3, 2) * 100}
-                />
-              ))}
-            </div>
+            <>
+              {/* Slider viewport */}
+              <div className="overflow-hidden" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                <div className="slider-track" style={{ transform: `translateX(-${current * 100}%)` }}>
+                  {Array.from({ length: totalPages }).map((_, pageIdx) => (
+                    <div
+                      key={pageIdx}
+                      style={{ minWidth: '100%', display: 'flex', gap: '1.5rem', alignItems: 'stretch' }}
+                    >
+                      {safeReviews
+                        .slice(pageIdx * perPage, pageIdx * perPage + perPage)
+                        .map((review, i) => (
+                          <div key={review.id} style={{ flex: `0 0 calc(${100 / perPage}% - ${((perPage - 1) * 24) / perPage}px)`, minWidth: 0 }}>
+                            <ReviewCard
+                              review={review}
+                              palette={PALETTES[(pageIdx * perPage + i) % PALETTES.length]}
+                              delay={i * 100}
+                            />
+                          </div>
+                        ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-10 md:mt-12">
+                  <button
+                    onClick={prev}
+                    disabled={current === 0}
+                    className="slider-btn w-11 h-11 rounded-full border flex items-center justify-center text-xl font-bold select-none"
+                    style={{ background: '#fff', color: '#3B6D11', borderColor: '#b6dfa0' }}
+                    aria-label="Previous"
+                  >
+                    ‹
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrent(i)}
+                        className="dot-pill"
+                        style={{
+                          width: i === current ? 28 : 8,
+                          height: 8,
+                          background: i === current ? '#3B6D11' : '#c6e6b0',
+                        }}
+                        aria-label={`Page ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={next}
+                    disabled={current === totalPages - 1}
+                    className="slider-btn w-11 h-11 rounded-full border flex items-center justify-center text-xl font-bold select-none"
+                    style={{ background: '#fff', color: '#3B6D11', borderColor: '#b6dfa0' }}
+                    aria-label="Next"
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
+
+              <p className="text-center text-xs text-gray-400 mt-3">
+                {current + 1} / {totalPages}
+              </p>
+            </>
           )}
         </div>
       </section>
