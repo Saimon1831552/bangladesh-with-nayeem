@@ -60,7 +60,7 @@ export default function ContactSection() {
     },
     {
       q: 'Do I need a visa to visit Bangladesh?',
-      a: 'Most nationalities can obtain a visa on arrival at Dhaka\'s Hazrat Shahjalal International Airport. We recommend checking with the Bangladesh Embassy in your country for the latest requirements.',
+      a: "Most nationalities can obtain a visa on arrival at Dhaka's Hazrat Shahjalal International Airport. We recommend checking with the Bangladesh Embassy in your country for the latest requirements.",
     },
     {
       q: 'How far in advance should I book?',
@@ -79,39 +79,161 @@ export default function ContactSection() {
 
         .ct-page { font-family: 'DM Sans', sans-serif; background: #f8f6f1; }
 
-        /* ── Hero ── */
+        /* ══════════════════════════════════
+           HERO — reference design
+           Deep green · no blur · corner brackets
+           icon box · eyebrow · title + italic subtitle
+           stats bar · safe pill · wave
+        ══════════════════════════════════ */
         .ct-hero {
-          position: relative; overflow: hidden;
-          background: #14532d;
-          padding: 88px 40px 80px;
+          position: relative;
+          background: #0f3d22;
+          overflow: hidden;
+          padding: 88px 40px 0;
           text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
-        @media(max-width:640px){ .ct-hero { padding: 64px 20px 60px; } }
-        .ct-hero-blob-a { position:absolute; top:-60px; left:-60px; width:320px; height:320px; border-radius:50%; background:#bbf7d0; filter:blur(100px); opacity:.1; pointer-events:none; }
-        .ct-hero-blob-b { position:absolute; bottom:-40px; right:-40px; width:260px; height:260px; border-radius:50%; background:#fde68a; filter:blur(90px); opacity:.1; pointer-events:none; }
-        .ct-hero-grid { position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:48px 48px; }
-        .ct-hero-inner { position:relative; z-index:1; max-width:860px; margin:0 auto; }
-        .ct-hero-label { display:inline-flex; align-items:center; gap:10px; margin-bottom:20px; }
-        .ct-hero-label-line { width:28px; height:1px; background:#d97706; }
-        .ct-hero-label-text { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#d97706; }
+        @media(max-width:640px){ .ct-hero { padding: 70px 20px 0; } }
+
+        /* faint radial circle decorations */
+        .ct-hero::before {
+          content: '';
+          position: absolute; top: -100px; left: -100px;
+          width: 400px; height: 400px; border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.05);
+          pointer-events: none;
+        }
+        .ct-hero::after {
+          content: '';
+          position: absolute; bottom: 80px; right: -80px;
+          width: 300px; height: 300px; border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.04);
+          pointer-events: none;
+        }
+
+        /* corner brackets */
+        .ct-corner { position: absolute; width: 34px; height: 34px; pointer-events: none; }
+        .ct-corner-tl { top: 22px; left: 22px; border-top: 2px solid rgba(255,255,255,0.18); border-left: 2px solid rgba(255,255,255,0.18); }
+        .ct-corner-tr { top: 22px; right: 22px; border-top: 2px solid rgba(255,255,255,0.18); border-right: 2px solid rgba(255,255,255,0.18); }
+        .ct-corner-bl { bottom: 90px; left: 22px; border-bottom: 2px solid rgba(255,255,255,0.18); border-left: 2px solid rgba(255,255,255,0.18); }
+        .ct-corner-br { bottom: 90px; right: 22px; border-bottom: 2px solid rgba(255,255,255,0.18); border-right: 2px solid rgba(255,255,255,0.18); }
+
+        /* icon box */
+        .ct-hero-icon {
+          width: 80px; height: 80px;
+          background: rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 22px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 36px;
+          margin-bottom: 26px;
+          position: relative; z-index: 2;
+        }
+
+        /* eyebrow with amber side lines */
+        .ct-hero-eyebrow {
+          display: flex; align-items: center; gap: 14px;
+          justify-content: center;
+          font-size: 11px; font-weight: 700;
+          letter-spacing: 0.22em; text-transform: uppercase;
+          color: #c8a84b;
+          margin-bottom: 24px;
+          position: relative; z-index: 2;
+        }
+        .ct-hero-eyebrow::before,
+        .ct-hero-eyebrow::after {
+          content: '';
+          width: 52px; height: 1px;
+          background: linear-gradient(to right, transparent, #c8a84b);
+        }
+        .ct-hero-eyebrow::after {
+          background: linear-gradient(to left, transparent, #c8a84b);
+        }
+
+        /* main title */
         .ct-hero-title {
-          font-family:'Playfair Display',Georgia,serif;
-          font-size:clamp(2.2rem,5vw,3.8rem);
-          font-weight:900; color:#fff;
-          line-height:1.1; letter-spacing:-.02em;
-          margin-bottom:20px;
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(2.4rem, 5.5vw, 4.6rem);
+          font-weight: 900; color: #fff;
+          line-height: 1.06; letter-spacing: -0.02em;
+          margin-bottom: 10px;
+          position: relative; z-index: 2;
         }
-        .ct-hero-accent {
-          background:linear-gradient(90deg,#86efac 0%,#fde68a 60%,#86efac 100%);
-          background-size:200% auto;
-          -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-          animation:ct-shimmer 3s linear infinite; font-style:italic;
+
+        /* italic green subtitle */
+        .ct-hero-subtitle {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(1.8rem, 4vw, 3.6rem);
+          font-weight: 700; font-style: italic;
+          color: #6fcf47;
+          line-height: 1.1;
+          margin-bottom: 24px;
+          position: relative; z-index: 2;
         }
-        @keyframes ct-shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
-        .ct-hero-desc { font-size:clamp(14px,2vw,16px); color:rgba(255,255,255,.6); line-height:1.85; max-width:680px; margin:0 auto 32px; }
-        .ct-hero-desc a { color:#fde68a; font-weight:600; text-decoration:underline; text-underline-offset:3px; }
-        .ct-hero-desc a:hover { color:#fbbf24; }
-        .ct-hero-fade { position:absolute; bottom:0; left:0; right:0; height:56px; pointer-events:none; background:linear-gradient(to bottom,transparent,#f8f6f1); }
+
+        /* description */
+        .ct-hero-desc {
+          font-size: clamp(14px, 2vw, 15.5px);
+          color: rgba(255,255,255,0.65);
+          line-height: 1.85; max-width: 600px;
+          margin: 0 auto 36px;
+          position: relative; z-index: 2;
+        }
+        .ct-hero-desc a { color: #fde68a; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+        .ct-hero-desc a:hover { color: #fbbf24; }
+
+        /* stats box */
+        .ct-hero-stats {
+          display: flex; align-items: stretch;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 18px;
+          overflow: hidden;
+          max-width: 460px; width: 100%;
+          margin: 0 auto 28px;
+          position: relative; z-index: 2;
+        }
+        .ct-hero-stat { flex: 1; padding: 20px 20px; text-align: center; }
+        .ct-hero-stat + .ct-hero-stat { border-left: 1px solid rgba(255,255,255,0.10); }
+        .ct-hero-stat-val {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 1.85rem; font-weight: 700; color: #fff;
+          line-height: 1; margin-bottom: 6px;
+        }
+        .ct-hero-stat-lbl {
+          font-size: 9px; font-weight: 700;
+          text-transform: uppercase; letter-spacing: 0.16em;
+          color: rgba(255,255,255,0.42);
+        }
+
+        /* safe pill */
+        .ct-safe-pill {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 100px; padding: 10px 22px;
+          font-size: 13px; font-weight: 600; color: #fff;
+          margin-bottom: 52px;
+          position: relative; z-index: 2;
+        }
+        .ct-safe-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          background: #6fcf47; flex-shrink: 0;
+          animation: ct-safe-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes ct-safe-pulse {
+          0%,100%{ box-shadow: 0 0 0 0 rgba(111,207,71,0.4); }
+          50%{ box-shadow: 0 0 0 6px rgba(111,207,71,0); }
+        }
+
+        /* wave bottom */
+        .ct-hero-wave {
+          position: relative; bottom: -1px;
+          width: 100%; line-height: 0; z-index: 3;
+        }
+        .ct-hero-wave svg { display: block; width: 100%; }
 
         /* ── Form section ── */
         .ct-wrap { padding: 56px 32px 80px; }
@@ -201,35 +323,68 @@ export default function ContactSection() {
 
       <div className="ct-page">
 
-        {/* ── Hero ── */}
+        {/* ══════════════ HERO ══════════════ */}
         <div className="ct-hero">
-          <div className="ct-hero-blob-a" />
-          <div className="ct-hero-blob-b" />
-          <div className="ct-hero-grid" />
-          <div className="ct-hero-inner">
-            <div className="ct-hero-label">
-              <span className="ct-hero-label-line" />
-              <span className="ct-hero-label-text">Get in Touch</span>
-              <span className="ct-hero-label-line" />
+
+          {/* corner brackets */}
+          <div className="ct-corner ct-corner-tl" />
+          <div className="ct-corner ct-corner-tr" />
+          <div className="ct-corner ct-corner-bl" />
+          <div className="ct-corner ct-corner-br" />
+
+          {/* icon box */}
+          <div className="ct-hero-icon">✉️</div>
+
+          {/* eyebrow */}
+          <div className="ct-hero-eyebrow">Get in Touch</div>
+
+          {/* title */}
+          <h1 className="ct-hero-title">Let's Plan Your</h1>
+
+          {/* italic green subtitle */}
+          <div className="ct-hero-subtitle">Bangladesh Journey</div>
+
+          {/* description */}
+          <p className="ct-hero-desc">
+            Have questions, travel ideas, or ready to explore Bangladesh? Get in touch with{' '}
+            <a href="https://www.bangladeshwithnaim.com" target="_blank" rel="noopener noreferrer">
+              Bangladesh with Naim
+            </a>{' '}
+            to start planning your authentic travel experience. Every journey is personally
+            arranged with care, local knowledge, and genuine hospitality.
+          </p>
+
+          {/* stats box */}
+          <div className="ct-hero-stats">
+            <div className="ct-hero-stat">
+              <div className="ct-hero-stat-val">24h</div>
+              <div className="ct-hero-stat-lbl">Response</div>
             </div>
-            <h1 className="ct-hero-title">
-              Let's Plan Your{' '}
-              <span className="ct-hero-accent">Bangladesh Journey</span>
-            </h1>
-            <p className="ct-hero-desc">
-              Have questions, travel ideas, or ready to explore Bangladesh? Get in touch with{' '}
-              <a href="https://www.bangladeshwithnaim.com" target="_blank" rel="noopener noreferrer">
-                Bangladesh with Naim
-              </a>{' '}
-              to start planning your authentic travel experience. Whether you are looking for private tours,
-              cultural journeys, village experiences, photography trips, or personalized itineraries, every
-              journey is personally arranged with care, local knowledge, and genuine hospitality.
-            </p>
+            <div className="ct-hero-stat">
+              <div className="ct-hero-stat-val">100%</div>
+              <div className="ct-hero-stat-lbl">Personal</div>
+            </div>
+            <div className="ct-hero-stat">
+              <div className="ct-hero-stat-val">Free</div>
+              <div className="ct-hero-stat-lbl">Consultation</div>
+            </div>
           </div>
-          <div className="ct-hero-fade" />
+
+          {/* safe pill */}
+          <div className="ct-safe-pill">
+            <span className="ct-safe-dot" />
+            We respond within 24 hours
+          </div>
+
+          {/* wave */}
+          <div className="ct-hero-wave">
+            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+              <path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#f8f6f1"/>
+            </svg>
+          </div>
         </div>
 
-        {/* ── Contact form ── */}
+        {/* ══════════════ CONTACT FORM ══════════════ */}
         <div className="ct-wrap">
           <div className="ct-inner">
             <div className="ct-grid">
@@ -331,7 +486,7 @@ export default function ContactSection() {
           </div>
         </div>
 
-        {/* ── Policies accordion ── */}
+        {/* ══════════════ POLICIES ══════════════ */}
         <div className="ct-section">
           <div className="ct-section-gap" />
           <div className="ct-section-label">
@@ -359,7 +514,7 @@ export default function ContactSection() {
             ))}
           </div>
 
-          {/* ── FAQs ── */}
+          {/* FAQs */}
           <div className="ct-section-label">
             <span className="ct-section-label-line" />
             <span className="ct-section-label-text">FAQs</span>

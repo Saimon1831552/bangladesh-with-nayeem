@@ -71,7 +71,7 @@ router.post('/', async (req, res) => {
         (slug, title, overview, image_url, location, duration, group_size, price, rating,
          review_count, tour_type, isFeatured, highlights, why_choose, itinerary, trip_note, faq,
          gallery_img, included, excluded, quick_view, price_packages)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         slug, title, overview ?? null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
