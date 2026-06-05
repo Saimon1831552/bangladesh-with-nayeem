@@ -95,7 +95,7 @@ export default function FAQS() {
           <p className="text-gray-600 text-sm mb-6">Feel free to reach out — I'm happy to help before you book.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
-              href="mailto:info@panoramabangladesh.com"
+              href="mailto:info@bangladeshwithnaim.com"
               className="inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-full transition-colors text-sm"
             >
               ✉️ Email Naim
