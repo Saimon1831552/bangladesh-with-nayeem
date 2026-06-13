@@ -517,7 +517,7 @@ export default function TourDetails({ params }) {
         .timeline-card{background:#fff;border:1px solid #ede9e0;border-radius:20px;padding:28px;flex:1;transition:transform 0.2s,box-shadow 0.2s;}
         .timeline-card:hover{transform:translateX(6px);box-shadow:0 8px 28px rgba(0,0,0,0.07);}
         .timeline-card h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:#1c1c1c;margin-bottom:8px;}
-        .timeline-card p{font-size:14px;line-height:1.75;color:#666;text-align:justify;}
+        .timeline-card p{font-size:16px;line-height:1.75;color:#666;text-align:justify;}
         .day-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#d97706;margin-bottom:4px;}
         .inc-exc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
         @media(max-width:640px){.inc-exc-grid{grid-template-columns:1fr;}}
