@@ -28,30 +28,7 @@ async function fetchReviews(tourId) {
   try { const res = await fetch(`${API_BASE}/reviews?tour_id=${tourId}`, { cache: 'no-store' }); if (!res.ok) return []; const json = await res.json(); return json.data || []; } catch { return []; }
 }
 
-export async function generateMetadata({ params }) {
-  const { slug } = await params;
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/tours/${slug}`,
-      { cache: "no-store" }
-    );
-
-    const json = await res.json();
-    const tour = json.data;
-
-    return {
-      title: `${tour.title} | Bangladesh With Naim`,
-      description:
-        tour.meta_description ||
-        `Book ${tour.title} tour in Bangladesh with Bangladesh With Naim.`,
-    };
-  } catch (error) {
-    return {
-      title: "Tour Details | Bangladesh With Naim",
-    };
-  }
-}
 
 const parsePrice  = (p) => { if (!p) return 0; if (typeof p === 'number') return p; return parseFloat(String(p).replace(/[^0-9.]/g, '')) || 0; };
 const formatPrice = (p) => { if (!p) return '—'; if (typeof p === 'number') return `$${p}`; return String(p).startsWith('$') ? p : `$${p}`; };
