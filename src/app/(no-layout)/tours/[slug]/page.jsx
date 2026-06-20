@@ -479,7 +479,7 @@ export default function TourDetails({ params }) {
         .hero-content{position:absolute;bottom:0;left:0;right:0;padding:0 40px 56px;z-index:10;max-width:820px;}
         .hero-tags{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
         .hero-tag{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);color:#d97706;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:8px 14px;border-radius:8px;}
-        .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,6vw,5.5rem);font-weight:700;color:#fff;line-height:1.05;margin-bottom:16px;letter-spacing:-0.01em;}
+        .hero-title{font-family: 'Montserrat', sans-serif;font-size:clamp(3rem,6vw,5.5rem);font-weight:700;color:#fff;line-height:1.05;margin-bottom:16px;letter-spacing:-0.01em;}
         .hero-title em{color:#d97706;font-style:italic;}
         .hero-sub{color:rgba(255,255,255,0.75);font-size:16px;font-weight:400;line-height:1.7;max-width:560px;}
         .stars-row{display:flex;align-items:center;gap:6px;margin-bottom:14px;}
