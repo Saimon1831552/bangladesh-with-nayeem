@@ -736,7 +736,7 @@ export default function TourDetails({ params }) {
                   <div key={item.day} className="timeline-item">
                     <div className="day-bubble" style={{ background:item.color }}>{item.day}</div>
                     <div className="timeline-card">
-                      <div className="day-label">{item.day>1?`Day ${item.day}`:'Day'}</div>
+                      {/* <div className="day-label">{item.day>1?`Day ${item.day}`:'Day'}</div> */}
                       <h3>{item.title}</h3>
                       <p>{item.desc}</p>
                     </div>
