@@ -640,7 +640,7 @@ export default function TourDetails({ params }) {
           <div className="hero-gradient" />
           <div className="hero-top">
             <Link href="/tours" className="back-btn"><FontAwesomeIcon icon={faChevronLeft} /> Back to Tours</Link>
-            {rating>=4.5 && <div className="top-rated"><FontAwesomeIcon icon={faStar} /> Top Rated</div>}
+            //{rating>=4.5 && <div className="top-rated"><FontAwesomeIcon icon={faStar} /> Top Rated</div>}
           </div>
           {images.length>1 && (
             <div className="thumb-strip">
