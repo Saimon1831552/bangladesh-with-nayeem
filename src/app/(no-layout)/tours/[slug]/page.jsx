@@ -461,6 +461,7 @@ export default function TourDetails({ params }) {
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
         .page-wrap{font-family:'DM Sans',sans-serif;background:#f8f6f1;min-height:100vh;color:#1c1c1c;}
         .display-font{font-family:'Cormorant Garamond',serif;}
