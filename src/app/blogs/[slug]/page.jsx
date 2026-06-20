@@ -97,6 +97,12 @@ export default function Page() {
   const heroImgRef = useRef(null);
 
   useEffect(() => {
+  if (blog?.data?.title) {
+    document.title = `${blog.data.title} | Bangladesh With Naim`;
+  }
+}, [blog]);
+
+  useEffect(() => {
     const toHide = [];
     ["header","footer","nav"].forEach(sel => {
       document.querySelectorAll(sel).forEach(el => {
