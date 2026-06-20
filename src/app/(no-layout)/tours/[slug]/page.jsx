@@ -91,6 +91,7 @@ function BookingModal({ tour, priceFmt, onClose }) {
   return (
     <>
       <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap');
         .bk-overlay { position:fixed; inset:0; z-index:9999; background:rgba(10,10,8,.7); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:16px; }
         .bk-modal { background:#fff; border-radius:28px; width:100%; max-width:520px; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 32px 80px rgba(0,0,0,.25); }
         .bk-header { background:#1c1c1a; padding:22px 28px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
@@ -141,7 +142,7 @@ function BookingModal({ tour, priceFmt, onClose }) {
 
         .bk-success { display:flex; flex-direction:column; align-items:center; text-align:center; padding:48px 32px; }
         .bk-success-icon { width:80px; height:80px; border-radius:50%; background:#f0fdf4; display:flex; align-items:center; justify-content:center; font-size:36px; margin-bottom:20px; }
-        .bk-success-title { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:700; color:#1c1c1a; margin-bottom:10px; }
+        .bk-success-title { font-family: 'Open Sans', sans-serif; font-size:2rem; font-weight:700; color:#1c1c1a; margin-bottom:10px; }
         .bk-success-msg { font-size:14px; color:#777; line-height:1.8; max-width:360px; }
         .bk-success-btn { margin-top:28px; padding:13px 32px; border-radius:14px; background:#1c1c1a; border:none; color:#fff; font-size:14px; font-weight:700; font-family:'DM Sans',sans-serif; cursor:pointer; transition:background .2s; }
         .bk-success-btn:hover { background:#15803d; }
@@ -463,8 +464,8 @@ export default function TourDetails({ params }) {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
-        .page-wrap{font-family:'DM Sans',sans-serif;background:#f8f6f1;min-height:100vh;color:#1c1c1c;}
-        .display-font{font-family:'Cormorant Garamond',serif;}
+        .page-wrap{font-family: 'Open Sans', sans-serif; background:#f8f6f1;min-height:100vh;color:#1c1c1c;}
+        .display-font{font-family: 'Open Sans', sans-serif;}
         .hero{position:relative;height:92vh;overflow:hidden;}
         .hero-img-wrap{position:absolute;inset:0;overflow:hidden;}
         .hero-img{width:100%;height:110%;object-fit:cover;}
@@ -517,7 +518,7 @@ export default function TourDetails({ params }) {
         .day-bubble{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#fff;flex-shrink:0;z-index:2;border:3px solid #f8f6f1;}
         .timeline-card{background:#fff;border:1px solid #ede9e0;border-radius:20px;padding:28px;flex:1;transition:transform 0.2s,box-shadow 0.2s;}
         .timeline-card:hover{transform:translateX(6px);box-shadow:0 8px 28px rgba(0,0,0,0.07);}
-        .timeline-card h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:#1c1c1c;margin-bottom:8px;}
+        .timeline-card h3{font-family: 'Open Sans', sans-serif; font-size:1.35rem;font-weight:700;color:#1c1c1c;margin-bottom:8px;}
         .timeline-card p{font-size:16px;line-height:1.75;color:#666;text-align:justify;}
         .day-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#d97706;margin-bottom:4px;}
         .inc-exc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -543,7 +544,7 @@ export default function TourDetails({ params }) {
 
         /* ── Price card ── */
         .price-offers-box{background:#fff;border:1px solid #ede9e0;border-radius:28px;padding:36px;}
-        .price-italic-tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.05rem;color:#15803d;margin:20px 0;font-weight:600;}
+        .price-italic-tagline{font-family: 'Open Sans', sans-serif; font-style:italic;font-size:1.05rem;color:#15803d;margin:20px 0;font-weight:600;}
         .price-divider{height:1px;background:#ede9e0;margin:20px 0;}
         .price-sub-heading{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#1c1c1c;margin-bottom:12px;}
         .price-bullet-list{list-style:none;padding:0;margin:0 0 4px;display:flex;flex-direction:column;gap:9px;}
@@ -581,9 +582,9 @@ export default function TourDetails({ params }) {
         .pkg-card.best-value{border-color:#15803d;background:linear-gradient(160deg,#f0fdf4 0%,#fff 100%);}
         .pkg-card.best-value::before{content:'Best Value';position:absolute;top:10px;right:-24px;background:#15803d;color:#fff;font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 30px;transform:rotate(45deg);}
         .pkg-num{font-size:10px;font-weight:700;color:#1d4ed8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px;}
-        .pkg-label{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:#1c1c1c;margin-bottom:3px;line-height:1.2;}
+        .pkg-label{font-family: 'Open Sans', sans-serif; font-size:1rem;font-weight:700;color:#1c1c1c;margin-bottom:3px;line-height:1.2;}
         .pkg-pax{font-size:11px;color:#999;margin-bottom:10px;}
-        .pkg-price{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#1d4ed8;line-height:1;margin-bottom:2px;}
+        .pkg-price{font-family: 'Open Sans', sans-serif; font-size:2rem;font-weight:700;color:#1d4ed8;line-height:1;margin-bottom:2px;}
         .pkg-card.best-value .pkg-price{color:#15803d;}
         .pkg-unit{font-size:10px;color:#bbb;}
         .pkg-note{font-size:11px;color:#999;margin-top:6px;}
@@ -593,7 +594,7 @@ export default function TourDetails({ params }) {
 
         /* ── Right col quick info card ── */
         .info-card{background:#fff;border:1px solid #ede9e0;border-radius:24px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.04);}
-        .info-card-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:#1c1c1a;margin-bottom:18px;}
+        .info-card-title{font-family: 'Open Sans', sans-serif; font-size:1.25rem;font-weight:700;color:#1c1c1a;margin-bottom:18px;}
         .info-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0ece4;font-size:13.5px;}
         .info-row:last-child{border-bottom:none;padding-bottom:0;}
         .info-row-key{color:#999;font-weight:500;}
