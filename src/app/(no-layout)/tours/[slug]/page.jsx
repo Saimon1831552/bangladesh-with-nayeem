@@ -94,7 +94,7 @@ function BookingModal({ tour, priceFmt, onClose }) {
         .bk-overlay { position:fixed; inset:0; z-index:9999; background:rgba(10,10,8,.7); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:16px; }
         .bk-modal { background:#fff; border-radius:28px; width:100%; max-width:520px; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 32px 80px rgba(0,0,0,.25); }
         .bk-header { background:#1c1c1a; padding:22px 28px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-        .bk-header-title { font-family:'Cormorant Garamond',serif; font-size:1.45rem; font-weight:700; color:#fff; line-height:1.2; }
+        .bk-header-title { font-family: 'Open Sans', sans-serif; font-size:1.45rem; font-weight:700; color:#fff; line-height:1.2; }
         .bk-header-sub { font-size:12px; color:rgba(255,255,255,.45); margin-top:3px; }
         .bk-tour-pill { display:inline-flex; align-items:center; gap:6px; background:rgba(217,119,6,.2); border:1px solid rgba(217,119,6,.4); color:#d97706; font-size:11px; font-weight:700; padding:5px 12px; border-radius:99px; margin-top:8px; }
         .bk-close { width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.1); border:none; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .2s; }
