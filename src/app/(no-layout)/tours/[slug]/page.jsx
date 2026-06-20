@@ -640,7 +640,7 @@ export default function TourDetails({ params }) {
           <div className="hero-gradient" />
           <div className="hero-top">
             <Link href="/tours" className="back-btn"><FontAwesomeIcon icon={faChevronLeft} /> Back to Tours</Link>
-            //{rating>=4.5 && <div className="top-rated"><FontAwesomeIcon icon={faStar} /> Top Rated</div>}
+            {rating>=4.5 && <div className="top-rated"><FontAwesomeIcon icon={faStar} /> Top Rated</div>}
           </div>
           {images.length>1 && (
             <div className="thumb-strip">
@@ -651,15 +651,15 @@ export default function TourDetails({ params }) {
           )}
           {images.length>1 && <div className="img-counter">{activeImg+1} / {images.length}</div>}
           <div className="hero-content">
-            <div className="stars-row fade-up fade-up-1">
+            {/* <div className="stars-row fade-up fade-up-1">
               {[1,2,3,4,5].map(i => <FontAwesomeIcon key={i} icon={faStar} className="star-icon" style={{ color:i<=fullStars?'#d97706':'rgba(255,255,255,0.25)' }} />)}
               <span className="rating-text">{rating}</span>
               <span className="review-text">· {tour.review_count} reviews</span>
-            </div>
-            <div className="hero-tags fade-up fade-up-1">
+            </div> */}
+            {/* <div className="hero-tags fade-up fade-up-1">
               <span className="hero-tag"><FontAwesomeIcon icon={faLocationDot} /> {tour.location}</span>
               {typeTags.slice(0,2).map(t => <span key={t} className="hero-tag"><FontAwesomeIcon icon={faRoute} /> {t}</span>)}
-            </div>
+            </div> */}
             <h1 className="hero-title fade-up fade-up-2">
               {tour.title.includes(' ')
                 ? <>{tour.title.split(' ').slice(0,Math.ceil(tour.title.split(' ').length/2)).join(' ')}<br /><em>{tour.title.split(' ').slice(Math.ceil(tour.title.split(' ').length/2)).join(' ')}</em></>
