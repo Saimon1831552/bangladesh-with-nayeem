@@ -394,13 +394,11 @@ export default function TourDetails({ params }) {
   const heroRef = useRef(null);
   const navRef  = useRef(null);
 
-  const [tours, setTours] = useState(null);
-
   useEffect(() => {
-    if (tours?.title) {
-      document.title = `${tours.title} | Bangladesh With Naim`;
+    if (tour?.title) {
+      document.title = `${tour.title} | Bangladesh With Naim`;
     }
-  }, [tours]);
+  }, [tour]);
 
   useEffect(() => { document.body.classList.add('hide-layout'); return () => { document.body.classList.remove('hide-layout'); }; }, []);
 
