@@ -200,7 +200,7 @@ export const metadata = {
     url: SITE_URL,
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.jpeg",
         width: 1200,
         height: 630,
         alt: "Beautiful Bangladesh — Private Tours with Naim",
