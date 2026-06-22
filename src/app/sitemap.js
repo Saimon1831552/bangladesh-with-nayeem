@@ -12,6 +12,13 @@ const STATIC_ROUTES = [
   { url: "/review",    priority: 0.7,  changeFrequency: "weekly"  },
   { url: "/gallery",   priority: 0.6,  changeFrequency: "monthly" },
   { url: "/about",     priority: 0.6,  changeFrequency: "monthly" },
+  { url: "/refund-policy",     priority: 0.9,  changeFrequency: "monthly"   },
+  { url: "/payment-policy",     priority: 0.8,  changeFrequency: "monthly"   },
+  { url: "/cancellation-policy",   priority: 0.8,  changeFrequency: "monthly" },
+  { url: "/responsible-travel",    priority: 0.7,  changeFrequency: "monthly"  },
+  { url: "/privacy-policy",   priority: 0.6,  changeFrequency: "monthly" },
+  { url: "/terms-conditions",     priority: 0.6,  changeFrequency: "monthly" },
+  { url: "/faqs",     priority: 0.9,  changeFrequency: "daily"   },
 ];
 
 async function fetchTours() {
