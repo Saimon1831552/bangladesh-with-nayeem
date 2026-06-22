@@ -58,7 +58,7 @@ const localBusinessSchema = {
     "https://www.facebook.com/bangladeshwithnaim",  // ← update
     "https://www.tripadvisor.com/",                 // ← update with real profile
   ],
-  image: `${SITE_URL}/og-image.jpg`,
+  image: `${SITE_URL}/og-image.jpeg`,
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: "4.9",
