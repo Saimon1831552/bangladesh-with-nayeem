@@ -36,7 +36,7 @@ export const metadata = {
     index: true, follow: true, nocache: false,
     googleBot: { index: true, follow: true, noimageindex: false, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
   },
-  icons: { icon: "/favicon.ico", shortcut: "/favicon-16x16.png" },
+  icons: { icon: "/favicon.ico", shortcut: "/favicon.ico" },
   manifest: "/site.webmanifest",
   verification: { google: "google0112f4e428fe015b" },
 };
