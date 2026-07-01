@@ -24,13 +24,13 @@ export const metadata = {
     type: "website", locale: "en_US", url: SITE_URL, siteName: "Bangladesh With Naim",
     title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
     description: "Private, personalized tours across Bangladesh. Heritage walks, Sundarbans safaris, tea garden escapes & more — all guided by your trusted local friend, Naim.",
-    images: [{ url: "/og-image.jpeg", width: 1200, height: 630, alt: "Beautiful Bangladesh landscape — Bangladesh With Naim tours" }],
+    images: [{ url: "https://www.bangladeshwithnaim.com/og-image.jpeg", width: 1200, height: 630, alt: "Beautiful Bangladesh landscape — Bangladesh With Naim tours" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
     description: "Skip the agencies. Book private Bangladesh tours directly with Naim — save 15–30% and travel like a local.",
-    images: ["/og-image.jpeg"], creator: "@bangladeshwithnaim",
+    images: ["https://www.bangladeshwithnaim.com/og-image.jpeg"], creator: "@bangladeshwithnaim",
   },
   robots: {
     index: true, follow: true, nocache: false,
