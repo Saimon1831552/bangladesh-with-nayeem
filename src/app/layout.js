@@ -6,7 +6,7 @@ import Footer from "@/components/ui/Footer/footer";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-const SITE_URL = "https://bangladeshwithnaim.com";
+const SITE_URL = "https://www.bangladeshwithnaim.com";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
