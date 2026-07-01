@@ -10,7 +10,7 @@ import Gallery from "@/components/shared/tours-gallary/gallary";
 import BlogShow from "@/components/shared/blog-show/page"
 import WhyChoose from "@/components/shared/why-choose/whychoose";
 
-const SITE_URL = "https://bangladeshwithnaim.com";
+const SITE_URL = "https://www.bangladeshwithnaim.com";
 
 // ── Structured Data (JSON-LD) ─────────────────────────────────────────────────
 
