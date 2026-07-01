@@ -83,7 +83,7 @@ export default function Footer() {
               <li>
                 <Link href="/about" className="hover:text-amber-400 transition-colors flex items-center gap-2 group">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                  Gallary
+                  Gallery
                 </Link>
               </li>
             </ul>
