@@ -9,21 +9,36 @@ export async function generateMetadata({ params }) {
       }
     );
 
-    if (!res.ok) {
-      return {};
-    }
+    if (!res.ok) return {};
 
-    const json = await res.json();
+    const { data } = await res.json();
 
-    if (!json?.data) {
-      return {};
-    }
+    if (!data) return {};
 
     return {
-      title: json.data.title,
-      description: json.data.excerpt,
+      title: data.title,
+      description: data.excerpt,
+
       openGraph: {
-        images: [json.data.image_url],
+        title: data.title,
+        description: data.excerpt,
+        url: `https://www.bangladeshwithnaim.com/blogs/${params.slug}`,
+        type: "article",
+        images: [
+          {
+            url: data.image_url,
+            width: 1200,
+            height: 630,
+            alt: data.title,
+          },
+        ],
+      },
+
+      twitter: {
+        card: "summary_large_image",
+        title: data.title,
+        description: data.excerpt,
+        images: [data.image_url],
       },
     };
   } catch (err) {
@@ -31,6 +46,7 @@ export async function generateMetadata({ params }) {
     return {};
   }
 }
+
 export default function Page() {
   return <Blogclient />;
 }
