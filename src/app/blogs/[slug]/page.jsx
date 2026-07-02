@@ -1,4 +1,4 @@
-import BlogClient from "./BlogClient";
+import Blogclient from "./Blogclient";
 
 export async function generateMetadata({ params }) {
   const res = await fetch(
@@ -28,5 +28,5 @@ export async function generateMetadata({ params }) {
 }
 
 export default function Page() {
-  return <BlogClient />;
+  return <Blogclient />;
 }
