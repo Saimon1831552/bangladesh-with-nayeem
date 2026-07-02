@@ -5,14 +5,13 @@ export default function robots() {
         userAgent: "*",
         allow: "/",
         disallow: [
-          "/api/",        
-          "/admin/",      
-          "/_next/",      
+          "/api/",
+          "/admin/",
+          "/_next/",
           "/private/",
         ],
       },
       {
-        // Keep AI training crawlers out
         userAgent: [
           "GPTBot",
           "ChatGPT-User",
@@ -24,7 +23,7 @@ export default function robots() {
         disallow: "/",
       },
     ],
-    sitemap: "https://bangladeshwithnaim.com/sitemap.xml",
-    host: "https://bangladeshwithnaim.com",
+    sitemap: "https://www.bangladeshwithnaim.com/sitemap.xml",
+    host: "https://www.bangladeshwithnaim.com",
   };
 }
