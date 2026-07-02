@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { useRef, useState, useEffect, use } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaHandPointRight } from "react-icons/fa6";
@@ -381,14 +380,11 @@ function FaqSection({ faqItems }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function TourDetails({ params }) {
-  const resolvedParams = use(params);
-  const slug = resolvedParams.slug;
-
-  const [tour,      setTour]      = useState(null);
-  const [gallery,   setGallery]   = useState([]);
-  const [reviews,   setReviews]   = useState([]);
-  const [loading,   setLoading]   = useState(true);
+export default function TourDetails({ slug, initialTour = null, initialGallery = [], initialReviews = [] }) {
+  const [tour,      setTour]      = useState(initialTour);
+  const [gallery,   setGallery]   = useState(initialGallery);
+  const [reviews,   setReviews]   = useState(initialReviews);
+  const [loading,   setLoading]   = useState(!initialTour);
   const [error,     setError]     = useState(null);
   const [activeImg, setActiveImg] = useState(0);
   const [showBook,  setShowBook]  = useState(false);
@@ -417,7 +413,7 @@ export default function TourDetails({ params }) {
   }, []);
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || initialTour) return; // server already provided the data
     (async () => {
       setLoading(true);
       try {
@@ -428,6 +424,7 @@ export default function TourDetails({ params }) {
       } catch (err) { setError(err.message); }
       finally { setLoading(false); }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   useEffect(() => {
