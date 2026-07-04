@@ -782,13 +782,13 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
                 )}
 
                 <p className="price-italic-tagline">Your Day, Your Way – A Fully Tailored Tour for Ultimate Experience</p>
-                <div className="price-divider" />
+                {/* <div className="price-divider" />
                 <div className="price-sub-heading"><FontAwesomeIcon icon={faBolt} style={{ fontSize:14, color:'#d97706' }} /> Special Offer</div>
                 <ul className="price-bullet-list">
                   <li><span className="price-bullet-dot" /><span><strong>Early-Bird Deals:</strong> Save <strong>flat 10%</strong> when you book 60+ days in advance.</span></li>
                   <li><span className="price-bullet-dot" /><span><strong>Multi-Tour Bonus:</strong> Book 1+ days and receive a handicraft souvenir.</span></li>
                   <li><span className="price-bullet-dot" /><span><strong>Free Airport Transfer:</strong> Complimentary transfers with any multi-day tour.</span></li>
-                </ul>
+                </ul> */}
                 <div className="price-divider" />
                 <div className="price-sub-heading"><FontAwesomeIcon icon={faTag} style={{ fontSize:14, color:'#d97706' }} /> Fair Pricing Promise</div>
                 <ul className="price-bullet-list">
