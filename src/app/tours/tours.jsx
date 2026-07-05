@@ -80,7 +80,7 @@ export function TourCard({ tour }) {
     }
   };
 
-  const fullStars = Math.floor(tour.rating || 0);
+  // const fullStars = Math.floor(tour.rating || 0);
   const priceDisplay = tour.price
     ? (typeof tour.price === 'number' ? `$${tour.price}` : tour.price)
     : '—';
