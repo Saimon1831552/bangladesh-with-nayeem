@@ -80,7 +80,7 @@ export function TourCard({ tour }) {
     }
   };
 
-  // const fullStars = Math.floor(tour.rating || 0);
+  const fullStars = Math.floor(tour.rating || 0);
   const priceDisplay = tour.price
     ? (typeof tour.price === 'number' ? `$${tour.price}` : tour.price)
     : '—';
@@ -167,7 +167,7 @@ export function TourCard({ tour }) {
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, zIndex: 10 }}>
 
         {/* Stars */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        {/* <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
           <div style={{ display: 'flex', gap: 2 }}>
             {[0, 1, 2, 3, 4].map((i) => (
               <FontAwesomeIcon key={i} icon={faStar} style={{ fontSize: 11, color: i < fullStars ? '#fbbf24' : 'rgba(255,255,255,0.25)' }} />
@@ -175,7 +175,7 @@ export function TourCard({ tour }) {
           </div>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{tour.rating}</span>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>({tour.review_count} reviews)</span>
-        </div>
+        </div> */}
 
         {/* Title */}
         <h3 className="card-title" style={{
