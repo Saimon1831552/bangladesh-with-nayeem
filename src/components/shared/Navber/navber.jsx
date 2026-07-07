@@ -30,7 +30,7 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav className='hidden md:block'>
           <ul className='flex flex-row justify-center gap-6 items-center list-none m-0 p-0'>
-            {['/', '/tours', '/blogs', '/review', '/contact'].map((href, i) => (
+            {['/', '/tours', '/blogs', '/review', '/gallery', '/contact'].map((href, i) => (
               <li key={href}>
                 <Link
                   href={href}
@@ -39,7 +39,7 @@ export default function Navbar() {
                   onMouseEnter={e => e.currentTarget.style.color = '#6fcf47'}
                   onMouseLeave={e => e.currentTarget.style.color = '#a8d880'}
                 >
-                  {['Home', 'Tours', 'Blogs', 'Review', 'Contact'][i]}
+                  {['Home', 'Tours', 'Blogs', 'Review', 'Gallery', 'Contact'][i]}
                 </Link>
               </li>
             ))}
@@ -91,7 +91,7 @@ export default function Navbar() {
         >
           <nav>
             <ul className='flex flex-col items-center gap-6 list-none m-0 p-0'>
-              {['/', '/tours', '/blogs', '/review', '/contact'].map((href, i) => (
+              {['/', '/tours', '/blogs', '/review', '/gallery', '/contact'].map((href, i) => (
                 <li key={href}>
                   <Link
                     href={href}
@@ -101,7 +101,7 @@ export default function Navbar() {
                     onMouseEnter={e => e.currentTarget.style.color = '#6fcf47'}
                     onMouseLeave={e => e.currentTarget.style.color = '#a8d880'}
                   >
-                    {['Home', 'Tours', 'Blogs', 'Review', 'Contact Us'][i]}
+                    {['Home', 'Tours', 'Blogs', 'Review', 'Gallery', 'Contact Us'][i]}
                   </Link>
                 </li>
               ))}
