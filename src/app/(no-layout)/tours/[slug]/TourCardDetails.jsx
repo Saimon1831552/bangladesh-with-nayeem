@@ -781,7 +781,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
                   </div>
                 )}
 
-                <p className="price-italic-tagline">Your Day, Your Way – A Fully Tailored Tour for Ultimate Experience</p>
+                <p className="price-italic-tagline">Make It Yours – A Custom Itinerary for the Perfect Adventure</p>
                 {/* <div className="price-divider" />
                 <div className="price-sub-heading"><FontAwesomeIcon icon={faBolt} style={{ fontSize:14, color:'#d97706' }} /> Special Offer</div>
                 <ul className="price-bullet-list">
@@ -792,20 +792,19 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
                 <div className="price-divider" />
                 <div className="price-sub-heading"><FontAwesomeIcon icon={faTag} style={{ fontSize:14, color:'#d97706' }} /> Fair Pricing Promise</div>
                 <ul className="price-bullet-list">
-                  <li><span className="price-bullet-dot" /><span><strong>Transparent Inclusions:</strong> All entry fees, rickshaw &amp; boat rides included.</span></li>
-                  <li><span className="price-bullet-dot" /><span><strong>No Surprise Costs:</strong> No "factory" visits or shopping commissions—ever.</span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Transparent Inclusions:</strong> All entry fees, rickshaw, and boat rides are completely covered.</span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>No Hidden Charges:</strong> Absolutely no forced "factory" visits or shopping commissions—ever.</span></li>
                 </ul>
                 <div className="price-divider" />
                 <div className="price-sub-heading"><FontAwesomeIcon icon={faArrowRotateLeft} style={{ fontSize:14, color:'#d97706' }} /> Free Rescheduling &amp; Cancellation</div>
                 <ul className="price-bullet-list">
-                  <li><span className="price-bullet-dot" /><span><strong>Complimentary Rescheduling:</strong> Change your date up to 72 hours before the tour.</span></li>
-                  <li><span className="price-bullet-dot" /><span><strong>Fair Cancellation:</strong> Full refund if cancelled 30+ days before; see <a href="/contact#policies" className="contact-link">cancellation policy.</a></span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Easy Rescheduling:</strong> Change your tour date with zero penalties up to 72 hours before departure.</span></li>
+                  <li><span className="price-bullet-dot" /><span><strong>Fair Cancellation:</strong> Enjoy a 100% full refund if you cancel 30+ days in advance. Here <a href="/contact#policies" className="contact-link">cancellation policy.</a></span></li>
                 </ul>
                 <div className="price-divider" />
                 <div className="price-sub-heading"><FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize:14, color:'#d97706' }} /> Fixed Departures or B2B Tours?</div>
                 <p style={{ fontSize:13.5, color:'#555', lineHeight:1.7, marginTop:4 }}>
-                  We offer fixed-departure group tours and bespoke B2B packages.{' '}
-                  <a href="/contact" className="contact-link">Get in touch</a> to discuss your requirements.
+                  Looking for scheduled group trips or custom corporate packages? Get in touch with us today to design your perfect itinerary.
                 </p>
 
                 {/* ── Book Now button inside price card ── */}
