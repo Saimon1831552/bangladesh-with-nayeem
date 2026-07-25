@@ -7,29 +7,25 @@ import {
   faImages, faExpand,
 } from '@fortawesome/free-solid-svg-icons';
 
-const ALL_IMAGES = [
-  { src: "https://images.unsplash.com/photo-1587222318667-31212ce2828d?q=80&w=1400&auto=format&fit=crop", label: "Sundarbans Safari",  country: "Khulna"     },
-  { src: "https://i.ibb.co.com/V08Hr3cP/0e6e0e79-db11-4a30-9292-a201d3995d4c.jpg",                      label: "Mangrove Forest",   country: "Bagerhat"   },
-  { src: "https://i.ibb.co.com/0jhY9sWZ/Whats-App-Image-2026-03-29-at-9-35-28-PM.jpg",                  label: "Heritage Walk",     country: "Dhaka"      },
-  { src: "https://i.ibb.co.com/BVKwKB7H/Whats-App-Image-2026-03-29-at-9-35-29-PM-1.jpg",               label: "Tea Gardens",       country: "Sylhet"     },
-  { src: "https://i.ibb.co.com/JYcT3J5/Whats-App-Image-2026-03-29-at-9-35-29-PM.jpg",                  label: "Wildlife",          country: "Sundarbans" },
-  { src: "https://i.ibb.co.com/mrfDMSzs/Whats-App-Image-2026-03-29-at-9-35-30-PM.jpg",                 label: "Street Food",       country: "Old Dhaka"  },
-  { src: "https://i.ibb.co.com/Rtr7wd0/Whats-App-Image-2026-03-29-at-9-35-31-PM.jpg",                  label: "Boat Journey",      country: "Barisal"    },
-];
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'https://api.bangladeshwithnaim.com')
+  .replace(/\/api\/?$/, '');
 
-const PREVIEW = ALL_IMAGES.slice(0, 6);
-const EXTRA   = ALL_IMAGES.length - 6;
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1587222318667-31212ce2828d?q=80&w=1400&auto=format&fit=crop';
 
-// Row 1: big-med-small  (7fr 3fr 2fr)
-const ROW1 = [
-  { idx: 0, cols: '7fr 3fr 2fr', height: 420 },
-];
-// Row 2: small-med-big  (2fr 3fr 7fr)
-const ROW2 = [
-  { idx: 3, cols: '2fr 3fr 7fr', height: 310 },
-];
+// ── Data fetching ──
+async function fetchGallery() {
+  const res = await fetch(`${API_BASE}/api/gallery`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  return (json.data || []).map(g => ({
+    src: g.image_url || FALLBACK_IMG,
+    label: g.alt_text || g.tour_title || 'Bangladesh',
+    country: g.tour_title || '',
+  }));
+}
 
-function GalleryCell({ img, idx, height, isLast, onOpen, onOpenFull }) {
+// ── Single gallery cell (its own top-level component) ──
+function GalleryCell({ img, idx, height, isLast, extra, onOpen, onOpenFull }) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -41,7 +37,7 @@ function GalleryCell({ img, idx, height, isLast, onOpen, onOpenFull }) {
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => isLast && EXTRA > 0 ? onOpenFull() : onOpen(idx)}
+      onClick={() => (isLast && extra > 0 ? onOpenFull() : onOpen(idx))}
     >
       <img
         src={img.src}
@@ -106,7 +102,7 @@ function GalleryCell({ img, idx, height, isLast, onOpen, onOpenFull }) {
       )}
 
       {/* +N overlay on last cell */}
-      {isLast && EXTRA > 0 && (
+      {isLast && extra > 0 && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 3,
           background: hovered ? 'rgba(8,8,7,0.80)' : 'rgba(8,8,7,0.68)',
@@ -117,7 +113,7 @@ function GalleryCell({ img, idx, height, isLast, onOpen, onOpenFull }) {
           <div style={{
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontSize: '4.5rem', fontWeight: 700, color: '#fff', lineHeight: 1,
-          }}>+{EXTRA}</div>
+          }}>+{extra}</div>
           <div style={{
             fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)',
             textTransform: 'uppercase', letterSpacing: '0.15em',
@@ -146,13 +142,27 @@ function GalleryCell({ img, idx, height, isLast, onOpen, onOpenFull }) {
   );
 }
 
+// ── Main gallery component (the ONLY default export) ──
 export default function Gallery() {
+  const [allImages, setAllImages] = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [fullOpen,    setFullOpen]    = useState(false);
 
+  useEffect(() => {
+    fetchGallery()
+      .then(setAllImages)
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const preview = allImages.slice(0, 6);
+  const extra   = allImages.length - 6;
+
   const openLb   = useCallback(i  => { setLightboxIdx(i); document.body.style.overflow = 'hidden'; }, []);
   const closeLb  = useCallback(()  => { setLightboxIdx(null); document.body.style.overflow = ''; }, []);
-  const navLb    = useCallback(d   => setLightboxIdx(p => (p + d + ALL_IMAGES.length) % ALL_IMAGES.length), []);
+  const navLb    = useCallback(d   => setLightboxIdx(p => (p + d + allImages.length) % allImages.length), [allImages.length]);
   const openFull = useCallback(()  => { setFullOpen(true);  document.body.style.overflow = 'hidden'; }, []);
   const closeFull= useCallback(()  => { setFullOpen(false); document.body.style.overflow = ''; }, []);
   const fromFull = useCallback(i   => { setFullOpen(false); openLb(i); }, [openLb]);
@@ -168,6 +178,21 @@ export default function Gallery() {
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
   }, [lightboxIdx, fullOpen, navLb, closeLb, closeFull]);
+
+  if (loading) {
+    return (
+      <div style={{ background: '#090907', padding: '100px 40px', textAlign: 'center', color: 'rgba(255,255,255,.4)' }}>
+        Loading gallery…
+      </div>
+    );
+  }
+  if (error || allImages.length === 0) {
+    return (
+      <div style={{ background: '#090907', padding: '100px 40px', textAlign: 'center', color: 'rgba(255,255,255,.4)' }}>
+        {error ? 'Failed to load gallery.' : 'No gallery images yet.'}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -288,18 +313,27 @@ export default function Gallery() {
             </div>
           </div>
 
-          {/* Single Row — 6 equal columns */}
+          {/* Single Row — up to 6 equal columns */}
           <div className="gl-rows">
-            <div className="gl-row" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
-              {[0, 1, 2, 3, 4, 5].map(idx => (
-                <GalleryCell key={idx} img={PREVIEW[idx]} idx={idx} height={380} isLast={idx === 5} onOpen={openLb} onOpenFull={openFull} />
+            <div className="gl-row" style={{ gridTemplateColumns: `repeat(${preview.length}, 1fr)` }}>
+              {preview.map((img, idx) => (
+                <GalleryCell
+                  key={idx}
+                  img={img}
+                  idx={idx}
+                  height={380}
+                  isLast={idx === preview.length - 1}
+                  extra={extra}
+                  onOpen={openLb}
+                  onOpenFull={openFull}
+                />
               ))}
             </div>
           </div>
 
           {/* Footer */}
           <div className="gl-ft">
-            <div className="gl-ft-note">Showing <b>6</b> of <b>{ALL_IMAGES.length}</b> photos</div>
+            <div className="gl-ft-note">Showing <b>{preview.length}</b> of <b>{allImages.length}</b> photos</div>
             <div className="gl-fbtns">
               <button className="gl-btn-p" onClick={openFull}>
                 <FontAwesomeIcon icon={faImages} style={{ fontSize: 13 }} />
@@ -323,7 +357,7 @@ export default function Gallery() {
           <div className="fg-hd">
             <div>
               <div className="fg-ttl">Photo <em>Gallery</em></div>
-              <div className="fg-meta">{ALL_IMAGES.length} photos · click any image to expand</div>
+              <div className="fg-meta">{allImages.length} photos · click any image to expand</div>
             </div>
             <button className="fg-cls" onClick={closeFull}>
               <FontAwesomeIcon icon={faXmark} />
@@ -331,7 +365,7 @@ export default function Gallery() {
           </div>
           <div className="fg-bd">
             <div className="fg-mason">
-              {ALL_IMAGES.map((img, i) => (
+              {allImages.map((img, i) => (
                 <div key={i} className="fg-itm" onClick={() => fromFull(i)}>
                   <img src={img.src} alt={img.label} loading="lazy" />
                   <div className="fg-ihov">
@@ -351,7 +385,7 @@ export default function Gallery() {
       {lightboxIdx !== null && (
         <div className="lb" onClick={closeLb}>
           <div className="lb-top">
-            <div className="lb-ctr">{lightboxIdx + 1} / {ALL_IMAGES.length}</div>
+            <div className="lb-ctr">{lightboxIdx + 1} / {allImages.length}</div>
             <button className="lb-cls" onClick={closeLb}>
               <FontAwesomeIcon icon={faXmark} />
             </button>
@@ -363,8 +397,8 @@ export default function Gallery() {
 
           <img
             className="lb-img"
-            src={ALL_IMAGES[lightboxIdx].src}
-            alt={ALL_IMAGES[lightboxIdx].label}
+            src={allImages[lightboxIdx].src}
+            alt={allImages[lightboxIdx].label}
             onClick={e => e.stopPropagation()}
           />
 
@@ -374,11 +408,11 @@ export default function Gallery() {
 
           <div className="lb-bot" onClick={e => e.stopPropagation()}>
             <div className="lb-lrow">
-              <span className="lb-lbl">{ALL_IMAGES[lightboxIdx].label}</span>
-              <span className="lb-lcnt">· {ALL_IMAGES[lightboxIdx].country}</span>
+              <span className="lb-lbl">{allImages[lightboxIdx].label}</span>
+              <span className="lb-lcnt">· {allImages[lightboxIdx].country}</span>
             </div>
             <div className="lb-thumbs">
-              {ALL_IMAGES.map((img, i) => (
+              {allImages.map((img, i) => (
                 <img key={i} className={`lb-th ${i === lightboxIdx ? 'on' : ''}`}
                   src={img.src} alt={img.label} onClick={() => setLightboxIdx(i)} />
               ))}
