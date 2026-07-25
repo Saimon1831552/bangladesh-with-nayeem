@@ -3,9 +3,7 @@ import Gallery from "@/components/shared/tours-gallary/gallary";
 
 export const dynamic = "force-dynamic";
 
-const API_BASE = (
-  process.env.NEXT_PUBLIC_API_URL || "https://api.bangladeshwithnaim.com"
-).replace(/\/api\/?$/, "");
+const API_BASE = ( process.env.NEXT_PUBLIC_API_URL ).replace(/\/api\/?$/, "");
 
 export const metadata = {
   title: "Photo Gallery — Real Moments from Bangladesh | Bangladesh With Naim",
