@@ -1,6 +1,6 @@
 import TourDetails from "./TourCardDetails";
 
-const SITE_URL = "https://bangladeshwithnaim.com";
+const SITE_URL = "https://www.bangladeshwithnaim.com";
 const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 // ─────────────────────────────────────────────────────────────
