@@ -136,7 +136,7 @@ export default async function Page({ params }) {
         offers: {
           "@type": "Offer",
           price: parsePrice(tour.price) || undefined,
-          priceCurrency: "USD",
+          priceCurrency: "BDT",
           availability: "https://schema.org/InStock",
           url: `${SITE_URL}/tours/${slug}`,
         },
