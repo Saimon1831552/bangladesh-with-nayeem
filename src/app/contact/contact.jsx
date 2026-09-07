@@ -408,7 +408,7 @@ export default function ContactSection() {
                   <div className="ct-info-item">
                     <div className="ct-info-icon">✉️</div>
                     <div className="ct-info-text">
-                      <span className="ct-info-main">info@bangladeshwithnaim.com</span>
+                      <span className="ct-info-main">bangladeshwithnaim26@gmail.com</span>
                       <span className="ct-info-hint">Bookings & payment confirmations</span>
                     </div>
                   </div>
