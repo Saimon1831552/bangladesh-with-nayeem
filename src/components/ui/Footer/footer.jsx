@@ -167,7 +167,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-4">
                 <FontAwesomeIcon icon={faEnvelope} className="text-amber-500" />
-                <a href="mailto:bangladeshwithnaim26@gmail.com" className="text-sm hover:text-white transition-colors">
+                 <a href="mailto:bangladeshwithnaim26@gmail.com" className="text-sm hover:text-white transition-colors">
                   bangladeshwithnaim26@gmail.com
                 </a>
               </li>
