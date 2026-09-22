@@ -63,6 +63,7 @@ app.use('/api/tours',   toursRouter);
 app.use('/api/blogs',   blogsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/gallery', galleryRouter);
+app.use('/api/booking', bookingRouter);
 
 // Health check
 app.get('/', (req, res) => {
@@ -84,7 +85,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use('/api/booking', bookingRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
