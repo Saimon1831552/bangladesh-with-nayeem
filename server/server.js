@@ -5,6 +5,7 @@ const toursRouter   = require('./routes/tours');
 const blogsRouter   = require('./routes/blogs');
 const reviewsRouter = require('./routes/reviews');
 const galleryRouter = require('./routes/gallery');
+const bookingRouter = require('./routes/booking');
 
 const app = express();
 
@@ -82,6 +83,8 @@ app.use((err, req, res, next) => {
     ...(isProd ? {} : { error: err.message }),
   });
 });
+
+app.use('/api/booking', bookingRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
