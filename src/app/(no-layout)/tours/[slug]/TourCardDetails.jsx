@@ -9,7 +9,7 @@ import {
   faChevronLeft, faStar, faCalendarDays, faShieldHalved, faRoute,
   faLeaf, faWater, faBinoculars, faTriangleExclamation,
   faTag, faCircleInfo, faArrowRotateLeft, faMagnifyingGlass,
-  faBolt, faXmark as faClose, faPaperPlane,
+  faBolt, faXmark as faClose, faPaperPlane, faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
 
 
@@ -63,8 +63,10 @@ function buildStats(tour) {
 
 // ── Booking Form Modal ────────────────────────────────────────────────────────
 function BookingModal({ tour, priceFmt, onClose }) {
-  const [step, setStep] = useState(1); // 1 = form, 2 = success
+  const [step, setStep] = useState(1);
   const [agreed, setAgreed] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
   const [form, setForm] = useState({
     title: 'Mr', fullName: '', nationality: '', email: '',
     whatsapp: '', people: '2', startDate: '', tourType: 'shared',
@@ -78,10 +80,25 @@ function BookingModal({ tour, priceFmt, onClose }) {
 
   const handle = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (!agreed) return;
-    setStep(2);
+    if (!agreed || sending) return;
+    setSendError('');
+    setSending(true);
+    try {
+      const res = await fetch('/api/send-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, tourTitle: tour.title, priceFmt }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) throw new Error(data.message);
+      setStep(2);
+    } catch {
+      setSendError('Something went wrong sending your request. Please try WhatsApp instead, or try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
   // lock body scroll
