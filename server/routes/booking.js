@@ -1,79 +1,172 @@
-/*const express = require('express');
+
+const express = require("express");
+const rateLimit = require("express-rate-limit");
+const { z } = require("zod");
+const { randomUUID } = require("crypto");
+const nodemailer = require("nodemailer");
+
 const router = express.Router();
-const nodemailer = require('nodemailer');
 
-// POST /api/booking
-router.post('/', async (req, res) => {
+// Limit repeated booking submissions.
+const bookingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many booking requests. Please try again later.",
+  },
+});
+
+const bookingSchema = z.object({
+  title: z.enum(["Mr", "Ms"]),
+  fullName: z.string().trim().min(2).max(150),
+  nationality: z.string().trim().min(2).max(100),
+  email: z.string().trim().email().max(254),
+  whatsapp: z.string().trim().max(30).optional().default(""),
+  people: z.coerce.number().int().min(1).max(12),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  tourType: z.enum(["shared", "private"]),
+  source: z.string().trim().max(80).optional().default(""),
+  message: z.string().trim().max(2000).optional().default(""),
+  tourTitle: z.string().trim().min(1).max(200),
+  agreedToPolicy: z.literal(true),
+}).strict();
+
+// Configure SMTP using environment variables.
+function createTransporter() {
+  const required = [
+    "SMTP_HOST",
+    "SMTP_USER",
+    "SMTP_PASS",
+    "BOOKING_TO_EMAIL",
+    "BOOKING_FROM_EMAIL",
+  ];
+
+  const missing = required.filter((key) => !process.env[key]);
+
+  if (missing.length) {
+    throw new Error(`Missing email configuration: ${missing.join(", ")}`);
+  }
+
+  const port = Number(process.env.SMTP_PORT || 465);
+
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port,
+    secure: port === 465,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
+  });
+}
+
+router.post("/", bookingLimiter, async (req, res) => {
+  const result = bookingSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      success: false,
+      message: "Please check the booking form and try again.",
+      errors: result.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      })),
+    });
+  }
+
+  const booking = result.data;
+
+  // Validate the actual calendar date, not just its format.
+  const [year, month, day] = booking.startDate.split("-").map(Number);
+  const requestedDate = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    requestedDate.getUTCFullYear() !== year ||
+    requestedDate.getUTCMonth() !== month - 1 ||
+    requestedDate.getUTCDate() !== day
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Please select a valid tour date.",
+    });
+  }
+
+  // Compare calendar dates using Bangladesh time.
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  if (booking.startDate < today) {
+    return res.status(400).json({
+      success: false,
+      message: "Please select today or a future date.",
+    });
+  }
+
   try {
-    const {
-      tourTitle, priceFmt, title, fullName, nationality, email,
-      whatsapp, people, startDate, tourType, source, message,
-    } = req.body;
+    const reference = randomUUID()
+      .replace(/-/g, "")
+      .slice(0, 12)
+      .toUpperCase();
 
-    if (!fullName || !email || !nationality || !startDate) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
-    }
+    const transporter = createTransporter();
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: Number(process.env.EMAIL_PORT || 587),
-      secure: process.env.EMAIL_SECURE === 'true', // true for port 465
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+    const emailText = [
+      "NEW TOUR BOOKING REQUEST",
+      "========================",
+      "",
+      `Reference: ${reference}`,
+      `Tour: ${booking.tourTitle}`,
+      `Customer: ${booking.title} ${booking.fullName}`,
+      `Nationality: ${booking.nationality}`,
+      `Email: ${booking.email}`,
+      `WhatsApp: ${booking.whatsapp || "Not provided"}`,
+      `Travelers: ${booking.people}`,
+      `Start date: ${booking.startDate}`,
+      `Tour type: ${booking.tourType}`,
+      `How they found us: ${booking.source || "Not provided"}`,
+      "",
+      "Customer message:",
+      booking.message || "No message",
+      "",
+      "Status: Pending review",
+      "This is a booking request, not a confirmed reservation.",
+    ].join("\n");
+
+    await transporter.sendMail({
+      from: {
+        name: "Tour Booking Website",
+        address: process.env.BOOKING_FROM_EMAIL,
       },
+      to: process.env.BOOKING_TO_EMAIL,
+      replyTo: booking.email,
+      subject: `New tour booking request - ${reference}`,
+      text: emailText,
     });
 
-    const toAddress = process.env.BOOKING_NOTIFY_EMAIL || process.env.EMAIL_USER;
-
-    const row = (label, value) =>
-      `<tr><td style="padding:6px 10px;font-weight:700;color:#333;">${label}</td><td style="padding:6px 10px;color:#555;">${value || '—'}</td></tr>`;
-
-    const html = `
-      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;">
-        <h2 style="color:#15803d;">New Booking Request</h2>
-        <p style="font-size:14px;color:#333;"><strong>${tourTitle || ''}</strong> — ${priceFmt || ''}</p>
-        <table style="border-collapse:collapse;width:100%;font-size:14px;">
-          ${row('Name', `${title || ''}. ${fullName}`)}
-          ${row('Nationality', nationality)}
-          ${row('Email', email)}
-          ${row('WhatsApp', whatsapp)}
-          ${row('People', people)}
-          ${row('Start Date', startDate)}
-          ${row('Tour Type', tourType)}
-          ${row('Found via', source)}
-        </table>
-        <p style="font-weight:700;margin-top:16px;">Message</p>
-        <p style="white-space:pre-wrap;font-size:14px;color:#555;">${message || '—'}</p>
-      </div>
-    `;
-
-    // 1) Notify admin
-    await transporter.sendMail({
-      from: `"Bangladesh With Naim — Bookings" <${process.env.EMAIL_USER}>`,
-      to: toAddress,
-      replyTo: email,
-      subject: `New Booking Request: ${tourTitle || 'Tour'} — ${fullName}`,
-      html,
+    return res.status(200).json({
+      success: true,
+      message: "Your booking request has been sent successfully.",
+      reference,
     });
+  } catch (error) {
+    // Avoid logging customer information or SMTP credentials.
+    console.error("Booking email failed:", error.code || error.name);
 
-    // 2) Confirmation to customer
-    await transporter.sendMail({
-      from: `"Bangladesh With Naim" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: `We received your booking request — ${tourTitle || ''}`,
-      html: `<p>Hi ${fullName},</p>
-             <p>Thanks for your booking request for <strong>${tourTitle || 'your selected tour'}</strong>.
-             We'll get back to you within 24 hours via email or WhatsApp.</p>
-             <p>— Bangladesh With Naim</p>`,
+    return res.status(503).json({
+      success: false,
+      message: "We could not send your request. Please try again later.",
     });
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error('booking email error:', err);
-    res.status(500).json({ success: false, message: 'Failed to send email' });
   }
 });
 
 module.exports = router;
-*/
