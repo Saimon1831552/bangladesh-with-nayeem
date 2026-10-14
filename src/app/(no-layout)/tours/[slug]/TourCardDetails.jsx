@@ -131,6 +131,13 @@ const submit = async (e) => {
     return () => { document.body.style.overflow = ''; };
   }, []);
 
+const today = new Date();
+const minBookingDate = [
+  today.getFullYear(),
+  String(today.getMonth() + 1).padStart(2, "0"),
+  String(today.getDate()).padStart(2, "0"),
+].join("-");
+
   return (
     <>
       <style>{`
@@ -276,7 +283,7 @@ const submit = async (e) => {
                     <div className="bk-group">
                       <label className="bk-label">Number of People <span>*</span></label>
                       <div className="bk-select-wrap">
-                        <select className="bk-input" name="people" value={form.people} onChange={handle} required>
+                        <select className="bk-input" name="people" value={form.people}  onChange={handle} required>
                           {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => (
                             <option key={n} value={n}>{n} {n===1?'Person':'People'}</option>
                           ))}
@@ -285,7 +292,7 @@ const submit = async (e) => {
                     </div>
                     <div className="bk-group">
                       <label className="bk-label">Preferred Start Date <span>*</span></label>
-                      <input className="bk-input" type="date" name="startDate" value={form.startDate} onChange={handle} required />
+                      <input className="bk-input" type="date" name="startDate" value={form.startDate} min={minBookingDate} onChange={handle} required />
                     </div>
                   </div>
 
