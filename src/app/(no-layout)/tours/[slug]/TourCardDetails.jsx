@@ -80,29 +80,50 @@ function BookingModal({ tour, priceFmt, onClose }) {
 
   const handle = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!agreed || sending) return;
-    setSendError('');
-    setSending(true);
-    try {
-      const response = await fetch(`${API_BASE}/bookings`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    ...form,
-    tourTitle: tour.title,
-    agreedToPolicy: agreed,
-  }),
-});
-    } catch {
-      setSendError('Something went wrong sending your request. Please try WhatsApp instead, or try again.');
-    } finally {
-      setSending(false);
+ 
+const submit = async (e) => {
+  e.preventDefault();
+
+  if (!agreed || sending) return;
+
+  setSendError("");
+  setSending(true);
+
+  try {
+    const response = await fetch(`${API_BASE}/bookings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...form,
+        tourTitle: tour.title,
+        agreedToPolicy: agreed,
+      }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Unable to send your booking request."
+      );
     }
-  };
+
+    // Show success screen only after the API confirms success.
+    setStep(2);
+  } catch (error) {
+    console.error("Booking submission failed:", error);
+
+    setSendError(
+      error.message ||
+        "Unable to reach the booking service. Please try again."
+    );
+  } finally {
+    setSending(false);
+  }
+};
+
 
   // lock body scroll
   useEffect(() => {
@@ -323,10 +344,25 @@ function BookingModal({ tour, priceFmt, onClose }) {
                   </label>
                   {!agreed && <p style={{ fontSize:11, color:'#d97706', marginTop:6, textAlign:'center' }}>Complete all required fields + accept policy to continue</p>}
 
-                  <button type="submit" className="bk-submit" disabled={!agreed}>
-                    <FontAwesomeIcon icon={faPaperPlane} />
-                    Send Booking Request
-                  </button>
+                  
+{sendError && (
+  <p role="alert" aria-live="polite" style={{ color: "#b91c1c" }}>
+    {sendError}
+  </p>
+)}
+
+<button
+  type="submit"
+  className="bk-submit"
+  disabled={!agreed || sending}
+>
+  <FontAwesomeIcon
+    icon={sending ? faSpinner : faPaperPlane}
+    spin={sending}
+  />
+  {sending ? "Sending Request..." : "Send Booking Request"}
+</button>
+
 
                   <div className="bk-secure">
                     <FontAwesomeIcon icon={faShieldHalved} />
