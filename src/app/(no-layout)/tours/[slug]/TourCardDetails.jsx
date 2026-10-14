@@ -86,14 +86,17 @@ function BookingModal({ tour, priceFmt, onClose }) {
     setSendError('');
     setSending(true);
     try {
-      const res = await fetch('/api/send-booking', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, tourTitle: tour.title, priceFmt }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.success) throw new Error(data.message);
-      setStep(2);
+      const response = await fetch(`${API_BASE}/bookings`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    ...form,
+    tourTitle: tour.title,
+    agreedToPolicy: agreed,
+  }),
+});
     } catch {
       setSendError('Something went wrong sending your request. Please try WhatsApp instead, or try again.');
     } finally {
