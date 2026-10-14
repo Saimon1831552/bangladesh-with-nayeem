@@ -5,7 +5,9 @@ const toursRouter   = require('./routes/tours');
 const blogsRouter   = require('./routes/blogs');
 const reviewsRouter = require('./routes/reviews');
 const galleryRouter = require('./routes/gallery');
-//const bookingRouter = require('./routes/booking');
+const bookingRoutes = require("./routes/booking");
+
+app.use("/api/bookings", bookingRoutes);
 
 const app = express();
 
@@ -63,7 +65,7 @@ app.use('/api/tours',   toursRouter);
 app.use('/api/blogs',   blogsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/gallery', galleryRouter);
-//app.use('/api/booking', bookingRouter);
+app.use("/api/bookings", bookingRoutes);
 
 // Health check
 app.get('/', (req, res) => {
