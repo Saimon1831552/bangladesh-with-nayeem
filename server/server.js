@@ -6,6 +6,7 @@ const blogsRouter   = require('./routes/blogs');
 const reviewsRouter = require('./routes/reviews');
 const galleryRouter = require('./routes/gallery');
 const bookingRoutes = require("./routes/booking");
+const bookingRoute = require("./routes/bookingRoutes");
 
 app.use("/api/bookings", bookingRoutes);
 
@@ -66,6 +67,7 @@ app.use('/api/blogs',   blogsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/gallery', galleryRouter);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/booking", bookingRoutes);
 
 // Health check
 app.get('/', (req, res) => {
