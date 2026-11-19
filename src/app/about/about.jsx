@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function AboutNaim() {
   return (
@@ -70,6 +71,17 @@ export default function AboutNaim() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Tour guide registration certificate */}
+        <div className="mb-12 flex justify-center">
+          <Image
+            src="/reg.webp"
+            alt="Bangladesh Tourism Board Tour Guide Registration Certificate"
+            width={588}
+            height={818}
+            className="h-auto w-full max-w-md rounded-xl border border-gray-200 shadow-lg"
+          />
         </div>
 
         {/* Personal Touch */}

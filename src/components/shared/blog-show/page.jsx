@@ -1,7 +1,9 @@
 
 import BlogShow from '@/components/shared/blog-show/blog-show';
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL).replace(/\/api\/?$/, '');
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL || 'https://api.bangladeshwithnaim.com'
+).replace(/\/api\/?$/, '');
 
 export default async function HomePage() {
   let blogs = [];

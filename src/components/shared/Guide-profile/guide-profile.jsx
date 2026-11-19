@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faHeart, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faHeart, faCheckCircle, faAward } from '@fortawesome/free-solid-svg-icons';
 
 export default function GuideProfile() {
   return (
@@ -87,6 +87,37 @@ export default function GuideProfile() {
             <span className="group-hover:text-stone-900 transition-colors">Friendly Travel Support</span>
           </div>
 
+        </div>
+      </div>
+
+      {/* Premium credential card */}
+      <div className="w-full max-w-xl mx-auto mt-8">
+        <div className="relative overflow-hidden rounded-2xl border border-amber-400/60 bg-gradient-to-br from-green-950 via-green-900 to-green-800 px-6 py-5 text-white shadow-xl shadow-green-900/20 transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl">
+          <div className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500" />
+
+          <div className="relative flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-amber-300/70 bg-amber-400/15 text-amber-300 shadow-inner shadow-amber-100/10">
+              <FontAwesomeIcon icon={faAward} className="text-2xl" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-base font-bold leading-snug text-white sm:text-lg">
+                A Registered Tour Guide in Bangladesh
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-green-100">
+                Officially registered with the Bangladesh Tourism Board under the Ministry of Civil Aviation and Tourism.
+              </p>
+              <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300">
+                Registration Number
+              </p>
+              <p className="mt-1 text-base font-extrabold tracking-widest text-white">
+                TG405704700008
+              </p>
+              <p className="mt-1 text-xs font-semibold tracking-wide text-green-100">
+                Bangladesh Tourism Board Registered Guide
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

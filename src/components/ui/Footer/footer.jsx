@@ -197,6 +197,13 @@ export default function Footer() {
             </form>
           </div>
 
+          {/* Tourism Board Registration */}
+          <div className="flex items-start pt-1">
+            <p className="text-sm font-bold leading-relaxed text-gray-300">
+              Bangladesh Tourism Board Registered Tour Guide | Reg. No. TG405704700008
+            </p>
+          </div>
+
         </div>
 
         {/* Bottom Bar: Copyright & Legal */}
