@@ -42,6 +42,6 @@ if (fetchError) {
 
   return <Blog blogs={blogs} />;
 }
-export const metadata = {
+/* export const metadata = {
   title: "Bangladesh Travel Blog — Tips, Guides & Hidden Gems | Bangladesh With Naim",
-};
+}; */

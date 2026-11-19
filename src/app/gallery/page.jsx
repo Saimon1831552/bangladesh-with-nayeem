@@ -7,11 +7,11 @@ const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "https://api.bangladeshwithnaim.com"
 ).replace(/\/api\/?$/, "");
 
-export const metadata = {
+/* export const metadata = {
   title: "Photo Gallery — Real Moments from Bangladesh | Bangladesh With Naim",
   description:
     "Explore photos from private tours across Bangladesh — Sundarbans safaris, heritage walks, tea gardens, and unforgettable traveler moments with Naim.",
-};
+}; */
 
 // ── Gallery hero (matches site-wide hero style) ─────────────────────────────
 function GalleryHero() {

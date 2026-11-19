@@ -2,49 +2,25 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navber from "@/components/shared/Navber/navber";
 import Footer from "@/components/ui/Footer/footer";
+import { getSeoSettings, seoMetadata, seoStructuredData } from "@/lib/seo";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-const SITE_URL = "https://bangladeshwithnaim.com";
+export async function generateMetadata() {
+  return seoMetadata(await getSeoSettings());
+}
 
-export const metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
-    template: "%s | Bangladesh With Naim",
-  },
-  description: "Discover Bangladesh with Naim — a trusted local guide offering private, affordable tour packages to Dhaka, Sundarbans, Srimangal, Cox's Bazar & more. Skip the agencies. Save 15–30%.",
-  keywords: ["Bangladesh tour packages","Bangladesh private tour","Bangladesh local guide","Sundarbans tour","Dhaka heritage tour","Srimangal tea garden tour","Cox's Bazar tour","Bangladesh with Naim","Bangladesh travel guide","affordable Bangladesh tours","cultural tour Bangladesh","international tourist Bangladesh"],
-  authors: [{ name: "Naim", url: SITE_URL }],
-  creator: "Naim",
-  publisher: "Bangladesh With Naim",
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website", locale: "en_US", url: SITE_URL, siteName: "Bangladesh With Naim",
-    title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
-    description: "Private, personalized tours across Bangladesh. Heritage walks, Sundarbans safaris, tea garden escapes & more — all guided by your trusted local friend, Naim.",
-    images: [{ url: "/og-image.jpeg", width: 1200, height: 630, alt: "Beautiful Bangladesh landscape — Bangladesh With Naim tours" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
-    description: "Skip the agencies. Book private Bangladesh tours directly with Naim — save 15–30% and travel like a local.",
-    images: ["/og-image.jpeg"], creator: "@bangladeshwithnaim",
-  },
-  robots: {
-    index: true, follow: true, nocache: false,
-    googleBot: { index: true, follow: true, noimageindex: false, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
-  },
-  icons: { icon: "/favicon.ico", shortcut: "/favicon.ico" },
-  manifest: "/site.webmanifest",
-  verification: { google: "google0112f4e428fe015b" },
-};
+export default async function RootLayout({ children }) {
+  const structuredData = seoStructuredData(await getSeoSettings());
 
-export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData.business) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData.person) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData.website) }} />
+        {structuredData.faq && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData.faq) }} />}
         <Navber />
         {children}
         <Footer />

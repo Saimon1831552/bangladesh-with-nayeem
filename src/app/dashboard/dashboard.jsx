@@ -224,6 +224,7 @@ const P = {
   blogs:   "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8",
   reviews: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
   gallery: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z",
+  seo:     "M12 2a10 10 0 100 20A10 10 0 0012 2z M2 12h20 M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z",
   plus:    "M12 5v14M5 12h14",
   edit:    "M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7 M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z",
   trash:   "M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2",
@@ -414,6 +415,123 @@ function Section({ title, icon, onAdd, count, loading, onRefresh, extra, childre
         </div>
       </div>
       <div>{children}</div>
+    </div>
+  );
+}
+
+// ── SEO SETTINGS ──────────────────────────────────────────────────────────────
+const SEO_FORM_DEFAULTS = {
+  site_name:"", site_url:"", meta_title:"", meta_description:"", keywords:"", canonical_url:"/",
+  og_title:"", og_description:"", og_image:"", twitter_title:"", twitter_description:"", twitter_image:"", twitter_creator:"",
+  robots_index:true, robots_follow:true, google_verification:"", author_name:"", author_url:"", publisher_name:"",
+  business_name:"", business_type:"", business_description:"", business_phone:"", business_email:"", business_street:"", business_city:"", business_country:"",
+  business_logo:"", area_served:"", price_range:"", opening_hours:"", guide_name:"", guide_job_title:"", guide_description:"", guide_image:"", social_links:"", faq_json:"",
+};
+
+function SeoSection({ toast }) {
+  const [form, setForm] = useState(SEO_FORM_DEFAULTS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res = await api.get("/seo");
+    if (res.success && res.data) setForm({ ...SEO_FORM_DEFAULTS, ...res.data });
+    else toast(res.message || "Unable to load SEO settings", "error");
+    setLoading(false);
+  }, [toast]);
+
+  // The settings form must hydrate from the persisted API record on mount.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { load(); }, [load]);
+
+  const set = key => e => setForm(previous => ({ ...previous, [key]: e.target.value }));
+  const save = async () => {
+    setSaving(true);
+    const res = await api.put("/seo", form);
+    setSaving(false);
+    if (res.success) {
+      setForm({ ...SEO_FORM_DEFAULTS, ...res.data });
+      toast("SEO settings saved", "success");
+    } else toast(res.message || "Failed to save SEO settings", "error");
+  };
+
+  const text = (label, key, placeholder, multiline=false) => (
+    <Field label={label}>
+      {multiline
+        ? <textarea className="inp" value={form[key] ?? ""} onChange={set(key)} placeholder={placeholder} />
+        : <input className="inp" value={form[key] ?? ""} onChange={set(key)} placeholder={placeholder} />}
+    </Field>
+  );
+
+  return (
+    <div className="stagger" style={{ display:"flex", flexDirection:"column", gap:20 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:14, background:"var(--surface)", borderRadius:"var(--radius-xl)", border:"1px solid var(--border)", padding:"18px 22px", boxShadow:"var(--shadow-sm)" }}>
+        <div style={{ width:44, height:44, borderRadius:"var(--radius-md)", background:"var(--accent-soft)", display:"flex", alignItems:"center", justifyContent:"center", color:"var(--accent)" }}><Ico d={P.seo} size={20} /></div>
+        <div style={{ flex:1 }}><h2 style={{ fontFamily:"var(--font-display)", fontSize:22, fontWeight:700, color:"var(--ink)" }}>SEO & Site Settings</h2><p style={{ fontSize:13, color:"var(--ink-3)", marginTop:2 }}>Edit the metadata, social previews, indexing rules, and structured data used across the site.</p></div>
+        <button className="btn-icon" onClick={load} title="Refresh"><Ico d={P.refresh} size={16} /></button>
+      </div>
+
+      {loading ? <div style={{ display:"flex", justifyContent:"center", padding:60 }}><Spinner /></div> : <>
+        <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:"var(--radius-xl)", padding:24, boxShadow:"var(--shadow-sm)" }}>
+          <h3 style={{ fontFamily:"var(--font-display)", fontSize:18, fontWeight:700, marginBottom:18 }}>Core Metadata</h3>
+          <Grid cols={2} gap={16}>
+            {text("Site name", "site_name", "Bangladesh With Naim")}
+            {text("Site URL", "site_url", "https://bangladeshwithnaim.com")}
+            {text("Meta title", "meta_title", "The title shown in search results")}
+            {text("Canonical URL", "canonical_url", "/")}
+            {text("Meta description", "meta_description", "A concise description for search engines", true)}
+            {text("Keywords", "keywords", "Comma-separated keywords", true)}
+          </Grid>
+        </div>
+
+        <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:"var(--radius-xl)", padding:24, boxShadow:"var(--shadow-sm)" }}>
+          <h3 style={{ fontFamily:"var(--font-display)", fontSize:18, fontWeight:700, marginBottom:18 }}>Social Sharing</h3>
+          <Grid cols={2} gap={16}>
+            {text("Open Graph title", "og_title", "Facebook/LinkedIn preview title")}
+            {text("Open Graph image URL", "og_image", "https://.../og-image.jpg")}
+            {text("Open Graph description", "og_description", "Facebook/LinkedIn preview description", true)}
+            {text("Twitter title", "twitter_title", "Twitter/X preview title")}
+            {text("Twitter image URL", "twitter_image", "https://.../twitter-image.jpg")}
+            {text("Twitter description", "twitter_description", "Twitter/X preview description", true)}
+            {text("Twitter creator", "twitter_creator", "@username")}
+          </Grid>
+        </div>
+
+        <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:"var(--radius-xl)", padding:24, boxShadow:"var(--shadow-sm)" }}>
+          <h3 style={{ fontFamily:"var(--font-display)", fontSize:18, fontWeight:700, marginBottom:18 }}>Indexing & Verification</h3>
+          <Grid cols={2} gap={16}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0" }}><div><p style={{ fontWeight:700, fontSize:14 }}>Allow search indexing</p><p style={{ fontSize:12, color:"var(--ink-3)", marginTop:2 }}>Let search engines index the site</p></div><label className="toggle-wrap"><input type="checkbox" checked={!!form.robots_index} onChange={e=>setForm(p=>({...p,robots_index:e.target.checked}))}/><div className="toggle-track"/><div className="toggle-thumb"/></label></div>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0" }}><div><p style={{ fontWeight:700, fontSize:14 }}>Allow link following</p><p style={{ fontSize:12, color:"var(--ink-3)", marginTop:2 }}>Allow crawlers to follow links</p></div><label className="toggle-wrap"><input type="checkbox" checked={!!form.robots_follow} onChange={e=>setForm(p=>({...p,robots_follow:e.target.checked}))}/><div className="toggle-track"/><div className="toggle-thumb"/></label></div>
+            {text("Google verification code", "google_verification", "Search Console verification token")}
+          </Grid>
+        </div>
+
+        <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:"var(--radius-xl)", padding:24, boxShadow:"var(--shadow-sm)" }}>
+          <h3 style={{ fontFamily:"var(--font-display)", fontSize:18, fontWeight:700, marginBottom:18 }}>Organization & Guide Schema</h3>
+          <Grid cols={2} gap={16}>
+            {text("Business name", "business_name", "Legal or public business name")}
+            {text("Business type", "business_type", "TravelAgency,LocalBusiness")}
+            {text("Business description", "business_description", "Description used in structured data", true)}
+            {text("Business logo URL", "business_logo", "https://.../logo.png")}
+            {text("Business phone", "business_phone", "+880...")}
+            {text("Business email", "business_email", "info@example.com")}
+            {text("Street address", "business_street", "Dhaka")}
+            {text("City", "business_city", "Dhaka")}
+            {text("Country code", "business_country", "BD")}
+            {text("Areas served", "area_served", "Comma-separated places")}
+            {text("Price range", "price_range", "$$")}
+            {text("Opening hours", "opening_hours", "Monday-Sunday 09:00-21:00")}
+            {text("Guide name", "guide_name", "Naim")}
+            {text("Guide job title", "guide_job_title", "Private Tour Guide")}
+            {text("Guide image URL", "guide_image", "https://.../guide.jpg")}
+            {text("Guide description", "guide_description", "Guide description used in structured data", true)}
+            {text("Social profile URLs", "social_links", "One URL per line", true)}
+            {text("FAQ JSON-LD", "faq_json", "Optional valid FAQPage JSON-LD", true)}
+          </Grid>
+          <div style={{ display:"flex", justifyContent:"flex-end", marginTop:24, paddingTop:20, borderTop:"1px solid var(--border)" }}><button className="btn btn-primary" onClick={save} disabled={saving}>{saving ? "Saving…" : "Save SEO Settings"}</button></div>
+        </div>
+      </>}
     </div>
   );
 }
@@ -1431,6 +1549,7 @@ const NAV = [
   { id:"blogs",     label:"Articles",  icon:P.blogs   },
   { id:"reviews",   label:"Reviews",   icon:P.reviews },
   { id:"gallery",   label:"Gallery",   icon:P.gallery },
+  { id:"seo",       label:"SEO & Site", icon:P.seo    },
 ];
 
 export default function AdminDashboardPage() {
@@ -1444,6 +1563,10 @@ export default function AdminDashboardPage() {
 
   // ── Auth guard: redirect to login if not admin ────────────────────────────
   useEffect(() => {
+    if (!auth) {
+      router.replace("/dashboard/login");
+      return;
+    }
     const unsub = onAuthStateChanged(auth, user => {
       if (!user || !ADMIN_EMAILS.includes(user.email)) {
         router.replace("/dashboard/login");
@@ -1497,7 +1620,7 @@ export default function AdminDashboardPage() {
     })();
   }, [showToast, active]);
 
-  const SECTION_LABELS = { dashboard:"Overview", tours:"Tours", blogs:"Articles", reviews:"Reviews", gallery:"Gallery" };
+  const SECTION_LABELS = { dashboard:"Overview", tours:"Tours", blogs:"Articles", reviews:"Reviews", gallery:"Gallery", seo:"SEO & Site" };
 
   return (
     <>
@@ -1588,6 +1711,7 @@ export default function AdminDashboardPage() {
               {active==="blogs"     && <BlogsSection   toast={showToast} />}
               {active==="reviews"   && <ReviewsSection toast={showToast} />}
               {active==="gallery"   && <GallerySection toast={showToast} />}
+              {active==="seo"       && <SeoSection toast={showToast} />}
             </div>
           </main>
         </div>

@@ -1,17 +1,12 @@
-export default function robots() {
+import { getSeoSettings } from '@/lib/seo';
+
+export default async function robots() {
+  const seo = await getSeoSettings();
+  const siteUrl = String(seo.site_url || 'https://bangladeshwithnaim.com').replace(/\/$/, '');
+
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: [
-        "/api/",
-        "/admin/",
-        "/private/",
-      ],
-    },
-
-    sitemap: "https://www.bangladeshwithnaim.com/sitemap.xml",
-
-    host: "https://www.bangladeshwithnaim.com",
+    rules: [{ userAgent: '*', allow: seo.robots_index ? '/' : [], disallow: seo.robots_index ? ['/api/', '/admin/', '/private/', '/dashboard/'] : ['/'] }],
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   };
 }

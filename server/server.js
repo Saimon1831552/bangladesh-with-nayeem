@@ -5,6 +5,7 @@ const toursRouter   = require('./routes/tours');
 const blogsRouter   = require('./routes/blogs');
 const reviewsRouter = require('./routes/reviews');
 const galleryRouter = require('./routes/gallery');
+const seoRouter     = require('./routes/seo');
 //const bookingRoutes = require("./routes/booking");
 const bookingRoutes = require("./routes/bookingRoutes");
 
@@ -64,6 +65,7 @@ app.use('/api/tours',   toursRouter);
 app.use('/api/blogs',   blogsRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/gallery', galleryRouter);
+app.use('/api/seo',     seoRouter);
 //app.use("/api/bookings", bookingRoutes);
 app.use("/api/bookings", bookingRoutes);
 

@@ -186,7 +186,7 @@ const faqSchema = {
 
 // ── Page Metadata ─────────────────────────────────────────────────────────────
 
-export const metadata = {
+/* export const metadata = {
   title: "Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh",
   description:
     "Discover Bangladesh with Naim — a trusted local guide offering private, affordable tour packages to Dhaka, Sundarbans, Srimangal, Cox's Bazar & more. Skip the agencies. Save 15–30%.",
@@ -207,7 +207,7 @@ export const metadata = {
       },
     ],
   },
-};
+}; */
 
 // ── Page Component ─────────────────────────────────────────────────────────────
 

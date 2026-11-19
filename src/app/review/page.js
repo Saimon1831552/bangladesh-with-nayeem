@@ -23,6 +23,6 @@ export default async function Page() {
   );
 }
 
-export const metadata = {
+/* export const metadata = {
   title: "Guest Reviews & Testimonials | Bangladesh With Naim",
-};
+}; */

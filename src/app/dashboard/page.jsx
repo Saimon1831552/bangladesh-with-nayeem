@@ -11,6 +11,10 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
+    if (!auth) {
+      router.replace("/dashboard/login");
+      return;
+    }
     const unsub = onAuthStateChanged(auth, user => {
       if (user && ADMIN_EMAILS.includes(user.email)) {
         setAuthed(true);

@@ -1,4 +1,6 @@
-const SITE_URL = "https://www.bangladeshwithnaim.com";
+import { getSeoSettings } from '@/lib/seo';
+
+const DEFAULT_SITE_URL = "https://www.bangladeshwithnaim.com";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL ||
@@ -151,6 +153,8 @@ function safeDate(date, fallback) {
 // ─────────────────────────────────────────────
 
 export default async function sitemap() {
+  const seo = await getSeoSettings();
+  const SITE_URL = String(seo.site_url || DEFAULT_SITE_URL).replace(/\/$/, '');
   const now = new Date().toISOString();
 
   // Static pages

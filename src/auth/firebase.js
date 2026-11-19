@@ -10,8 +10,21 @@ const firebaseConfig = {
   appId:             process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const firebaseApp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-export const auth = getAuth(firebaseApp);
+const hasFirebaseConfig = Object.values(firebaseConfig).every(Boolean);
+
+let auth = null;
+if (hasFirebaseConfig) {
+  try {
+    const firebaseApp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+    auth = getAuth(firebaseApp);
+  } catch (error) {
+    // Keep the public site and login screen renderable when local Firebase
+    // environment variables are missing or invalid.
+    auth = null;
+  }
+}
+
+export { auth };
 
 
 export const ADMIN_EMAILS = ["bangladeshwithnaim26@gmail.com"];
