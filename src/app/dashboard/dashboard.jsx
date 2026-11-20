@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, ADMIN_EMAILS } from "@/auth/firebase";
@@ -537,7 +537,49 @@ function SeoSection({ toast }) {
 }
 
 // ── TOURS SECTION ─────────────────────────────────────────────────────────────
-const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", why_choose:"[]", itinerary:"[]", trip_note:"", faq:"[]", isFeatured:0, gallery_img:[], included:[], excluded:[], quick_view:{}, price_packages:[], seo_title:"", seo_description:"", seo_keywords:"", seo_image_alt:"", seo_og_title:"", seo_og_description:"", seo_og_image:"" };
+const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"", why_choose:"", itinerary:"", trip_note:"", faq:"", isFeatured:0, gallery_img:[], included:[], excluded:[], quick_view:{}, price_packages:[], seo_title:"", seo_description:"", seo_keywords:"", seo_image_alt:"", seo_og_title:"", seo_og_description:"", seo_og_image:"" };
+
+function richTextFromLegacy(value, type) {
+  let content = value;
+  if (typeof content === "string") {
+    try { content = JSON.parse(content); } catch { return content; }
+  }
+  if (!Array.isArray(content)) return "";
+
+  if (type === "itinerary") {
+    return content.map(item => `<h3>${item.title || `Day ${item.day || ""}`}</h3><p>${item.desc || ""}</p>`).join("");
+  }
+  if (type === "faq") {
+    return content.map(item => `<h3>${item.question || item.q || ""}</h3><p>${item.answer || item.a || ""}</p>`).join("");
+  }
+  return `<ul>${content.map(item => `<li>${item}</li>`).join("")}</ul>`;
+}
+
+function RichContentEditor({ label, value, onChange, placeholder }) {
+  const editorRef = useRef(null);
+  useEffect(() => {
+    if (editorRef.current && editorRef.current.innerHTML !== (value || "")) {
+      editorRef.current.innerHTML = value || "";
+    }
+  }, [value]);
+
+  return (
+    <Field label={label}>
+      <div
+        ref={editorRef}
+        className="inp"
+        contentEditable
+        suppressContentEditableWarning
+        role="textbox"
+        aria-multiline="true"
+        data-placeholder={placeholder}
+        onInput={event => onChange(event.currentTarget.innerHTML)}
+        style={{ minHeight:160, height:"auto", overflowY:"auto", whiteSpace:"normal", lineHeight:1.6 }}
+      />
+      <p style={{fontSize:11,color:"var(--ink-4)",marginTop:5}}>Paste text, lists, tables, or formatted content directly. There is no character limit.</p>
+    </Field>
+  );
+}
 
 // ── Dynamic list editor (gallery images / included / excluded) ─────────────────
 function ListEditor({ label, color="teal", icon, items, onChange, placeholder }) {
@@ -700,15 +742,13 @@ function ToursSection({ toast }) {
   const openAdd=()=>{setForm(TOUR_DEFAULTS);setModal("add");};
   
   const openEdit=(r)=>{
-    let hl = r.highlights; let it = r.itinerary; let wc = r.why_choose; let fq = r.faq;
-    if (typeof hl === 'object' && hl !== null) hl = JSON.stringify(hl, null, 2);
-    if (typeof it === 'object' && it !== null) it = JSON.stringify(it, null, 2);
-    if (typeof wc === 'object' && wc !== null) wc = JSON.stringify(wc, null, 2);
-    if (typeof fq === 'object' && fq !== null) fq = JSON.stringify(fq, null, 2);
     const parseArr=(v)=>{if(Array.isArray(v))return v;if(typeof v==='string'){try{const p=JSON.parse(v);return Array.isArray(p)?p:[];}catch{return[];}}return[];};
     setForm({
       ...r,
-      highlights: hl || "[]", itinerary: it || "[]", why_choose: wc || "[]", faq: fq || "[]",
+      highlights: richTextFromLegacy(r.highlights, "list"),
+      itinerary: richTextFromLegacy(r.itinerary, "itinerary"),
+      why_choose: richTextFromLegacy(r.why_choose, "list"),
+      faq: richTextFromLegacy(r.faq, "faq"),
       overview: r.overview || "", trip_note: r.trip_note || "",
       gallery_img: parseArr(r.gallery_img),
       included: parseArr(r.included),
@@ -720,31 +760,16 @@ function ToursSection({ toast }) {
   };
 
   const save=async()=>{
-    // Validate JSON before sending to backend
-    let parsedHighlights = [];
-    let parsedItinerary = [];
-    let parsedWhyChoose = [];
-    let parsedFaq = [];
-    try {
-      parsedHighlights = JSON.parse(form.highlights || "[]");
-      parsedItinerary = JSON.parse(form.itinerary || "[]");
-      parsedWhyChoose = JSON.parse(form.why_choose || "[]");
-      parsedFaq = JSON.parse(form.faq || "[]");
-    } catch(e) {
-      toast("Invalid JSON format in one of the JSON fields", "error");
-      return;
-    }
-
     const body={
       ...form,
       price:form.price?Number(form.price):null,
       rating:form.rating?Number(form.rating):null,
       review_count:Number(form.review_count)||0,
       isFeatured:form.isFeatured?1:0,
-      highlights: parsedHighlights,
-      itinerary: parsedItinerary,
-      why_choose: parsedWhyChoose,
-      faq: parsedFaq,
+      highlights: form.highlights || "",
+      itinerary: form.itinerary || "",
+      why_choose: form.why_choose || "",
+      faq: form.faq || "",
       overview: form.overview || null,
       trip_note: form.trip_note || null,
       gallery_img: form.gallery_img || [],
@@ -912,9 +937,9 @@ function ToursSection({ toast }) {
             <div style={{gridColumn:"1/-1",background:"var(--accent-soft)",border:"1px solid #b2d9c6",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>
               <div style={{marginBottom:14}}><label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>Tour SEO</label><p style={{fontSize:12,color:"var(--ink-3)",marginTop:3}}>Unique search and social-preview content for this tour. Empty fields use an automatic fallback.</p></div>
               <Grid cols={2} gap={16}>
-                <Field label="Meta Title"><input className="inp" maxLength={60} value={form.seo_title||""} onChange={f("seo_title")} placeholder="Search-result title (up to 60 characters)" /></Field>
+                <Field label="Meta Title"><input className="inp" value={form.seo_title||""} onChange={f("seo_title")} placeholder="Search-result title" /></Field>
                 <Field label="Cover Image Alt Text"><input className="inp" value={form.seo_image_alt||""} onChange={f("seo_image_alt")} placeholder="Describe the hero image accurately" /></Field>
-                <div style={{gridColumn:"1/-1"}}><Field label="Meta Description"><textarea className="inp" rows={2} maxLength={160} value={form.seo_description||""} onChange={f("seo_description")} placeholder="A compelling search-result description (up to 160 characters)" /></Field></div>
+                <div style={{gridColumn:"1/-1"}}><Field label="Meta Description"><textarea className="inp" rows={2} value={form.seo_description||""} onChange={f("seo_description")} placeholder="A compelling search-result description" /></Field></div>
                 <div style={{gridColumn:"1/-1"}}><Field label="Keywords"><textarea className="inp" rows={2} value={form.seo_keywords||""} onChange={f("seo_keywords")} placeholder="Comma-separated phrases, e.g. Dhaka city tour, Old Dhaka guide" /></Field></div>
                 <Field label="Open Graph Title"><input className="inp" value={form.seo_og_title||""} onChange={f("seo_og_title")} placeholder="Facebook and LinkedIn preview title" /></Field>
                 <Field label="Open Graph Image URL"><input className="inp" value={form.seo_og_image||""} onChange={f("seo_og_image")} placeholder="Defaults to the cover image" /></Field>
@@ -960,10 +985,10 @@ function ToursSection({ toast }) {
               />
             </div>
 
-            <div style={{gridColumn:"1/-1"}}><Field label="Highlights (JSON Array)"><textarea className="inp" rows={3} value={form.highlights} onChange={f("highlights")} placeholder='["See the mountains", "Enjoy local food"]' /></Field></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="Why Choose Us (JSON Array)"><textarea className="inp" rows={3} value={form.why_choose} onChange={f("why_choose")} placeholder='["Expert local guides", "Small group sizes", "All-inclusive pricing"]' /></Field></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="Itinerary (JSON Array)"><textarea className="inp" rows={4} value={form.itinerary} onChange={f("itinerary")} placeholder='[{"day": 1, "title": "Arrival", "desc": "Settle into the hotel."}]' /></Field></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="FAQ (JSON Array)"><textarea className="inp" rows={4} value={form.faq} onChange={f("faq")} placeholder='[{"question": "What is included?", "answer": "All meals and transport are included."}]' /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Highlights" value={form.highlights} onChange={v=>setForm(p=>({...p,highlights:v}))} placeholder="Paste tour highlights, a table, or any formatted content here..." /></div>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Why Choose Us" value={form.why_choose} onChange={v=>setForm(p=>({...p,why_choose:v}))} placeholder="Paste your reasons to book here..." /></div>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Itinerary" value={form.itinerary} onChange={v=>setForm(p=>({...p,itinerary:v}))} placeholder="Paste an itinerary, table, or formatted content here..." /></div>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor label="FAQ" value={form.faq} onChange={v=>setForm(p=>({...p,faq:v}))} placeholder="Paste frequently asked questions or a table here..." /></div>
             <div style={{gridColumn:"1/-1"}}><Field label="Trip Note"><textarea className="inp" rows={3} value={form.trip_note} onChange={f("trip_note")} placeholder="Any special notes, warnings, or requirements for this trip..." /></Field></div>
 
             {/* ── Quick View ── */}

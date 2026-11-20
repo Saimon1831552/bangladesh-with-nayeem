@@ -126,12 +126,19 @@ function ensureTourSeoColumns() {
 
 // ── JSON field helpers ────────────────────────────────────────────────────────
 const toJson  = (v) => JSON.stringify(Array.isArray(v) ? v : (v || []));
+const CONTENT_FIELDS = new Set(['highlights', 'why_choose', 'itinerary', 'faq']);
+const sanitizeRichHtml = (value) => String(value || '')
+  .replace(/<\s*(script|style|iframe|object|embed|link|meta)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, '')
+  .replace(/<\s*(script|style|iframe|object|embed|link|meta)[^>]*\/?\s*>/gi, '')
+  .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+  .replace(/\s(href|src)\s*=\s*(["'])\s*javascript:[\s\S]*?\2/gi, '');
+const toContent = (v) => typeof v === 'string' ? sanitizeRichHtml(v) : JSON.stringify(v || []);
 const parseJsonField = (row, fields) => {
   fields.forEach(f => {
     if (row[f] && typeof row[f] === 'string') {
-      try { row[f] = JSON.parse(row[f]); } catch { row[f] = []; }
+      try { row[f] = JSON.parse(row[f]); } catch { row[f] = CONTENT_FIELDS.has(f) ? row[f] : []; }
     }
-    if (!row[f]) row[f] = [];
+    if (!row[f]) row[f] = CONTENT_FIELDS.has(f) ? '' : [];
   });
   return row;
 };
@@ -203,7 +210,7 @@ router.post('/', async (req, res) => {
       [
         slug, title, overview ?? null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
-        toJson(highlights), toJson(why_choose), toJson(itinerary), trip_note ?? null, toJson(faq),
+        toContent(highlights), toContent(why_choose), toContent(itinerary), trip_note ?? null, toContent(faq),
         toJson(gallery_img), toJson(included), toJson(excluded), toJson(quick_view), toJson(price_packages),
         seo_title ?? null, seo_description ?? null, seo_keywords ?? null, seo_image_alt ?? null,
         seo_og_title ?? null, seo_og_description ?? null, seo_og_image ?? null,
@@ -241,7 +248,7 @@ router.put('/:id', async (req, res) => {
       [
         slug, title, overview ?? null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
-        toJson(highlights), toJson(why_choose), toJson(itinerary), trip_note ?? null, toJson(faq),
+        toContent(highlights), toContent(why_choose), toContent(itinerary), trip_note ?? null, toContent(faq),
         toJson(gallery_img), toJson(included), toJson(excluded), toJson(quick_view), toJson(price_packages),
         seo_title ?? null, seo_description ?? null, seo_keywords ?? null, seo_image_alt ?? null,
         seo_og_title ?? null, seo_og_description ?? null, seo_og_image ?? null,
@@ -265,8 +272,11 @@ router.patch('/:id', async (req, res) => {
     }
 
     // Stringify all JSON fields if present
-    JSON_FIELDS.forEach(f => {
+    JSON_FIELDS.filter(f => !CONTENT_FIELDS.has(f)).forEach(f => {
       if (safeFields[f] !== undefined) safeFields[f] = toJson(safeFields[f]);
+    });
+    CONTENT_FIELDS.forEach(f => {
+      if (safeFields[f] !== undefined) safeFields[f] = toContent(safeFields[f]);
     });
 
     const setClauses = Object.keys(safeFields).map(k => `${k} = ?`).join(', ');

@@ -32,17 +32,18 @@ async function fetchReviews(tourId) {
 
 const parsePrice  = (p) => { if (!p) return 0; if (typeof p === 'number') return p; return parseFloat(String(p).replace(/[^0-9.]/g, '')) || 0; };
 const formatPrice = (p) => { if (!p) return '—'; if (typeof p === 'number') return `$${p}`; return String(p).startsWith('$') ? p : `$${p}`; };
-function parseJsonField(val) { if (Array.isArray(val)) return val; if (typeof val === 'string') { try { return JSON.parse(val); } catch { return []; } } return []; }
+function parseJsonField(val) { if (Array.isArray(val)) return val; if (typeof val === 'string') { try { return JSON.parse(val); } catch { return val; } } return []; }
 function parseJsonObj(val)   { if (val && typeof val === 'object' && !Array.isArray(val)) return val; if (typeof val === 'string') { try { const p = JSON.parse(val); return p && typeof p === 'object' ? p : null; } catch { return null; } } return null; }
 function getHighlights(tour)    { return Array.isArray(parseJsonField(tour.highlights))  ? parseJsonField(tour.highlights)  : []; }
 function getWhyChoose(tour)     { return Array.isArray(parseJsonField(tour.why_choose))  ? parseJsonField(tour.why_choose)  : []; }
 function getFaq(tour)           { return Array.isArray(parseJsonField(tour.faq))         ? parseJsonField(tour.faq)         : []; }
+function getRichContent(value)  { const parsed = parseJsonField(value); return typeof parsed === 'string' ? parsed : ''; }
 function getQuickView(tour)     { return parseJsonObj(tour.quick_view); }
 function getPricePackages(tour) { return Array.isArray(parseJsonField(tour.price_packages)) ? parseJsonField(tour.price_packages) : []; }
 
 function buildItinerary(tour) {
   const parsed = parseJsonField(tour.itinerary);
-  if (parsed.length > 0) return parsed;
+  if (Array.isArray(parsed) && parsed.length > 0) return parsed;
   const dayMatch = (tour.duration || '1 Day').match(/(\d+)\s*day/i);
   const days = dayMatch ? parseInt(dayMatch[1]) : 1;
   const cols = ['#d97706','#15803d','#1d4ed8','#7c3aed','#b91c1c'];
@@ -514,6 +515,10 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
   const highlights     = getHighlights(tour);
   const whyChoose      = getWhyChoose(tour);
   const faqItems       = getFaq(tour);
+  const highlightsHtml = getRichContent(tour.highlights);
+  const itineraryHtml  = getRichContent(tour.itinerary);
+  const whyChooseHtml  = getRichContent(tour.why_choose);
+  const faqHtml        = getRichContent(tour.faq);
   const quickView      = getQuickView(tour);
   const pricePackages  = getPricePackages(tour);
   const tripNote       = tour.trip_note||'';
@@ -577,6 +582,16 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
         .overview-block{background:#fff;border:1px solid #ede9e0;border-radius:28px;padding:40px;}
         .overview-block p{font-size:16px;line-height:1.85;color:#555;margin-bottom:16px;text-align:justify;}
         .overview-block p:last-child{margin-bottom:0;}
+        .rich-content{background:#fff;border:1px solid #ede9e0;border-radius:20px;padding:28px 30px;color:#555;font-size:15.5px;line-height:1.75;overflow-x:auto;}
+        .rich-content h1,.rich-content h2,.rich-content h3,.rich-content h4{color:#1c1c1c;margin:20px 0 10px;line-height:1.35;}
+        .rich-content h1:first-child,.rich-content h2:first-child,.rich-content h3:first-child,.rich-content h4:first-child{margin-top:0;}
+        .rich-content p{margin:0 0 14px;}
+        .rich-content ul,.rich-content ol{padding-left:24px;margin:0 0 16px;}
+        .rich-content li{margin:7px 0;}
+        .rich-content table{width:100%;border-collapse:collapse;margin:16px 0;}
+        .rich-content th,.rich-content td{border:1px solid #ded8cb;padding:10px 12px;text-align:left;vertical-align:top;}
+        .rich-content th{background:#f4f0e8;color:#1c1c1c;font-weight:700;}
+        .rich-content img{max-width:100%;height:auto;border-radius:12px;}
         .highlights-list{padding-left:0;margin:0;display:flex;flex-direction:column;gap:12px;}
         .highlights-list li{font-size:15.5px;color:#555;line-height:1.6;display:flex;align-items:flex-start;gap:10px;list-style:none;text-align:justify;}
         .highlight-icon{color:#d97706;margin-top:3px;flex-shrink:0;}
@@ -784,15 +799,17 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
             </div>
 
             {/* Highlights */}
-            {highlights.length>0 && (
+            {(highlights.length>0 || highlightsHtml) && (
               <div id="highlights" className="section-block">
                 <div className="section-eyebrow">What You'll See</div>
                 <div className="section-title">Tour Highlights</div>
-                <ul className="highlights-list">
-                  {highlights.map((h,i) => (
-                    <li key={i}><span className="highlight-icon"><FaHandPointRight /></span><span dangerouslySetInnerHTML={{ __html:h }} /></li>
-                  ))}
-                </ul>
+                {highlightsHtml ? <div className="rich-content" dangerouslySetInnerHTML={{ __html:highlightsHtml }} /> : (
+                  <ul className="highlights-list">
+                    {highlights.map((h,i) => (
+                      <li key={i}><span className="highlight-icon"><FaHandPointRight /></span><span dangerouslySetInnerHTML={{ __html:h }} /></li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
 
@@ -800,18 +817,20 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
             <div id="itinerary" className="section-block">
               <div className="section-eyebrow">Day by Day</div>
               <div className="section-title">Tour Itinerary</div>
-              <div className="timeline">
-                {itinerary.map(item => (
-                  <div key={item.day} className="timeline-item">
-                    <div className="day-bubble" style={{ background:item.color }}>{item.day}</div>
-                    <div className="timeline-card">
-                      {/* <div className="day-label">{item.day>1?`Day ${item.day}`:'Day'}</div> */}
-                      <h3>{item.title}</h3>
-                      <p>{item.desc}</p>
+              {itineraryHtml ? <div className="rich-content" dangerouslySetInnerHTML={{ __html:itineraryHtml }} /> : (
+                <div className="timeline">
+                  {itinerary.map(item => (
+                    <div key={item.day} className="timeline-item">
+                      <div className="day-bubble" style={{ background:item.color }}>{item.day}</div>
+                      <div className="timeline-card">
+                        {/* <div className="day-label">{item.day>1?`Day ${item.day}`:'Day'}</div> */}
+                        <h3>{item.title}</h3>
+                        <p>{item.desc}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Price & Offers */}
@@ -933,15 +952,17 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
             )}
 
             {/* Why Choose Us */}
-            {whyChoose.length>0 && (
+            {(whyChoose.length>0 || whyChooseHtml) && (
               <div id="why-naim" className="section-block">
                 <div className="section-eyebrow">Our Promise</div>
                 <div className="section-title">Why Book This Tour With Naim?</div>
-                <div className="why-grid">
-                  {whyChoose.map((item,i) => (
-                    <div key={i} className="why-card"><span className="why-text" dangerouslySetInnerHTML={{ __html:item }} /></div>
-                  ))}
-                </div>
+                {whyChooseHtml ? <div className="rich-content" dangerouslySetInnerHTML={{ __html:whyChooseHtml }} /> : (
+                  <div className="why-grid">
+                    {whyChoose.map((item,i) => (
+                      <div key={i} className="why-card"><span className="why-text" dangerouslySetInnerHTML={{ __html:item }} /></div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -1004,9 +1025,9 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
             </div>
 
             {/* FAQ */}
-            {faqItems.length>0 && (
+            {(faqItems.length>0 || faqHtml) && (
               <div id="faq">
-                <FaqSection faqItems={faqItems} />
+                {faqHtml ? <div className="rich-content" dangerouslySetInnerHTML={{ __html:faqHtml }} /> : <FaqSection faqItems={faqItems} />}
               </div>
             )}
 
