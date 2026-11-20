@@ -1,8 +1,8 @@
-import { getSeoSettings } from '@/lib/seo';
+import { getSeoSettings, preferredSiteUrl } from '@/lib/seo';
 
 export default async function robots() {
   const seo = await getSeoSettings();
-  const siteUrl = String(seo.site_url || 'https://bangladeshwithnaim.com').replace(/\/$/, '');
+  const siteUrl = preferredSiteUrl(seo.site_url);
 
   return {
     rules: [{ userAgent: '*', allow: seo.robots_index ? '/' : [], disallow: seo.robots_index ? ['/api/', '/admin/', '/private/', '/dashboard/'] : ['/'] }],

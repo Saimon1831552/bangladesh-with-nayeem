@@ -3,12 +3,15 @@ import "./globals.css";
 import Navber from "@/components/shared/Navber/navber";
 import Footer from "@/components/ui/Footer/footer";
 import { getSeoSettings, seoMetadata, seoStructuredData } from "@/lib/seo";
+import { headers } from "next/headers";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export async function generateMetadata() {
-  return seoMetadata(await getSeoSettings());
+  const requestHeaders = await headers();
+  const pathname = requestHeaders.get("x-pathname") || "/";
+  return seoMetadata(await getSeoSettings(), pathname);
 }
 
 export default async function RootLayout({ children }) {

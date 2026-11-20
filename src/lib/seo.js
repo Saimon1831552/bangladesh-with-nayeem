@@ -4,7 +4,7 @@ const API_BASE = (
 
 export const SEO_DEFAULTS = {
   site_name: 'Bangladesh With Naim',
-  site_url: 'https://bangladeshwithnaim.com',
+  site_url: 'https://www.bangladeshwithnaim.com',
   meta_title: 'Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh',
   meta_description: "Discover Bangladesh with Naim — a trusted local guide offering private, affordable tour packages to Dhaka, Sundarbans, Srimangal, Cox's Bazar & more.",
   keywords: 'Bangladesh tour packages, Bangladesh private tour, Bangladesh local guide, Sundarbans tour, Dhaka heritage tour, Srimangal tea garden tour, Cox\'s Bazar tour, Bangladesh travel guide',
@@ -20,7 +20,7 @@ export const SEO_DEFAULTS = {
   robots_follow: true,
   google_verification: 'google0112f4e428fe015b',
   author_name: 'Naim',
-  author_url: 'https://bangladeshwithnaim.com',
+  author_url: 'https://www.bangladeshwithnaim.com',
   publisher_name: 'Bangladesh With Naim',
   business_name: 'Bangladesh With Naim',
   business_type: 'TravelAgency,LocalBusiness',
@@ -54,20 +54,37 @@ export async function getSeoSettings() {
   }
 }
 
+// Keep every SEO signal on the public, preferred hostname. The bare domain
+// redirects to www in production, so emitting it in canonical tags or a
+// sitemap would send Google conflicting signals.
+export function preferredSiteUrl(value) {
+  try {
+    const url = new URL(value || SEO_DEFAULTS.site_url);
+    if (url.hostname === 'bangladeshwithnaim.com') {
+      url.hostname = 'www.bangladeshwithnaim.com';
+    }
+    return url.origin;
+  } catch {
+    return SEO_DEFAULTS.site_url;
+  }
+}
+
 export function absoluteSeoUrl(value, siteUrl = SEO_DEFAULTS.site_url) {
   if (!value) return siteUrl;
   if (/^https?:\/\//i.test(value)) return value;
   return `${siteUrl.replace(/\/$/, '')}/${String(value).replace(/^\//, '')}`;
 }
 
-export function seoMetadata(settings) {
+export function seoMetadata(settings, pathname = '/') {
   const seo = { ...SEO_DEFAULTS, ...(settings || {}) };
-  let siteUrl = seo.site_url || SEO_DEFAULTS.site_url;
-  try {
-    siteUrl = new URL(siteUrl).toString().replace(/\/$/, '');
-  } catch {
-    siteUrl = SEO_DEFAULTS.site_url;
-  }
+  const siteUrl = preferredSiteUrl(seo.site_url);
+  const safePathname = typeof pathname === 'string' && pathname.startsWith('/')
+    ? pathname.split('?')[0]
+    : '/';
+  // The editable canonical value is for the homepage only. Every other
+  // indexable page must declare itself as canonical, not the homepage.
+  const canonicalPath = safePathname === '/' ? (seo.canonical_url || '/') : safePathname;
+  const canonicalUrl = absoluteSeoUrl(canonicalPath, siteUrl);
   const keywords = String(seo.keywords || '').split(',').map(keyword => keyword.trim()).filter(Boolean);
 
   return {
@@ -78,10 +95,10 @@ export function seoMetadata(settings) {
     authors: [{ name: seo.author_name, url: absoluteSeoUrl(seo.author_url, siteUrl) }],
     creator: seo.author_name,
     publisher: seo.publisher_name,
-    alternates: { canonical: seo.canonical_url || '/' },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       type: 'website', locale: 'en_US',
-      url: absoluteSeoUrl(seo.canonical_url || '/', siteUrl),
+      url: canonicalUrl,
       siteName: seo.site_name,
       title: seo.og_title || seo.meta_title,
       description: seo.og_description || seo.meta_description,
@@ -106,7 +123,7 @@ export function seoMetadata(settings) {
 
 export function seoStructuredData(settings) {
   const seo = { ...SEO_DEFAULTS, ...(settings || {}) };
-  const siteUrl = seo.site_url || SEO_DEFAULTS.site_url;
+  const siteUrl = preferredSiteUrl(seo.site_url);
   const socialLinks = String(seo.social_links || '').split(/\r?\n|,/).map(v => v.trim()).filter(Boolean);
   const areaServed = String(seo.area_served || '').split(',').map(name => name.trim()).filter(Boolean);
   const rootUrl = siteUrl.replace(/\/$/, '');

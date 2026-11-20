@@ -477,7 +477,7 @@ function SeoSection({ toast }) {
           <h3 style={{ fontFamily:"var(--font-display)", fontSize:18, fontWeight:700, marginBottom:18 }}>Core Metadata</h3>
           <Grid cols={2} gap={16}>
             {text("Site name", "site_name", "Bangladesh With Naim")}
-            {text("Site URL", "site_url", "https://bangladeshwithnaim.com")}
+            {text("Site URL", "site_url", "https://www.bangladeshwithnaim.com")}
             {text("Meta title", "meta_title", "The title shown in search results")}
             {text("Canonical URL", "canonical_url", "/")}
             {text("Meta description", "meta_description", "A concise description for search engines", true)}

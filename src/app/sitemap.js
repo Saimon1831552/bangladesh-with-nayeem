@@ -1,4 +1,4 @@
-import { getSeoSettings } from '@/lib/seo';
+import { getSeoSettings, preferredSiteUrl } from '@/lib/seo';
 
 const DEFAULT_SITE_URL = "https://www.bangladeshwithnaim.com";
 
@@ -154,7 +154,7 @@ function safeDate(date, fallback) {
 
 export default async function sitemap() {
   const seo = await getSeoSettings();
-  const SITE_URL = String(seo.site_url || DEFAULT_SITE_URL).replace(/\/$/, '');
+  const SITE_URL = preferredSiteUrl(seo.site_url || DEFAULT_SITE_URL);
   const now = new Date().toISOString();
 
   // Static pages

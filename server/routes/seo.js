@@ -4,7 +4,7 @@ const pool = require('../db');
 
 const DEFAULTS = {
   site_name: 'Bangladesh With Naim',
-  site_url: 'https://bangladeshwithnaim.com',
+  site_url: 'https://www.bangladeshwithnaim.com',
   meta_title: 'Bangladesh With Naim | Your Best Private Tour Guide in Bangladesh',
   meta_description: "Discover Bangladesh with Naim — a trusted local guide offering private, affordable tour packages to Dhaka, Sundarbans, Srimangal, Cox's Bazar & more.",
   keywords: 'Bangladesh tour packages, Bangladesh private tour, Bangladesh local guide, Sundarbans tour, Dhaka heritage tour, Srimangal tea garden tour, Cox\'s Bazar tour, Bangladesh travel guide',
@@ -20,7 +20,7 @@ const DEFAULTS = {
   robots_follow: 1,
   google_verification: 'google0112f4e428fe015b',
   author_name: 'Naim',
-  author_url: 'https://bangladeshwithnaim.com',
+  author_url: 'https://www.bangladeshwithnaim.com',
   publisher_name: 'Bangladesh With Naim',
   business_name: 'Bangladesh With Naim',
   business_type: 'TravelAgency,LocalBusiness',
