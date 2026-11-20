@@ -11,22 +11,51 @@ export default function GuideProfile() {
 
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-100 rounded-full blur-3xl opacity-50 pointer-events-none" />
 
-        <div className="flex flex-col md:flex-row gap-12 items-center relative z-10">
+        <div className="flex flex-col md:flex-row gap-12 items-center md:items-start relative z-10">
 
           {/* Photo */}
-          <div className="relative group shrink-0">
-            <div className="bg-white p-4 pb-6 shadow-md transform -rotate-3 w-64 transition-all duration-500 ease-out group-hover:rotate-2 group-hover:scale-105 group-hover:shadow-xl border border-stone-200 rounded-sm">
-              <div className="relative w-full aspect-square">
-                <Image
-                  src="https://i.ibb.co.com/wN3B0nsT/46463372-2343868569174862-5457719980747390976-n-jpg-1.jpg"
-                  alt="Naim - Local Guide"
-                  fill
-                  sizes="256px"
-                  className="object-cover grayscale-20 group-hover:grayscale-0 transition-all duration-500"
-                />
+          <div className="w-64 shrink-0">
+            <div className="relative group">
+              <div className="bg-white p-4 pb-6 shadow-md transform -rotate-3 w-64 transition-all duration-500 ease-out group-hover:rotate-2 group-hover:scale-105 group-hover:shadow-xl border border-stone-200 rounded-sm">
+                <div className="relative w-full aspect-square">
+                  <Image
+                    src="https://i.ibb.co.com/wN3B0nsT/46463372-2343868569174862-5457719980747390976-n-jpg-1.jpg"
+                    alt="Naim - Local Guide"
+                    fill
+                    sizes="256px"
+                    className="object-cover grayscale-20 group-hover:grayscale-0 transition-all duration-500"
+                  />
+                </div>
+              </div>
+              <div className="absolute -bottom-4 left-4 right-4 h-4 bg-black/10 blur-md rounded-[100%] transition-all duration-500 group-hover:opacity-50" />
+            </div>
+
+            {/* Registration card: deliberately placed beneath the portrait. */}
+            <div className="relative mt-9 overflow-hidden rounded-2xl border border-amber-400/60 bg-gradient-to-br from-green-950 via-green-900 to-green-800 px-4 py-5 text-white shadow-xl shadow-green-900/20 transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl">
+              <div className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl" />
+              <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500" />
+
+              <div className="relative flex flex-col items-center text-center">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-amber-300/70 bg-amber-400/15 text-amber-300 shadow-inner shadow-amber-100/10">
+                  <FontAwesomeIcon icon={faAward} className="text-xl" />
+                </div>
+                <h3 className="mt-3 text-sm font-bold leading-snug text-white">
+                  A Registered Tour Guide in Bangladesh
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-green-100">
+                  Officially registered with the Bangladesh Tourism Board under the Ministry of Civil Aviation and Tourism.
+                </p>
+                <p className="mt-3 text-[9px] font-bold uppercase tracking-[0.18em] text-amber-300">
+                  Registration Number
+                </p>
+                <p className="mt-1 text-sm font-extrabold tracking-wider text-white">
+                  TG405704700008
+                </p>
+                <p className="mt-1 text-[11px] font-semibold tracking-wide text-green-100">
+                  Bangladesh Tourism Board Registered Guide
+                </p>
               </div>
             </div>
-            <div className="absolute -bottom-4 left-4 right-4 h-4 bg-black/10 blur-md rounded-[100%] transition-all duration-500 group-hover:opacity-50" />
           </div>
 
           {/* Bio */}
@@ -90,36 +119,6 @@ export default function GuideProfile() {
         </div>
       </div>
 
-      {/* Premium credential card */}
-      <div className="w-full max-w-xl mx-auto mt-8">
-        <div className="relative overflow-hidden rounded-2xl border border-amber-400/60 bg-gradient-to-br from-green-950 via-green-900 to-green-800 px-6 py-5 text-white shadow-xl shadow-green-900/20 transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl">
-          <div className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500" />
-
-          <div className="relative flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-amber-300/70 bg-amber-400/15 text-amber-300 shadow-inner shadow-amber-100/10">
-              <FontAwesomeIcon icon={faAward} className="text-2xl" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-base font-bold leading-snug text-white sm:text-lg">
-                A Registered Tour Guide in Bangladesh
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-green-100">
-                Officially registered with the Bangladesh Tourism Board under the Ministry of Civil Aviation and Tourism.
-              </p>
-              <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300">
-                Registration Number
-              </p>
-              <p className="mt-1 text-base font-extrabold tracking-widest text-white">
-                TG405704700008
-              </p>
-              <p className="mt-1 text-xs font-semibold tracking-wide text-green-100">
-                Bangladesh Tourism Board Registered Guide
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
