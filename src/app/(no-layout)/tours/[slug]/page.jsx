@@ -154,22 +154,25 @@ export async function generateMetadata({ params }) {
 
   const title = cleanText(tour.title);
 
-  const description = tour.overview
+  const fallbackDescription = tour.overview
     ? cleanText(tour.overview).slice(0, 155)
     : `Join a private guided ${title} in ${
         tour.location || "Bangladesh"
       }. ${tour.duration || ""} · Personally led by Naim, your trusted local guide.`;
 
+  const metaTitle = cleanText(tour.seo_title) || `${title} | Bangladesh With Naim`;
+  const description = cleanText(tour.seo_description) || fallbackDescription;
+  const keywords = cleanText(tour.seo_keywords).split(',').map(keyword => keyword.trim()).filter(Boolean);
   const url = `${SITE_URL}/tours/${slug}`;
 
   const image = absoluteUrl(tour.image_url);
 
   return {
-    title: `${title} | Bangladesh With Naim`,
+    title: { absolute: metaTitle },
 
     description,
 
-    keywords: [
+    keywords: keywords.length ? keywords : [
       title,
       `${title} Bangladesh`,
       `${tour.location || "Bangladesh"} tour`,
@@ -206,16 +209,16 @@ export async function generateMetadata({ params }) {
 
       siteName: "Bangladesh With Naim",
 
-      title: `${title} | Bangladesh With Naim`,
+      title: cleanText(tour.seo_og_title) || metaTitle,
 
       description,
 
       images: [
         {
-          url: image,
+          url: tour.seo_og_image ? absoluteUrl(tour.seo_og_image) : image,
           width: 1200,
           height: 630,
-          alt: title,
+          alt: cleanText(tour.seo_image_alt) || title,
         },
       ],
     },
@@ -223,11 +226,11 @@ export async function generateMetadata({ params }) {
     twitter: {
       card: "summary_large_image",
 
-      title: `${title} | Bangladesh With Naim`,
+      title: cleanText(tour.seo_og_title) || metaTitle,
 
       description,
 
-      images: [image],
+      images: [tour.seo_og_image ? absoluteUrl(tour.seo_og_image) : image],
     },
   };
 }

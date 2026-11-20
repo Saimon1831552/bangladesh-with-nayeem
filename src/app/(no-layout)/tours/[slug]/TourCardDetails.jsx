@@ -705,7 +705,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
         {/* HERO */}
         <div id="hero" className="hero">
           <div className="hero-img-wrap">
-            <img ref={heroRef} className="hero-img" src={images[activeImg]} alt={tour.title}
+            <img ref={heroRef} className="hero-img" src={images[activeImg]} alt={tour.seo_image_alt || tour.title}
               onError={e => { e.target.src='https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=2000&q=80'; }} />
           </div>
           <div className="hero-gradient" />

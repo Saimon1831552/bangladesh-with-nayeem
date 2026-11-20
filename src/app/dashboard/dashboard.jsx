@@ -537,7 +537,7 @@ function SeoSection({ toast }) {
 }
 
 // ── TOURS SECTION ─────────────────────────────────────────────────────────────
-const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", why_choose:"[]", itinerary:"[]", trip_note:"", faq:"[]", isFeatured:0, gallery_img:[], included:[], excluded:[], quick_view:{}, price_packages:[] };
+const TOUR_DEFAULTS = { slug:"", title:"", overview:"", image_url:"", location:"", duration:"", group_size:"", price:"", rating:"", review_count:"", tour_type:"", highlights:"[]", why_choose:"[]", itinerary:"[]", trip_note:"", faq:"[]", isFeatured:0, gallery_img:[], included:[], excluded:[], quick_view:{}, price_packages:[], seo_title:"", seo_description:"", seo_keywords:"", seo_image_alt:"", seo_og_title:"", seo_og_description:"", seo_og_image:"" };
 
 // ── Dynamic list editor (gallery images / included / excluded) ─────────────────
 function ListEditor({ label, color="teal", icon, items, onChange, placeholder }) {
@@ -908,6 +908,19 @@ function ToursSection({ toast }) {
             <Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://… (hero image)" /></Field>
 
             <div style={{gridColumn:"1/-1"}}><Field label="Overview"><textarea className="inp" rows={3} value={form.overview} onChange={f("overview")} placeholder="A short paragraph describing this tour to potential visitors..." /></Field></div>
+
+            <div style={{gridColumn:"1/-1",background:"var(--accent-soft)",border:"1px solid #b2d9c6",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>
+              <div style={{marginBottom:14}}><label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>Tour SEO</label><p style={{fontSize:12,color:"var(--ink-3)",marginTop:3}}>Unique search and social-preview content for this tour. Empty fields use an automatic fallback.</p></div>
+              <Grid cols={2} gap={16}>
+                <Field label="Meta Title"><input className="inp" maxLength={60} value={form.seo_title||""} onChange={f("seo_title")} placeholder="Search-result title (up to 60 characters)" /></Field>
+                <Field label="Cover Image Alt Text"><input className="inp" value={form.seo_image_alt||""} onChange={f("seo_image_alt")} placeholder="Describe the hero image accurately" /></Field>
+                <div style={{gridColumn:"1/-1"}}><Field label="Meta Description"><textarea className="inp" rows={2} maxLength={160} value={form.seo_description||""} onChange={f("seo_description")} placeholder="A compelling search-result description (up to 160 characters)" /></Field></div>
+                <div style={{gridColumn:"1/-1"}}><Field label="Keywords"><textarea className="inp" rows={2} value={form.seo_keywords||""} onChange={f("seo_keywords")} placeholder="Comma-separated phrases, e.g. Dhaka city tour, Old Dhaka guide" /></Field></div>
+                <Field label="Open Graph Title"><input className="inp" value={form.seo_og_title||""} onChange={f("seo_og_title")} placeholder="Facebook and LinkedIn preview title" /></Field>
+                <Field label="Open Graph Image URL"><input className="inp" value={form.seo_og_image||""} onChange={f("seo_og_image")} placeholder="Defaults to the cover image" /></Field>
+                <div style={{gridColumn:"1/-1"}}><Field label="Open Graph Description"><textarea className="inp" rows={2} value={form.seo_og_description||""} onChange={f("seo_og_description")} placeholder="Facebook and LinkedIn preview description" /></Field></div>
+              </Grid>
+            </div>
 
             {/* ── Gallery Images ── */}
             <div style={{gridColumn:"1/-1",background:"var(--blue-soft)",border:"1px solid #aecbee",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>
