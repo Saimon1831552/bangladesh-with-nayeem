@@ -932,7 +932,7 @@ function ToursSection({ toast }) {
             <Field label="Categories (comma-separated)"><input className="inp" value={form.tour_type} onChange={f("tour_type")} placeholder="multiday, holiday, day" /></Field>
             <Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://… (hero image)" /></Field>
 
-            <div style={{gridColumn:"1/-1"}}><Field label="Overview"><textarea className="inp" rows={3} value={form.overview} onChange={f("overview")} placeholder="A short paragraph describing this tour to potential visitors..." /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Overview" value={form.overview} onChange={v=>setForm(p=>({...p,overview:v}))} placeholder="Paste your complete tour description, table, or formatted content here..." /></div>
 
             <div style={{gridColumn:"1/-1",background:"var(--accent-soft)",border:"1px solid #b2d9c6",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>
               <div style={{marginBottom:14}}><label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>Tour SEO</label><p style={{fontSize:12,color:"var(--ink-3)",marginTop:3}}>Unique search and social-preview content for this tour. Empty fields use an automatic fallback.</p></div>
@@ -989,7 +989,7 @@ function ToursSection({ toast }) {
             <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Why Choose Us" value={form.why_choose} onChange={v=>setForm(p=>({...p,why_choose:v}))} placeholder="Paste your reasons to book here..." /></div>
             <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Itinerary" value={form.itinerary} onChange={v=>setForm(p=>({...p,itinerary:v}))} placeholder="Paste an itinerary, table, or formatted content here..." /></div>
             <div style={{gridColumn:"1/-1"}}><RichContentEditor label="FAQ" value={form.faq} onChange={v=>setForm(p=>({...p,faq:v}))} placeholder="Paste frequently asked questions or a table here..." /></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="Trip Note"><textarea className="inp" rows={3} value={form.trip_note} onChange={f("trip_note")} placeholder="Any special notes, warnings, or requirements for this trip..." /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Trip Note" value={form.trip_note} onChange={v=>setForm(p=>({...p,trip_note:v}))} placeholder="Paste notes, requirements, lists, or a table here..." /></div>
 
             {/* ── Quick View ── */}
             <div style={{gridColumn:"1/-1",background:"var(--violet-soft)",border:"1px solid #c4b5f4",borderRadius:"var(--radius-md)",padding:"16px 18px"}}>

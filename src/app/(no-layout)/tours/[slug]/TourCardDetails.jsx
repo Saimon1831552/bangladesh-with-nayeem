@@ -936,17 +936,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
                     <FontAwesomeIcon icon={faCircleInfo} className="trip-note-icon" />
                     <span className="trip-note-title">Please read before booking</span>
                   </div>
-                  <ul className="trip-note-list">
-                    {(() => {
-                      const raw = tripNote.trim();
-                      const items = raw.includes('<strong>')
-                        ? raw.split(/(?=<strong>)/).map(s=>s.trim()).filter(s=>s.length>0)
-                        : raw.split(/(?<=[.!?])\s+/).filter(s=>s.trim().length>4);
-                      return items.map((item,i) => (
-                        <li key={i}><span className="trip-note-bullet" /><span dangerouslySetInnerHTML={{ __html:item.trim() }} /></li>
-                      ));
-                    })()}
-                  </ul>
+                  <div className="rich-content" dangerouslySetInnerHTML={{ __html:tripNote }} />
                 </div>
               </div>
             )}

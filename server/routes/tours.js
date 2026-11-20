@@ -208,9 +208,9 @@ router.post('/', async (req, res) => {
          seo_og_title, seo_og_description, seo_og_image)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        slug, title, overview ?? null, image_url, location, duration, group_size,
+        slug, title, sanitizeRichHtml(overview) || null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
-        toContent(highlights), toContent(why_choose), toContent(itinerary), trip_note ?? null, toContent(faq),
+        toContent(highlights), toContent(why_choose), toContent(itinerary), sanitizeRichHtml(trip_note) || null, toContent(faq),
         toJson(gallery_img), toJson(included), toJson(excluded), toJson(quick_view), toJson(price_packages),
         seo_title ?? null, seo_description ?? null, seo_keywords ?? null, seo_image_alt ?? null,
         seo_og_title ?? null, seo_og_description ?? null, seo_og_image ?? null,
@@ -246,9 +246,9 @@ router.put('/:id', async (req, res) => {
         seo_og_title=?, seo_og_description=?, seo_og_image=?
        WHERE id=?`,
       [
-        slug, title, overview ?? null, image_url, location, duration, group_size,
+        slug, title, sanitizeRichHtml(overview) || null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
-        toContent(highlights), toContent(why_choose), toContent(itinerary), trip_note ?? null, toContent(faq),
+        toContent(highlights), toContent(why_choose), toContent(itinerary), sanitizeRichHtml(trip_note) || null, toContent(faq),
         toJson(gallery_img), toJson(included), toJson(excluded), toJson(quick_view), toJson(price_packages),
         seo_title ?? null, seo_description ?? null, seo_keywords ?? null, seo_image_alt ?? null,
         seo_og_title ?? null, seo_og_description ?? null, seo_og_image ?? null,
@@ -277,6 +277,9 @@ router.patch('/:id', async (req, res) => {
     });
     CONTENT_FIELDS.forEach(f => {
       if (safeFields[f] !== undefined) safeFields[f] = toContent(safeFields[f]);
+    });
+    ['overview', 'trip_note'].forEach(f => {
+      if (safeFields[f] !== undefined) safeFields[f] = sanitizeRichHtml(safeFields[f]);
     });
 
     const setClauses = Object.keys(safeFields).map(k => `${k} = ?`).join(', ');
