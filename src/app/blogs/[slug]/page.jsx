@@ -19,7 +19,10 @@ export async function generateMetadata({ params }) {
   const blog = await getBlog(slug);
   if (!blog) return { title: "Article Not Found | Bangladesh With Naim" };
 
-  const url = `https://bangladeshwithnaim.com/blogs/${slug}`;
+  // Keep this identical to the preferred hostname used in the sitemap and
+  // redirects. A non-www canonical here tells Google a different URL is the
+  // primary version of the same article.
+  const url = `https://www.bangladeshwithnaim.com/blogs/${slug}`;
   return {
     title: blog.title,
     description: blog.excerpt,
