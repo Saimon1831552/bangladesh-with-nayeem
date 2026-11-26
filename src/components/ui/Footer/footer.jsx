@@ -2,6 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import tripAdvisorBadge from '@/assets/trip23.webp';
+import bangladeshBadge from '@/assets/bangladesh.webp';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faFacebookF, 
@@ -29,7 +32,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1.4fr] gap-12 lg:gap-8 mb-16">
           
           {/* Column 1: Brand & About */}
           <div className="flex flex-col gap-6">
@@ -199,9 +202,50 @@ export default function Footer() {
 
           {/* Tourism Board Registration */}
           <div className="flex items-start pt-1">
-            <p className="text-sm font-bold leading-relaxed text-gray-300">
+            <a
+              href="https://btbregistration.gov.bd/tg-info/MTU/md-zannatul-naim"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-bold leading-relaxed text-gray-300 hover:text-amber-400 transition-colors"
+            >
               Bangladesh Tourism Board Registered Tour Guide | Reg. No. TG405704700008
-            </p>
+            </a>
+          </div>
+
+          {/* TripAdvisor Badge */}
+          <div className="flex items-start">
+            <a
+              href="https://www.tripadvisor.com/Attraction_Review-g293936-d34599208-Reviews-Bangladesh_With_Naim-Dhaka_City_Dhaka_Division.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View Bangladesh With Naim on Tripadvisor"
+            >
+              <Image
+                src={tripAdvisorBadge}
+                alt="Recommended on Tripadvisor"
+                width={320}
+                height={320}
+                className="w-56 max-w-none h-auto object-contain -ml-6 -mt-4"
+              />
+            </a>
+          </div>
+
+          {/* Bangladesh Tourism Badge */}
+          <div className="flex items-start">
+            <a
+              href="https://btbregistration.gov.bd/tg-info/MTU/md-zannatul-naim"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Verify Bangladesh Tourism Board registration"
+            >
+              <Image
+                src={bangladeshBadge}
+                alt="Bangladesh Tourism"
+                width={320}
+                height={150}
+                className="w-52 max-w-none h-auto object-contain"
+              />
+            </a>
           </div>
 
         </div>
