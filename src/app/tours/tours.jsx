@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { RichText, stripHtml } from '@/lib/richText';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faLocationDot, faClock, faUserGroup, faStar, faArrowRight,
@@ -105,7 +106,7 @@ export function TourCard({ tour }) {
       <div style={{ position: 'absolute', inset: 0 }}>
         <Image
           src={imgSrc}
-          alt={tour.title || 'Tour image'}
+          alt={stripHtml(tour.title) || 'Tour image'}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="tour-card-img object-cover"
@@ -193,7 +194,7 @@ export function TourCard({ tour }) {
           borderRadius: 8,
           width: 'fit-content'
         }}>
-          {tour.title}
+          <RichText html={tour.title} />
         </h3>
 
         {/* Meta row */}
@@ -216,7 +217,7 @@ export function TourCard({ tour }) {
         <Link
           href={tourHref}
           className="cta-btn"
-          aria-label={`View details for ${tour.title}`}
+          aria-label={`View details for ${stripHtml(tour.title)}`}
           style={{
             position: 'relative', display: 'flex', alignItems: 'center',
             justifyContent: 'center', gap: 8,
@@ -290,7 +291,7 @@ export default function Tour() {
 
   const filtered = tours.filter(t =>
     !search ||
-    t.title?.toLowerCase().includes(search.toLowerCase()) ||
+    stripHtml(t.title).toLowerCase().includes(search.toLowerCase()) ||
     t.location?.toLowerCase().includes(search.toLowerCase())
   );
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Star, StarHalf, ThumbsUp, CheckCircle, Quote } from 'lucide-react';
+import { RichText } from '@/lib/richText';
 
 function StarRow({ rating, size = 14 }) {
   return (
@@ -407,8 +408,8 @@ export default function Review({ reviews = [] }) {
                     <StarRow rating={r?.rating || 5} size={13} />
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#1c1c1a' }}>{(r?.rating || 5).toFixed(1)}</span>
                   </div>
-                  <div className="rv-card-title">{r?.title || 'Review'}</div>
-                  <div className="rv-card-body">{r?.body || ''}</div>
+                  <RichText as="div" className="rv-card-title rich-html" html={r?.title} fallback="Review" />
+                  <RichText as="div" className="rv-card-body rich-html" html={r?.body} fallback="" />
                   <div className="rv-card-footer">
                     <div className="rv-verified">
                       {r?.is_verified === 1 ? (

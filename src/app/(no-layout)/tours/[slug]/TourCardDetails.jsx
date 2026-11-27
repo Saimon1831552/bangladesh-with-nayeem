@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { RichText, stripHtml, hasTags } from '@/lib/richText';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaHandPointRight } from "react-icons/fa6";
 import {
@@ -50,7 +51,7 @@ function buildItinerary(tour) {
   return Array.from({ length: days }, (_, i) => ({
     day: i + 1, color: cols[i % cols.length],
     title: i === 0 ? 'Arrival & Orientation' : i === days-1 ? 'Farewell & Departure' : `Exploration Day ${i+1}`,
-    desc: `Day ${i+1} of your ${tour.title} experience. Your expert guide will lead you through the highlights.`,
+    desc: `Day ${i+1} of your ${stripHtml(tour.title)} experience. Your expert guide will lead you through the highlights.`,
   }));
 }
 function buildStats(tour) {
@@ -98,7 +99,7 @@ const submit = async (e) => {
       },
       body: JSON.stringify({
         ...form,
-        tourTitle: tour.title,
+        tourTitle: stripHtml(tour.title),
         agreedToPolicy: agreed,
       }),
     });
@@ -206,7 +207,7 @@ const minBookingDate = [
           <div className="bk-header">
             <div>
               <div className="bk-header-title">Reserve Your Spot</div>
-              <div className="bk-tour-pill">📍 {tour.title}</div>
+              <div className="bk-tour-pill">📍 <RichText html={tour.title} /></div>
             </div>
             <button className="bk-close" onClick={onClose}>
               <FontAwesomeIcon icon={faClose} size="sm" />
@@ -386,7 +387,7 @@ const minBookingDate = [
               <div className="bk-success-icon">✅</div>
               <div className="bk-success-title">Booking Request Sent!</div>
               <p className="bk-success-msg">
-                Thank you, <strong>{form.fullName}</strong>! Your booking request for <strong>{tour.title}</strong> has been received.
+                Thank you, <strong>{form.fullName}</strong>! Your booking request for <strong><RichText html={tour.title} /></strong> has been received.
                 We'll get back to you within 24 hours via email or WhatsApp.
               </p>
               <button className="bk-success-btn" onClick={onClose}>Close</button>
@@ -457,7 +458,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
 
   useEffect(() => {
     if (tour?.title) {
-      document.title = `${tour.title} | Bangladesh With Naim`;
+      document.title = `${stripHtml(tour.title)} | Bangladesh With Naim`;
     }
   }, [tour]);
 
@@ -720,7 +721,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
         {/* HERO */}
         <div id="hero" className="hero">
           <div className="hero-img-wrap">
-            <img ref={heroRef} className="hero-img" src={images[activeImg]} alt={tour.seo_image_alt || tour.title}
+            <img ref={heroRef} className="hero-img" src={images[activeImg]} alt={tour.seo_image_alt || stripHtml(tour.title)}
               onError={e => { e.target.src='https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=2000&q=80'; }} />
           </div>
           <div className="hero-gradient" />
@@ -746,11 +747,18 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
               <span className="hero-tag"><FontAwesomeIcon icon={faLocationDot} /> {tour.location}</span>
               {typeTags.slice(0,2).map(t => <span key={t} className="hero-tag"><FontAwesomeIcon icon={faRoute} /> {t}</span>)}
             </div> */}
-            <h1 className="hero-title fade-up fade-up-2">
-              {tour.title.includes(' ')
-                ? <>{tour.title.split(' ').slice(0,Math.ceil(tour.title.split(' ').length/2)).join(' ')}<br /><em>{tour.title.split(' ').slice(Math.ceil(tour.title.split(' ').length/2)).join(' ')}</em></>
-                : tour.title}
-            </h1>
+            {hasTags(tour.title) ? (
+              // Formatted in the admin panel: show exactly as entered.
+              <RichText as="h1" className="hero-title fade-up fade-up-2" html={tour.title} />
+            ) : (() => {
+              const words = stripHtml(tour.title).split(' ');
+              const half = Math.ceil(words.length / 2);
+              return (
+                <h1 className="hero-title fade-up fade-up-2">
+                  {words.length > 1 ? <>{words.slice(0, half).join(' ')}<br /><em>{words.slice(half).join(' ')}</em></> : words[0]}
+                </h1>
+              );
+            })()}
             <p className="hero-sub fade-up fade-up-3">{`Journey through ${tour.location} on this exclusive private tour, crafted for travelers who demand comfort, authenticity, and unforgettable memories.`}</p>
           </div>
         </div>
@@ -794,7 +802,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
               <div className="overview-block">
                 {/* <div className="section-eyebrow">About This Tour</div> */}
                 <div className="section-title">Experience Overview</div>
-                <div className="text-justify" dangerouslySetInnerHTML={{ __html: tour.overview||`Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.` }} />
+                <div className="text-justify rich-html" dangerouslySetInnerHTML={{ __html: tour.overview||`Embark on an unforgettable journey to ${tour.location}. This private tour is meticulously designed to give you an intimate, authentic experience while maintaining premium comfort.` }} />
               </div>
             </div>
 
@@ -803,7 +811,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
               <div id="highlights" className="section-block">
                 <div className="section-eyebrow">What You'll See</div>
                 <div className="section-title">Tour Highlights</div>
-                {highlightsHtml ? <div className="rich-content" dangerouslySetInnerHTML={{ __html:highlightsHtml }} /> : (
+                {highlightsHtml ? <div className="rich-content rich-html" dangerouslySetInnerHTML={{ __html:highlightsHtml }} /> : (
                   <ul className="highlights-list">
                     {highlights.map((h,i) => (
                       <li key={i}><span className="highlight-icon"><FaHandPointRight /></span><span dangerouslySetInnerHTML={{ __html:h }} /></li>
@@ -817,7 +825,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
             <div id="itinerary" className="section-block">
               <div className="section-eyebrow">Day by Day</div>
               <div className="section-title">Tour Itinerary</div>
-              {itineraryHtml ? <div className="rich-content" dangerouslySetInnerHTML={{ __html:itineraryHtml }} /> : (
+              {itineraryHtml ? <div className="rich-content rich-html" dangerouslySetInnerHTML={{ __html:itineraryHtml }} /> : (
                 <div className="timeline">
                   {itinerary.map(item => (
                     <div key={item.day} className="timeline-item">
@@ -859,7 +867,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
                   </>
                 ) : (
                   <div style={{ fontSize:13, fontWeight:700, color:'#15803d', background:'#f0faf4', border:'1px solid #bbf7d0', borderRadius:8, padding:'8px 14px', marginBottom:20 }}>
-                    🔒 {tour.title} – from <strong>{priceFmt} USD</strong> per person
+                    🔒 <RichText html={tour.title} /> – from <strong>{priceFmt} USD</strong> per person
                   </div>
                 )}
 
@@ -936,7 +944,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
                     <FontAwesomeIcon icon={faCircleInfo} className="trip-note-icon" />
                     <span className="trip-note-title">Please read before booking</span>
                   </div>
-                  <div className="rich-content" dangerouslySetInnerHTML={{ __html:tripNote }} />
+                  <div className="rich-content rich-html" dangerouslySetInnerHTML={{ __html:tripNote }} />
                 </div>
               </div>
             )}
@@ -946,7 +954,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
               <div id="why-naim" className="section-block">
                 <div className="section-eyebrow">Our Promise</div>
                 <div className="section-title">Why Book This Tour With Naim?</div>
-                {whyChooseHtml ? <div className="rich-content" dangerouslySetInnerHTML={{ __html:whyChooseHtml }} /> : (
+                {whyChooseHtml ? <div className="rich-content rich-html" dangerouslySetInnerHTML={{ __html:whyChooseHtml }} /> : (
                   <div className="why-grid">
                     {whyChoose.map((item,i) => (
                       <div key={i} className="why-card"><span className="why-text" dangerouslySetInnerHTML={{ __html:item }} /></div>
@@ -975,8 +983,8 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
                             {[1,2,3,4,5].map(i => <FontAwesomeIcon key={i} icon={faStar} style={{ fontSize:12, color:i<=r.rating?'#d97706':'#e5e7eb' }} />)}
                           </div>
                         </div>
-                        {r.title && <p style={{ fontWeight:600, fontSize:14, color:'#333', marginBottom:6 }}>{r.title}</p>}
-                        <p style={{ fontSize:14, color:'#666', lineHeight:1.7, textAlign:'justify' }}>{r.body}</p>
+                        {r.title && <RichText as="p" className="rich-html" html={r.title} style={{ fontWeight:600, fontSize:14, color:'#333', marginBottom:6 }} />}
+                        <RichText as="div" className="rich-html" html={r.body} style={{ fontSize:14, color:'#666', lineHeight:1.7, textAlign:'justify' }} />
                         <p style={{ fontSize:11, color:'#bbb', marginTop:8 }}>{r.review_date}{r.is_verified?' · ✓ Verified':''}</p>
                       </div>
                     </div>
@@ -1017,7 +1025,7 @@ export default function TourDetails({ slug, initialTour = null, initialGallery =
             {/* FAQ */}
             {(faqItems.length>0 || faqHtml) && (
               <div id="faq">
-                {faqHtml ? <div className="rich-content" dangerouslySetInnerHTML={{ __html:faqHtml }} /> : <FaqSection faqItems={faqItems} />}
+                {faqHtml ? <div className="rich-content rich-html" dangerouslySetInnerHTML={{ __html:faqHtml }} /> : <FaqSection faqItems={faqItems} />}
               </div>
             )}
 

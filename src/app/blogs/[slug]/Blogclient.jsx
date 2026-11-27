@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { RichText, stripHtml } from "@/lib/richText";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 const FALLBACK_IMG =
@@ -99,7 +100,7 @@ export default function Page() {
 
   useEffect(() => {
   if (blog?.data?.title) {
-    document.title = `${blog.data.title} | Bangladesh With Naim`;
+    document.title = `${stripHtml(blog.data.title)} | Bangladesh With Naim`;
   }
 }, [blog]);
 
@@ -302,7 +303,7 @@ export default function Page() {
         {/* HERO */}
         <div className="bdp-hero">
           <div className="bdp-hero-imgwrap">
-            <img ref={heroImgRef} className="bdp-hero-img" src={heroImgSrc} alt={d.title} onError={() => setHeroImgSrc(FALLBACK_IMG)} />
+            <img ref={heroImgRef} className="bdp-hero-img" src={heroImgSrc} alt={stripHtml(d.title)} onError={() => setHeroImgSrc(FALLBACK_IMG)} />
           </div>
           <div className="bdp-hero-grad" />
           <Link href="/blogs" className="bdp-back-btn">← Back to Journal</Link>
@@ -311,7 +312,7 @@ export default function Page() {
               {d.category    && <span className="bdp-cat-pill">● {d.category}</span>}
               {d.is_featured === 1 && <span className="bdp-featured-pill">★ Featured</span>}
             </div>
-            <h1 className="bdp-hero-title f2">{d.title}</h1>
+            <RichText as="h1" className="bdp-hero-title f2 rich-html" html={d.title} />
             <div className="bdp-hero-meta f3">
               {date         && <span className="bdp-meta-item">📅 {date}</span>}
               {date && d.read_time && <div className="bdp-meta-dot" />}
@@ -347,16 +348,17 @@ export default function Page() {
 
             {/* Excerpt with drop cap */}
             {d.excerpt && (
-              <p
-                className="bdp-excerpt-lede f5"
-                dangerouslySetInnerHTML={{ __html: d.excerpt }}
+              <RichText
+                as="div"
+                className="bdp-excerpt-lede f5 rich-html"
+                html={d.excerpt}
               />
             )}
 
             {/* Full content */}
             {d.content && (
               <div
-                className="bdp-content-body f5"
+                className="bdp-content-body f5 rich-html"
                 dangerouslySetInnerHTML={{ __html: d.content }}
               />
             )}
@@ -384,9 +386,9 @@ export default function Page() {
             {/* Share */}
             <div className="bdp-share">
               <span className="bdp-share-lbl">Share</span>
-              <ShareBtn label="𝕏 Twitter"  color="#000"    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(d.title)}&url=${encodeURIComponent(shareUrl)}`} />
+              <ShareBtn label="𝕏 Twitter"  color="#000"    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(stripHtml(d.title))}&url=${encodeURIComponent(shareUrl)}`} />
               <ShareBtn label="Facebook"   color="#1877F2" href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} />
-              <ShareBtn label="WhatsApp"   color="#25D366" href={`https://wa.me/?text=${encodeURIComponent(d.title+" "+shareUrl)}`} />
+              <ShareBtn label="WhatsApp"   color="#25D366" href={`https://wa.me/?text=${encodeURIComponent(stripHtml(d.title)+" "+shareUrl)}`} />
               <button className={`bdp-copy${copied?" ok":""}`} onClick={copyLink}>
                 {copied ? "✓ Copied!" : "Copy link"}
               </button>

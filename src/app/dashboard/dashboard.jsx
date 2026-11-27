@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, ADMIN_EMAILS } from "@/auth/firebase";
+import { stripHtml } from "@/lib/richText";
 
 // ── Google Font injection ─────────────────────────────────────────────────────
 const FontLoader = () => (
@@ -92,6 +93,35 @@ const FontLoader = () => (
     .inp::placeholder { color:var(--ink-4); }
     select.inp { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237A7A7A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:34px; appearance:none; cursor:pointer; }
     textarea.inp { resize:vertical; min-height:88px; }
+
+    /* Rich text editor */
+    .rte { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius-md); overflow:hidden; transition:border-color .15s,box-shadow .15s; }
+    .rte:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(26,107,74,.1); }
+    .rte-bar { display:flex; flex-wrap:wrap; align-items:center; gap:3px; padding:5px 7px; background:var(--surface-2); border-bottom:1px solid var(--border); }
+    .rte-btn { min-width:28px; height:28px; padding:0 7px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; border:1px solid transparent; background:transparent; color:var(--ink-2); font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; }
+    .rte-btn:hover { background:var(--surface); border-color:var(--border); color:var(--ink); }
+    .rte-btn.on { background:var(--accent-soft); border-color:#b2d9c6; color:var(--accent); }
+    .rte-sel { height:28px; max-width:130px; padding:0 6px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--ink-2); font-size:12px; cursor:pointer; }
+    .rte-sep { width:1px; height:18px; background:var(--border); margin:0 3px; }
+    .rte-area { padding:10px 14px; font-size:14px; line-height:1.6; color:var(--ink); outline:none; overflow-y:auto; max-height:520px; word-break:break-word; }
+    .rte-single .rte-area { font-size:15px; font-weight:600; max-height:120px; }
+    .rte-area:empty::before { content:attr(data-placeholder); color:var(--ink-4); font-weight:400; pointer-events:none; }
+    .rte-area p { margin:0 0 10px; }
+    .rte-area h1 { font-size:28px; font-weight:800; margin:14px 0 8px; line-height:1.25; }
+    .rte-area h2 { font-size:22px; font-weight:700; margin:14px 0 8px; line-height:1.3; }
+    .rte-area h3 { font-size:18px; font-weight:700; margin:12px 0 6px; }
+    .rte-area h4, .rte-area h5, .rte-area h6 { font-size:15px; font-weight:700; margin:10px 0 6px; }
+    .rte-area ul { list-style:disc; padding-left:24px; margin:0 0 10px; }
+    .rte-area ol { list-style:decimal; padding-left:24px; margin:0 0 10px; }
+    .rte-area li { margin:3px 0; }
+    .rte-area b, .rte-area strong { font-weight:700; }
+    .rte-area i, .rte-area em { font-style:italic; }
+    .rte-area a { color:var(--accent); text-decoration:underline; }
+    .rte-area blockquote { border-left:3px solid var(--border-2); padding-left:12px; margin:0 0 10px; color:var(--ink-3); }
+    .rte-area table { width:100%; border-collapse:collapse; margin:0 0 10px; }
+    .rte-area th, .rte-area td { border:1px solid var(--border); padding:6px 8px; text-align:left; vertical-align:top; }
+    .rte-area img { max-width:100%; height:auto; }
+    .rte-source { display:block; width:100%; border:none; outline:none; resize:vertical; padding:10px 14px; font-family:'JetBrains Mono','Fira Code','Courier New',monospace; font-size:12.5px; line-height:1.6; color:var(--ink); background:var(--surface); }
 
     /* Toggle */
     .toggle-wrap { position:relative; width:44px; height:24px; flex-shrink:0; }
@@ -555,28 +585,299 @@ function richTextFromLegacy(value, type) {
   return `<ul>${content.map(item => `<li>${item}</li>`).join("")}</ul>`;
 }
 
-function RichContentEditor({ label, value, onChange, placeholder }) {
-  const editorRef = useRef(null);
-  useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== (value || "")) {
-      editorRef.current.innerHTML = value || "";
+// ── Rich text editor ──────────────────────────────────────────────────────────
+// Keeps formatting exactly as pasted from Word, Google Docs or a web page:
+// bold / italic / underline, fonts, sizes, colors, links, lists and tables.
+// Editor junk (Word classes, mso-* styles, scripts, comments) is removed.
+const RTE_FONTS = ["Arial","Helvetica","Georgia","Times New Roman","Verdana","Tahoma","Trebuchet MS","Garamond","Courier New","Playfair Display","DM Sans","Plus Jakarta Sans"];
+const RTE_SIZES = ["12px","14px","16px","18px","20px","24px","28px","32px","40px","48px","56px"];
+const RTE_BLOCK_TAGS  = new Set(["P","DIV","H1","H2","H3","H4","H5","H6","UL","OL","LI","BLOCKQUOTE","TABLE","THEAD","TBODY","TFOOT","TR","TH","TD","PRE","HR"]);
+const RTE_INLINE_TAGS = new Set(["SPAN","B","STRONG","I","EM","U","S","STRIKE","DEL","SUB","SUP","A","CODE","BR","MARK","SMALL","IMG"]);
+const RTE_AS_DIV_TAGS = new Set(["SECTION","ARTICLE","HEADER","FOOTER","MAIN","ASIDE","FIGURE","FIGCAPTION","NAV","ADDRESS","DL","DT","DD","CENTER"]);
+const RTE_DROP_TAGS   = new Set(["SCRIPT","STYLE","META","LINK","TITLE","HEAD","IFRAME","OBJECT","EMBED","NOSCRIPT","SVG","CANVAS","BUTTON","INPUT","SELECT","TEXTAREA","FORM","VIDEO","AUDIO"]);
+const RTE_STYLE_PROPS = ["font-family","font-size","font-weight","font-style","text-decoration-line","color","background-color","text-align","vertical-align","text-transform","letter-spacing"];
+const RTE_DEFAULT_COLOR = /^(black|windowtext|#000|#000000|rgb\(0,\s*0,\s*0\)|rgba\(0,\s*0,\s*0,\s*1\))$/;
+const RTE_NO_BACKGROUND = /^(transparent|white|#fff|#ffffff|rgb\(255,\s*255,\s*255\)|rgba\(\d+,\s*\d+,\s*\d+,\s*0\))$/;
+
+// Copies only the visual styles that matter. Black text and white/transparent
+// backgrounds are what documents use when no color was chosen, so they are left
+// out — otherwise a title pasted from Google Docs would turn black on the dark hero.
+function copyPastedStyles(src, dest, singleLine) {
+  const style = src.style;
+  if (!style) return;
+  for (const prop of RTE_STYLE_PROPS) {
+    const raw = style.getPropertyValue(prop);
+    if (!raw) continue;
+    const val = raw.trim(); const v = val.toLowerCase();
+    if (["inherit","initial","unset","revert","normal","none","baseline","auto"].includes(v)) continue;
+    if (prop === "font-weight" && /^[1-4]00$/.test(v)) continue;
+    if (prop === "font-size" && singleLine) continue;
+    if (prop === "color" && RTE_DEFAULT_COLOR.test(v)) continue;
+    if (prop === "background-color" && RTE_NO_BACKGROUND.test(v)) continue;
+    if (prop === "vertical-align" && !/^(super|sub)$/.test(v)) continue;
+    if (prop === "text-align" && (singleLine || !RTE_BLOCK_TAGS.has(dest.tagName) || v === "start" || v === "left")) continue;
+    dest.style.setProperty(prop, val);
+  }
+}
+
+function sanitizePastedNode(node, out, singleLine) {
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === 3) {
+      const text = singleLine ? child.textContent.replace(/\s*\n\s*/g, " ") : child.textContent;
+      if (text) out.appendChild(document.createTextNode(text));
+      continue;
     }
-  }, [value]);
+    if (child.nodeType !== 1) continue; // comments, Word conditional blocks, etc.
+
+    let tag = child.tagName.toUpperCase();
+    if (RTE_DROP_TAGS.has(tag)) continue;
+    if (tag.includes(":")) { sanitizePastedNode(child, out, singleLine); continue; } // <o:p>, <w:…>
+    if (RTE_AS_DIV_TAGS.has(tag)) tag = "DIV";
+
+    // Google Docs wraps everything in <b style="font-weight:normal">.
+    if ((tag === "B" || tag === "STRONG") && /^(normal|[1-4]00)$/.test((child.style?.fontWeight || "").trim())) tag = "SPAN";
+
+    if (singleLine) {
+      if (tag === "BR" || RTE_BLOCK_TAGS.has(tag)) {
+        const wrap = document.createElement("span");
+        copyPastedStyles(child, wrap, true);
+        sanitizePastedNode(child, wrap.style.length ? wrap : out, true);
+        if (wrap.style.length) out.appendChild(wrap);
+        out.appendChild(document.createTextNode(" "));
+        continue;
+      }
+      if (tag === "IMG" || tag === "A") { sanitizePastedNode(child, out, true); continue; }
+    }
+
+    let el;
+    if (tag === "FONT") {
+      el = document.createElement("span");
+      if (child.getAttribute("face")) el.style.fontFamily = child.getAttribute("face");
+      const c = child.getAttribute("color");
+      if (c && !RTE_DEFAULT_COLOR.test(c.toLowerCase())) el.style.color = c;
+    } else if (RTE_BLOCK_TAGS.has(tag) || RTE_INLINE_TAGS.has(tag)) {
+      el = document.createElement(tag.toLowerCase());
+    } else {
+      sanitizePastedNode(child, out, singleLine); // unknown wrapper: keep its content only
+      continue;
+    }
+
+    copyPastedStyles(child, el, singleLine);
+
+    if (tag === "A") {
+      const href = (child.getAttribute("href") || "").trim();
+      if (/^(https?:|mailto:|tel:|#|\/)/i.test(href)) {
+        el.setAttribute("href", href);
+        if (/^https?:/i.test(href)) { el.setAttribute("target", "_blank"); el.setAttribute("rel", "noopener noreferrer"); }
+      }
+    }
+    if (tag === "IMG") {
+      const src = (child.getAttribute("src") || "").trim();
+      if (!/^https?:/i.test(src)) continue; // skip local/data images — they can't be shown on the site
+      el.setAttribute("src", src);
+      el.setAttribute("alt", child.getAttribute("alt") || "");
+      out.appendChild(el);
+      continue;
+    }
+    if (tag === "TD" || tag === "TH") {
+      ["colspan","rowspan"].forEach(a => { const v = child.getAttribute(a); if (v && /^\d+$/.test(v)) el.setAttribute(a, v); });
+    }
+    if (tag === "OL") { const s = child.getAttribute("start"); if (s && /^\d+$/.test(s)) el.setAttribute("start", s); }
+
+    if (tag !== "BR" && tag !== "HR") sanitizePastedNode(child, el, singleLine);
+
+    // A bare <span> adds nothing — keep just its content.
+    if (tag === "SPAN" && !el.style.length) { while (el.firstChild) out.appendChild(el.firstChild); continue; }
+    out.appendChild(el);
+  }
+  return out;
+}
+
+function pastedToFragment(clipboard, singleLine) {
+  const html = clipboard.getData("text/html");
+  if (html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return sanitizePastedNode(doc.body, document.createDocumentFragment(), singleLine);
+  }
+  const text = clipboard.getData("text/plain") || "";
+  const frag = document.createDocumentFragment();
+  if (singleLine) { frag.appendChild(document.createTextNode(text.replace(/\s*\n\s*/g, " "))); return frag; }
+  const blocks = text.replace(/\r\n?/g, "\n").split(/\n{2,}/);
+  blocks.forEach((block, i) => {
+    const target = blocks.length > 1 ? document.createElement("p") : frag;
+    block.split("\n").forEach((line, j) => {
+      if (j) target.appendChild(document.createElement("br"));
+      target.appendChild(document.createTextNode(line));
+    });
+    if (target !== frag) frag.appendChild(target);
+    else if (i < blocks.length - 1) frag.appendChild(document.createElement("br"));
+  });
+  return frag;
+}
+
+// Toolbar button: mousedown is cancelled so the editor keeps its text selection.
+const Btn = ({ title, onClick, children, style }) => (
+  <button type="button" className="rte-btn" title={title} onMouseDown={e => e.preventDefault()} onClick={onClick} style={style}>{children}</button>
+);
+
+// Old values were saved as plain text with line breaks; turn them into HTML so
+// the rich editor shows the same paragraphs instead of one run-on block.
+function plainToEditorHtml(value) {
+  if (!value) return "";
+  if (/<\/?[a-z][^>]*>/i.test(value)) return value;
+  const esc = String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\r\n?/g,"\n").trim();
+  const paras = esc.split(/\n{2,}/);
+  return paras.length > 1 ? paras.map(p => `<p>${p.replace(/\n/g,"<br>")}</p>`).join("") : esc.replace(/\n/g,"<br>");
+}
+
+function RichContentEditor({ label, value, onChange, placeholder, singleLine=false, minHeight, required, wordCount=false, hint }) {
+  const editorRef = useRef(null);
+  const savedRange = useRef(null);
+  const lastEmitted = useRef(null);
+  const [sourceMode, setSourceMode] = useState(false);
+
+  useEffect(() => {
+    const el = editorRef.current;
+    if (!el || sourceMode) return;
+    if (value === lastEmitted.current && el.innerHTML !== "") return; // our own edit — don't move the caret
+    if (el.innerHTML !== (value || "")) el.innerHTML = value || "";
+  }, [value, sourceMode]);
+
+  useEffect(() => {
+    const onSelection = () => {
+      const sel = window.getSelection();
+      if (sel?.rangeCount && editorRef.current?.contains(sel.anchorNode)) savedRange.current = sel.getRangeAt(0).cloneRange();
+    };
+    document.addEventListener("selectionchange", onSelection);
+    return () => document.removeEventListener("selectionchange", onSelection);
+  }, []);
+
+  const emit = () => {
+    const el = editorRef.current;
+    if (!el) return;
+    const empty = !el.textContent.trim() && !el.querySelector("img,table,hr");
+    const html = empty ? "" : el.innerHTML;
+    lastEmitted.current = html;
+    onChange(html);
+  };
+
+  const restoreSelection = () => {
+    const el = editorRef.current;
+    el.focus();
+    const sel = window.getSelection();
+    if (savedRange.current && el.contains(savedRange.current.commonAncestorContainer)) {
+      sel.removeAllRanges(); sel.addRange(savedRange.current);
+    }
+  };
+
+  const exec = (cmd, arg=null, css=true) => {
+    restoreSelection();
+    document.execCommand("styleWithCSS", false, css);
+    document.execCommand(cmd, false, arg);
+    emit();
+  };
+
+  const applyFontSize = (size) => {
+    if (!size) return;
+    exec("fontSize", "7", false);
+    editorRef.current.querySelectorAll('font[size="7"]').forEach(font => {
+      const span = document.createElement("span");
+      span.style.fontSize = size;
+      while (font.firstChild) span.appendChild(font.firstChild);
+      font.replaceWith(span);
+    });
+    editorRef.current.querySelectorAll('span[style*="xxx-large"]').forEach(s => { s.style.fontSize = size; });
+    emit();
+  };
+
+  const addLink = () => {
+    const url = window.prompt("Link URL (https://…)");
+    if (url && /^(https?:|mailto:|tel:|\/|#)/i.test(url.trim())) exec("createLink", url.trim());
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const frag = pastedToFragment(e.clipboardData, singleLine);
+    const el = editorRef.current;
+    const sel = window.getSelection();
+    let range = sel.rangeCount ? sel.getRangeAt(0) : null;
+    if (!range || !el.contains(range.commonAncestorContainer)) {
+      range = document.createRange(); range.selectNodeContents(el); range.collapse(false);
+    }
+    range.deleteContents();
+    const last = frag.lastChild;
+    range.insertNode(frag);
+    if (last) { range.setStartAfter(last); range.collapse(true); sel.removeAllRanges(); sel.addRange(range); }
+    emit();
+  };
+
+  const words = wordCount ? (value||"").replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").trim().split(/\s+/).filter(Boolean).length : 0;
 
   return (
-    <Field label={label}>
-      <div
-        ref={editorRef}
-        className="inp"
-        contentEditable
-        suppressContentEditableWarning
-        role="textbox"
-        aria-multiline="true"
-        data-placeholder={placeholder}
-        onInput={event => onChange(event.currentTarget.innerHTML)}
-        style={{ minHeight:160, height:"auto", overflowY:"auto", whiteSpace:"normal", lineHeight:1.6 }}
-      />
-      <p style={{fontSize:11,color:"var(--ink-4)",marginTop:5}}>Paste text, lists, tables, or formatted content directly. There is no character limit.</p>
+    <Field label={label} required={required}>
+      <div className={`rte${singleLine ? " rte-single" : ""}`}>
+        <div className="rte-bar">
+          <Btn title="Bold (Ctrl+B)" onClick={() => exec("bold")} style={{fontWeight:800}}>B</Btn>
+          <Btn title="Italic (Ctrl+I)" onClick={() => exec("italic")} style={{fontStyle:"italic",fontFamily:"Georgia,serif"}}>I</Btn>
+          <Btn title="Underline (Ctrl+U)" onClick={() => exec("underline")} style={{textDecoration:"underline"}}>U</Btn>
+          <Btn title="Strikethrough" onClick={() => exec("strikeThrough")} style={{textDecoration:"line-through"}}>S</Btn>
+          <span className="rte-sep" />
+          <select className="rte-sel" title="Font" value="" disabled={sourceMode} onChange={e => { if (e.target.value) exec("fontName", e.target.value); }}>
+            <option value="">Font</option>
+            {RTE_FONTS.map(f => <option key={f} value={f} style={{fontFamily:f}}>{f}</option>)}
+          </select>
+          <select className="rte-sel" title="Size" value="" disabled={sourceMode} onChange={e => applyFontSize(e.target.value)} style={{maxWidth:76}}>
+            <option value="">Size</option>
+            {RTE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <label className="rte-btn" title="Text color" style={{position:"relative"}}>
+            <span style={{fontWeight:800,borderBottom:"3px solid #C0344A",lineHeight:1}}>A</span>
+            <input type="color" defaultValue="#C0344A" onChange={e => exec("foreColor", e.target.value)} style={{position:"absolute",inset:0,opacity:0,cursor:"pointer"}} />
+          </label>
+          {!singleLine && <>
+            <span className="rte-sep" />
+            <Btn title="Heading" onClick={() => exec("formatBlock", "<h2>")}>H2</Btn>
+            <Btn title="Sub-heading" onClick={() => exec("formatBlock", "<h3>")}>H3</Btn>
+            <Btn title="Normal paragraph" onClick={() => exec("formatBlock", "<p>")}>¶</Btn>
+            <Btn title="Bulleted list" onClick={() => exec("insertUnorderedList")}>• List</Btn>
+            <Btn title="Numbered list" onClick={() => exec("insertOrderedList")}>1. List</Btn>
+            <Btn title="Insert link" onClick={addLink}>Link</Btn>
+          </>}
+          <span className="rte-sep" />
+          <Btn title="Remove formatting from the selected text" onClick={() => { exec("removeFormat"); exec("unlink"); }}>Clear</Btn>
+          {!singleLine && (
+            <button type="button" className={`rte-btn${sourceMode?" on":""}`} title="Edit the HTML code" onClick={() => setSourceMode(m => !m)} style={{marginLeft:"auto",fontFamily:"monospace"}}>{"</>"}</button>
+          )}
+        </div>
+        {sourceMode ? (
+          <textarea
+            className="rte-source"
+            value={value || ""}
+            onChange={e => { lastEmitted.current = null; onChange(e.target.value); }}
+            style={{ minHeight: minHeight || 160 }}
+          />
+        ) : (
+          <div
+            ref={editorRef}
+            className="rte-area"
+            contentEditable
+            suppressContentEditableWarning
+            role="textbox"
+            aria-multiline={!singleLine}
+            data-placeholder={placeholder}
+            onInput={emit}
+            onPaste={handlePaste}
+            onKeyDown={e => { if (singleLine && e.key === "Enter") e.preventDefault(); }}
+            style={{ minHeight: minHeight || (singleLine ? 24 : 160) }}
+          />
+        )}
+      </div>
+      {(hint !== false || wordCount) && (
+        <div style={{display:"flex",justifyContent:"space-between",gap:12,marginTop:2}}>
+          <p style={{fontSize:11,color:"var(--ink-4)"}}>{hint || (singleLine ? "Paste or type — bold, fonts and colors are kept exactly." : "Paste from Word, Google Docs or a website — bold, fonts, sizes, colors, lists and tables are kept exactly.")}</p>
+          {wordCount && <span style={{fontSize:11,fontWeight:600,color:"var(--ink-4)",whiteSpace:"nowrap"}}>{words} words</span>}
+        </div>
+      )}
     </Field>
   );
 }
@@ -737,7 +1038,7 @@ function ToursSection({ toast }) {
   },[filterType,filterLoc]);
 
   useEffect(()=>{load();},[load]);
-  const filtered=data.filter(r=>r.title?.toLowerCase().includes(search.toLowerCase())||r.location?.toLowerCase().includes(search.toLowerCase()));
+  const filtered=data.filter(r=>stripHtml(r.title).toLowerCase().includes(search.toLowerCase())||r.location?.toLowerCase().includes(search.toLowerCase()));
   
   const openAdd=()=>{setForm(TOUR_DEFAULTS);setModal("add");};
   
@@ -817,7 +1118,7 @@ function ToursSection({ toast }) {
                   :<div style={{width:48,height:48,borderRadius:"var(--radius-md)",background:"var(--surface-3)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"var(--ink-4)"}}><Ico d={P.tours} size={18}/></div>
                 }
                 <div>
-                  <p style={{fontWeight:700,color:"var(--ink)",fontSize:14,marginBottom:3}}>{r.title}</p>
+                  <p style={{fontWeight:700,color:"var(--ink)",fontSize:14,marginBottom:3}}>{stripHtml(r.title)}</p>
                   <code style={{fontSize:11,background:"var(--surface-3)",color:"var(--ink-3)",padding:"1px 6px",borderRadius:4}}>{r.slug}</code>
                 </div>
               </div>
@@ -921,8 +1222,8 @@ function ToursSection({ toast }) {
       {modal&&(
         <Modal title={modal==="add"?"Create New Tour":"Edit Tour"} onClose={()=>setModal(null)} wide>
           <Grid cols={2} gap={16}>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor singleLine required label="Tour Title" value={form.title} onChange={v=>setForm(p=>({...p,title:v}))} placeholder="Awesome Tour Name" /></div>
             <Field label="URL Slug" required><input className="inp" value={form.slug} onChange={f("slug")} placeholder="e.g. sylhet-tea-gardens" /></Field>
-            <Field label="Tour Title" required><input className="inp" value={form.title} onChange={f("title")} placeholder="Awesome Tour Name" /></Field>
             <Field label="Destination"><input className="inp" value={form.location} onChange={f("location")} placeholder="City, Country" /></Field>
             <Field label="Duration"><input className="inp" value={form.duration} onChange={f("duration")} placeholder="2 Days, 1 Night" /></Field>
             <Field label="Group Size"><input className="inp" value={form.group_size} onChange={f("group_size")} placeholder="2 - 8 People" /></Field>
@@ -1026,7 +1327,7 @@ function ToursSection({ toast }) {
           </div>
         </Modal>
       )}
-      {confirm&&<ConfirmDialog msg={`Delete the tour "${confirm.title}"? This cannot be undone.`} onConfirm={remove} onCancel={()=>setConfirm(null)} />}
+      {confirm&&<ConfirmDialog msg={`Delete the tour "${stripHtml(confirm.title)}"? This cannot be undone.`} onConfirm={remove} onCancel={()=>setConfirm(null)} />}
     </Section>
   );
 }
@@ -1046,9 +1347,9 @@ function BlogsSection({toast}){
   },[filterCat,filterFeatured]);
 
   useEffect(()=>{load();},[load]);
-  const filtered=data.filter(r=>r.title?.toLowerCase().includes(search.toLowerCase())||r.author?.toLowerCase().includes(search.toLowerCase()));
+  const filtered=data.filter(r=>stripHtml(r.title).toLowerCase().includes(search.toLowerCase())||r.author?.toLowerCase().includes(search.toLowerCase()));
   const openAdd=()=>{setForm(BLOG_DEFAULTS);setModal("add");};
-  const openEdit=(r)=>{setForm({...r,publish_date:r.publish_date?.split("T")[0]||""});setModal("edit");};
+  const openEdit=(r)=>{setForm({...r,publish_date:r.publish_date?.split("T")[0]||"",excerpt:plainToEditorHtml(r.excerpt),content:plainToEditorHtml(r.content)});setModal("edit");};
   const save=async()=>{
     const body={...form,is_featured:form.is_featured?1:0};
     const res=modal==="add"?await api.post("/blogs",body):await api.put(`/blogs/${form.id}`,body);
@@ -1086,8 +1387,8 @@ function BlogsSection({toast}){
                   :<div style={{width:64,height:44,borderRadius:"var(--radius-sm)",background:"var(--surface-3)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"var(--ink-4)"}}><Ico d={P.blogs} size={18}/></div>
                 }
                 <div>
-                  <p style={{fontWeight:700,color:"var(--ink)",fontSize:13.5,lineHeight:1.3,marginBottom:3}}>{r.title}</p>
-                  <p style={{fontSize:12,color:"var(--ink-3)",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical"}}>{r.excerpt}</p>
+                  <p style={{fontWeight:700,color:"var(--ink)",fontSize:13.5,lineHeight:1.3,marginBottom:3}}>{stripHtml(r.title)}</p>
+                  <p style={{fontSize:12,color:"var(--ink-3)",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:1,WebkitBoxOrient:"vertical"}}>{stripHtml(r.excerpt)}</p>
                 </div>
               </div>
             </td>
@@ -1112,7 +1413,7 @@ function BlogsSection({toast}){
 {modal&&(
   <Modal title={modal==="add"?"Write Blog Post":"Edit Blog Post"} onClose={()=>setModal(null)} wide>
     <Grid cols={2} gap={16}>
-      <Field label="Article Title" required><input className="inp" value={form.title} onChange={f("title")} placeholder="Eye-catching headline…" /></Field>
+      <div style={{gridColumn:"1/-1"}}><RichContentEditor singleLine required label="Article Title" value={form.title} onChange={v=>setForm(p=>({...p,title:v}))} placeholder="Eye-catching headline…" /></div>
       <Field label="URL Slug" required><input className="inp" value={form.slug} onChange={f("slug")} placeholder="my-post" /></Field>
       <Field label="Category">
         <select className="inp" value={form.category} onChange={f("category")}>
@@ -1125,55 +1426,19 @@ function BlogsSection({toast}){
       <Field label="Read Time"><input className="inp" value={form.read_time} onChange={f("read_time")} placeholder="5 min read" /></Field>
       <div style={{gridColumn:"1/-1"}}><Field label="Cover Image URL"><input className="inp" value={form.image_url} onChange={f("image_url")} placeholder="https://…" /></Field></div>
       <div style={{gridColumn:"1/-1"}}><Field label="Author Avatar URL"><input className="inp" value={form.author_img} onChange={f("author_img")} placeholder="https://…" /></Field></div>
-      <div style={{gridColumn:"1/-1"}}><Field label="Excerpt"><textarea className="inp" rows={3} value={form.excerpt} onChange={f("excerpt")} placeholder="Brief summary for the preview card…" /></Field></div>
+      <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Excerpt" value={form.excerpt} onChange={v=>setForm(p=>({...p,excerpt:v}))} placeholder="Brief summary for the preview card…" minHeight={80} /></div>
 
       {/* ── Content field ── */}
       <div style={{gridColumn:"1/-1"}}>
-        <div style={{display:"flex",flexDirection:"column",gap:6}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <label style={{fontSize:12,fontWeight:700,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>
-              Full Article Content
-              <span style={{marginLeft:8,fontSize:11,fontWeight:500,color:"var(--ink-4)",textTransform:"none",letterSpacing:"normal"}}>
-                (HTML supported — {"<h2>"}, {"<p>"}, {"<ul>"}, {"<blockquote>"} etc.)
-              </span>
-            </label>
-            {/* Live word count */}
-            <span style={{fontSize:11,fontWeight:600,color:"var(--ink-4)",background:"var(--surface-3)",padding:"2px 10px",borderRadius:99,border:"1px solid var(--border)",whiteSpace:"nowrap"}}>
-              {(form.content||"").trim().split(/\s+/).filter(Boolean).length} words
-            </span>
-          </div>
-          <textarea
-            className="inp"
-            rows={14}
-            value={form.content}
-            onChange={f("content")}
-            placeholder={`Write the full article here. HTML is supported:\n\n<h2>Why Visit Bangladesh?</h2>\n<p>Bangladesh is a land of extraordinary contrasts...</p>\n<blockquote>Every journey reveals a new layer of beauty.</blockquote>\n<ul>\n  <li>Sundarbans mangrove forest</li>\n  <li>Cox's Bazar beach</li>\n</ul>`}
-            style={{fontFamily:"'JetBrains Mono','Fira Code','Courier New',monospace",fontSize:13,lineHeight:1.7,minHeight:280}}
-          />
-          {/* Preview strip — shows rendered HTML if content exists */}
-          {form.content?.trim() && (
-            <div style={{marginTop:8}}>
-              <div style={{fontSize:11,fontWeight:700,color:"var(--ink-4)",textTransform:"uppercase",letterSpacing:".06em",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
-                <Ico d={P.arrow} size={12}/> Live Preview
-              </div>
-              <div
-                style={{
-                  background:"var(--surface-2)",
-                  border:"1px solid var(--border)",
-                  borderRadius:"var(--radius-md)",
-                  padding:"16px 20px",
-                  maxHeight:200,
-                  overflowY:"auto",
-                  fontSize:14,
-                  lineHeight:1.75,
-                  color:"var(--ink-2)",
-                  fontFamily:"Georgia, serif",
-                }}
-                dangerouslySetInnerHTML={{__html: form.content}}
-              />
-            </div>
-          )}
-        </div>
+        <RichContentEditor
+          label="Full Article Content"
+          value={form.content}
+          onChange={v=>setForm(p=>({...p,content:v}))}
+          placeholder="Write or paste the full article here…"
+          minHeight={300}
+          wordCount
+          hint="Paste from Word, Google Docs or a website — formatting is kept exactly. Use </> to edit the HTML directly."
+        />
       </div>
 
       <div style={{gridColumn:"1/-1",background:"var(--amber-soft)",border:"1px solid #f5d98a",borderRadius:"var(--radius-md)",padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
@@ -1195,7 +1460,7 @@ function BlogsSection({toast}){
   </Modal>
 )}
 
-      {confirm&&<ConfirmDialog msg={`Delete the article "${confirm.title}"?`} onConfirm={remove} onCancel={()=>setConfirm(null)} />}
+      {confirm&&<ConfirmDialog msg={`Delete the article "${stripHtml(confirm.title)}"?`} onConfirm={remove} onCancel={()=>setConfirm(null)} />}
     </Section>
   );
 }
@@ -1214,9 +1479,9 @@ function ReviewsSection({toast}){
   },[filterRating,filterVerified]);
 
   useEffect(()=>{load();},[load]);
-  const filtered=data.filter(r=>r.name?.toLowerCase().includes(search.toLowerCase())||r.tour_name?.toLowerCase().includes(search.toLowerCase())||r.title?.toLowerCase().includes(search.toLowerCase()));
+  const filtered=data.filter(r=>r.name?.toLowerCase().includes(search.toLowerCase())||r.tour_name?.toLowerCase().includes(search.toLowerCase())||stripHtml(r.title).toLowerCase().includes(search.toLowerCase()));
   const openAdd=()=>{setForm(REVIEW_DEFAULTS);setModal("add");};
-  const openEdit=(r)=>{setForm({...r});setModal("edit");};
+  const openEdit=(r)=>{setForm({...r,body:plainToEditorHtml(r.body)});setModal("edit");};
   const save=async()=>{
     const body={...form,tour_id:form.tour_id?Number(form.tour_id):null,rating:Number(form.rating)||5,helpful_votes:Number(form.helpful_votes)||0,is_verified:form.is_verified?1:0};
     const res=modal==="add"?await api.post("/reviews",body):await api.put(`/reviews/${form.id}`,body);
@@ -1257,8 +1522,8 @@ function ReviewsSection({toast}){
             <td style={{padding:"14px 18px",fontSize:13,color:"var(--accent-text)",fontWeight:500,maxWidth:150}}><span style={{display:"block",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.tour_name||<span style={{color:"var(--ink-4)"}}>—</span>}</span></td>
             <td style={{padding:"14px 18px"}}><div style={{display:"flex",gap:2}}><Stars n={r.rating}/></div></td>
             <td style={{padding:"14px 18px",maxWidth:220}}>
-              <p style={{fontWeight:700,fontSize:13.5,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.title}</p>
-              <p style={{fontSize:12,color:"var(--ink-3)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginTop:2}}>{r.body}</p>
+              <p style={{fontWeight:700,fontSize:13.5,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{stripHtml(r.title)}</p>
+              <p style={{fontSize:12,color:"var(--ink-3)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginTop:2}}>{stripHtml(r.body)}</p>
             </td>
             <td style={{padding:"14px 18px",fontSize:13,color:"var(--ink-2)",whiteSpace:"nowrap"}}>{r.review_date}</td>
             <td style={{padding:"14px 18px",fontSize:13,fontWeight:600,color:"var(--ink-2)"}}>{r.helpful_votes}</td>
@@ -1304,8 +1569,8 @@ function ReviewsSection({toast}){
               <Field label="Helpful Votes"><input type="number" className="inp" value={form.helpful_votes} onChange={f("helpful_votes")} placeholder="0" /></Field>
             </Grid>
             <div style={{gridColumn:"1/-1"}}><Field label="Date"><input className="inp" value={form.review_date} onChange={f("review_date")} placeholder="April 2026" /></Field></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="Headline"><input className="inp" value={form.title} onChange={f("title")} placeholder="Summarize the experience…" /></Field></div>
-            <div style={{gridColumn:"1/-1"}}><Field label="Full Review"><textarea className="inp" rows={4} value={form.body} onChange={f("body")} placeholder="Write the full review here…" /></Field></div>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor singleLine label="Headline" value={form.title} onChange={v=>setForm(p=>({...p,title:v}))} placeholder="Summarize the experience…" /></div>
+            <div style={{gridColumn:"1/-1"}}><RichContentEditor label="Full Review" value={form.body} onChange={v=>setForm(p=>({...p,body:v}))} placeholder="Write or paste the full review here…" minHeight={120} /></div>
             <div style={{gridColumn:"1/-1",background:"var(--accent-soft)",border:"1px solid #b2d9c6",borderRadius:"var(--radius-md)",padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div>
                 <p style={{fontWeight:700,fontSize:14,color:"var(--ink)"}}>Verified Purchase</p>
@@ -1343,7 +1608,7 @@ function GallerySection({toast}){
   },[filterTour]);
 
   useEffect(()=>{load();},[load]);
-  const filtered=data.filter(r=>r.alt_text?.toLowerCase().includes(search.toLowerCase())||r.tour_title?.toLowerCase().includes(search.toLowerCase()));
+  const filtered=data.filter(r=>r.alt_text?.toLowerCase().includes(search.toLowerCase())||stripHtml(r.tour_title).toLowerCase().includes(search.toLowerCase()));
   const openAdd=()=>{setForm(GALLERY_DEFAULTS);setModal("add");};
   const openEdit=(r)=>{setForm({...r});setModal("edit");};
   const save=async()=>{
@@ -1384,7 +1649,7 @@ function GallerySection({toast}){
                 <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(13,13,13,.85) 0%,rgba(13,13,13,.1) 50%,transparent 100%)",opacity:0,transition:"opacity .2s"}} className="gallery-overlay">
                   <div style={{position:"absolute",bottom:0,left:0,right:0,padding:14,transform:"translateY(6px)",transition:"transform .2s"}} className="gallery-content">
                     <p style={{color:"#fff",fontSize:13,fontWeight:700,marginBottom:3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.alt_text||"Untitled"}</p>
-                    {r.tour_title&&<p style={{color:"rgba(255,255,255,.6)",fontSize:11,marginBottom:10,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.tour_title}</p>}
+                    {r.tour_title&&<p style={{color:"rgba(255,255,255,.6)",fontSize:11,marginBottom:10,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{stripHtml(r.tour_title)}</p>}
                     <div style={{display:"flex",gap:6}}>
                       <button onClick={()=>openEdit(r)} style={{flex:1,padding:"6px 0",background:"rgba(255,255,255,.15)",backdropFilter:"blur(8px)",border:"1px solid rgba(255,255,255,.2)",borderRadius:"var(--radius-sm)",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>Edit</button>
                       <button onClick={()=>setConfirm(r)} style={{flex:1,padding:"6px 0",background:"rgba(192,52,74,.7)",backdropFilter:"blur(8px)",border:"none",borderRadius:"var(--radius-sm)",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer"}}>Delete</button>
@@ -1405,7 +1670,7 @@ function GallerySection({toast}){
               <td style={{padding:"14px 18px",fontFamily:"monospace",fontSize:12,color:"var(--ink-4)"}}>{r.id}</td>
               <td style={{padding:"14px 18px"}}><img src={r.image_url} alt={r.alt_text} style={{width:72,height:48,borderRadius:"var(--radius-md)",objectFit:"cover",border:"1px solid var(--border)"}} onError={e=>e.target.style.display="none"} /></td>
               <td style={{padding:"14px 18px",fontWeight:600,fontSize:13.5,color:"var(--ink)",maxWidth:280,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.alt_text||<em style={{color:"var(--ink-4)",fontWeight:400}}>No description</em>}</td>
-              <td style={{padding:"14px 18px"}}>{r.tour_title?<Badge color="teal">{r.tour_title}</Badge>:<span style={{color:"var(--ink-4)"}}>—</span>}</td>
+              <td style={{padding:"14px 18px"}}>{r.tour_title?<Badge color="teal">{stripHtml(r.tour_title)}</Badge>:<span style={{color:"var(--ink-4)"}}>—</span>}</td>
               <td style={{padding:"14px 18px",fontSize:13,color:"var(--ink-3)",whiteSpace:"nowrap"}}>{r.uploaded_at?.split("T")[0]}</td>
             </>
           )}
@@ -1527,7 +1792,7 @@ function DashboardHome({ stats }) {
                      :<div style={{width:52,height:40,borderRadius:"var(--radius-sm)",background:"var(--surface-3)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"var(--ink-4)"}}><Ico d={P.tours} size={16}/></div>
                    }
                    <div style={{flex:1,minWidth:0}}>
-                     <p style={{fontWeight:700,fontSize:13.5,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.title}</p>
+                     <p style={{fontWeight:700,fontSize:13.5,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{stripHtml(t.title)}</p>
                      <p style={{fontSize:12,color:"var(--ink-3)",display:"flex",alignItems:"center",gap:4,marginTop:1}}>
                        <Ico d={P.map} size={11} style={{color:"var(--accent)",flexShrink:0}}/>{t.location}
                      </p>
@@ -1566,8 +1831,8 @@ function DashboardHome({ stats }) {
                        <p style={{fontWeight:700,fontSize:13.5,color:"var(--ink)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.name}</p>
                        <div style={{display:"flex",gap:1,flexShrink:0}}>{[...Array(5)].map((_,i)=><Ico key={i} d={P.star} size={11} stroke={0} fill={i<r.rating?"#C47A1A":"#E0DDD8"}/>)}</div>
                      </div>
-                     <p style={{fontSize:13,fontWeight:600,color:"var(--ink-2)",marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.title}</p>
-                     <p style={{fontSize:12,color:"var(--ink-3)",lineHeight:1.5,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{r.body}</p>
+                     <p style={{fontSize:13,fontWeight:600,color:"var(--ink-2)",marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{stripHtml(r.title)}</p>
+                     <p style={{fontSize:12,color:"var(--ink-3)",lineHeight:1.5,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{stripHtml(r.body)}</p>
                    </div>
                  </div>
                ))}

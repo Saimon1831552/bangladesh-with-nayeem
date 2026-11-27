@@ -1,4 +1,5 @@
 import TourDetails from "./TourCardDetails";
+import { stripHtml } from "@/lib/richText";
 
 const SITE_URL = "https://www.bangladeshwithnaim.com";
 const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api`;
@@ -7,11 +8,10 @@ const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 // Helpers
 // ─────────────────────────────────────────────────────────────
 
+// Removes tags and decodes entities (&amp; → &) so titles and descriptions
+// formatted in the admin panel become clean plain text for metadata.
 function cleanText(value = "") {
-  return String(value)
-    .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  return stripHtml(value);
 }
 
 function absoluteUrl(url) {

@@ -2,6 +2,11 @@ const express = require('express');
 const router  = express.Router();
 const pool    = require('../db');
 const validatePatchFields = require('../utils/validatePatchFields');
+const { sanitizeRichHtml, sanitizeOptional, ensureRichTextColumns } = require('../utils/richText');
+
+// Title, excerpt and content hold formatted HTML from the admin editor.
+const RICH_FIELDS = ['title', 'excerpt', 'content'];
+const ensureBlogColumns = () => ensureRichTextColumns(pool, 'blogs', { title: 'TEXT', excerpt: 'TEXT', content: 'MEDIUMTEXT' });
 
 // GET /api/blogs
 router.get('/', async (req, res) => {
@@ -38,12 +43,13 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { slug, title, excerpt, content , image_url, category, publish_date, read_time, author, author_img, is_featured } = req.body;
+    await ensureBlogColumns();
     if (!slug || !title) return res.status(400).json({ success: false, message: 'slug and title are required' });
 
     const [result] = await pool.query(
       `INSERT INTO blogs (slug, title, excerpt, content, image_url, category, publish_date, read_time, author, author_img, is_featured)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [slug, title, excerpt, content, image_url, category, publish_date, read_time, author, author_img, is_featured ?? 0]
+      [slug, sanitizeRichHtml(title), sanitizeOptional(excerpt), sanitizeOptional(content), image_url, category, publish_date, read_time, author, author_img, is_featured ?? 0]
     );
     res.status(201).json({ success: true, message: 'Blog created', data: { id: result.insertId, slug } });
   } catch (err) {
@@ -56,10 +62,11 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { slug, title, excerpt, content, image_url, category, publish_date, read_time, author, author_img, is_featured } = req.body;
+    await ensureBlogColumns();
     const [result] = await pool.query(
       `UPDATE blogs SET slug=?, title=?, excerpt=?, content=?, image_url=?, category=?, publish_date=?,
        read_time=?, author=?, author_img=?, is_featured=? WHERE id=?`,
-      [slug, title, excerpt, content, image_url, category, publish_date, read_time, author, author_img, is_featured, req.params.id]
+      [slug, sanitizeRichHtml(title), sanitizeOptional(excerpt), sanitizeOptional(content), image_url, category, publish_date, read_time, author, author_img, is_featured, req.params.id]
     );
     if (!result.affectedRows) return res.status(404).json({ success: false, message: 'Blog not found' });
     res.json({ success: true, message: 'Blog updated' });
@@ -80,6 +87,9 @@ router.patch('/:id', async (req, res) => {
         ...(rejected.length ? { rejected } : {}),
       });
     }
+
+    RICH_FIELDS.forEach(f => { if (safeFields[f] !== undefined) safeFields[f] = sanitizeOptional(safeFields[f]); });
+    await ensureBlogColumns();
 
     const setClauses = Object.keys(safeFields).map(k => `${k} = ?`).join(', ');
     const values     = [...Object.values(safeFields), req.params.id];

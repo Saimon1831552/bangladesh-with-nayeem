@@ -2,6 +2,17 @@ const express = require('express');
 const router  = express.Router();
 const pool    = require('../db');
 const validatePatchFields = require('../utils/validatePatchFields');
+const { sanitizeRichHtml, ensureRichTextColumns } = require('../utils/richText');
+
+// Columns that hold formatted HTML from the admin editor.
+const RICH_TEXT_COLUMNS = {
+  title: 'TEXT', overview: 'MEDIUMTEXT', trip_note: 'MEDIUMTEXT',
+  highlights: 'MEDIUMTEXT', why_choose: 'MEDIUMTEXT', itinerary: 'MEDIUMTEXT', faq: 'MEDIUMTEXT',
+};
+const ensureTourColumns = async () => {
+  await ensureTourSeoColumns();
+  await ensureRichTextColumns(pool, 'tours', RICH_TEXT_COLUMNS);
+};
 
 // SEO fields live with their tour so each detail page can have unique metadata.
 // The column check keeps this safe for existing deployments that pre-date them.
@@ -127,11 +138,6 @@ function ensureTourSeoColumns() {
 // ── JSON field helpers ────────────────────────────────────────────────────────
 const toJson  = (v) => JSON.stringify(Array.isArray(v) ? v : (v || []));
 const CONTENT_FIELDS = new Set(['highlights', 'why_choose', 'itinerary', 'faq']);
-const sanitizeRichHtml = (value) => String(value || '')
-  .replace(/<\s*(script|style|iframe|object|embed|link|meta)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, '')
-  .replace(/<\s*(script|style|iframe|object|embed|link|meta)[^>]*\/?\s*>/gi, '')
-  .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
-  .replace(/\s(href|src)\s*=\s*(["'])\s*javascript:[\s\S]*?\2/gi, '');
 const toContent = (v) => typeof v === 'string' ? sanitizeRichHtml(v) : JSON.stringify(v || []);
 const parseJsonField = (row, fields) => {
   fields.forEach(f => {
@@ -147,7 +153,7 @@ const JSON_FIELDS = ['highlights', 'why_choose', 'itinerary', 'faq', 'gallery_im
 // GET /api/tours
 router.get('/', async (req, res) => {
   try {
-    await ensureTourSeoColumns();
+    await ensureTourColumns();
     const { tour_type, location } = req.query;
     let query  = 'SELECT * FROM tours WHERE 1=1';
     const params = [];
@@ -172,7 +178,7 @@ router.get('/', async (req, res) => {
 // GET /api/tours/:id
 router.get('/:id', async (req, res) => {
   try {
-    await ensureTourSeoColumns();
+    await ensureTourColumns();
     const { id } = req.params;
     const column = /^\d+$/.test(id) ? 'id' : 'slug';
     const [rows] = await pool.query(`SELECT * FROM tours WHERE ${column} = ?`, [id]);
@@ -187,7 +193,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/tours
 router.post('/', async (req, res) => {
   try {
-    await ensureTourSeoColumns();
+    await ensureTourColumns();
     const {
       slug, title, overview, image_url, location, duration, group_size,
       price, rating, review_count, tour_type, isFeatured,
@@ -208,7 +214,7 @@ router.post('/', async (req, res) => {
          seo_og_title, seo_og_description, seo_og_image)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        slug, title, sanitizeRichHtml(overview) || null, image_url, location, duration, group_size,
+        slug, sanitizeRichHtml(title), sanitizeRichHtml(overview) || null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
         toContent(highlights), toContent(why_choose), toContent(itinerary), sanitizeRichHtml(trip_note) || null, toContent(faq),
         toJson(gallery_img), toJson(included), toJson(excluded), toJson(quick_view), toJson(price_packages),
@@ -226,7 +232,7 @@ router.post('/', async (req, res) => {
 // PUT /api/tours/:id
 router.put('/:id', async (req, res) => {
   try {
-    await ensureTourSeoColumns();
+    await ensureTourColumns();
     const {
       slug, title, overview, image_url, location, duration, group_size,
       price, rating, review_count, tour_type, isFeatured,
@@ -246,7 +252,7 @@ router.put('/:id', async (req, res) => {
         seo_og_title=?, seo_og_description=?, seo_og_image=?
        WHERE id=?`,
       [
-        slug, title, sanitizeRichHtml(overview) || null, image_url, location, duration, group_size,
+        slug, sanitizeRichHtml(title), sanitizeRichHtml(overview) || null, image_url, location, duration, group_size,
         price ?? null, rating ?? null, review_count ?? 0, tour_type, isFeatured ? 1 : 0,
         toContent(highlights), toContent(why_choose), toContent(itinerary), sanitizeRichHtml(trip_note) || null, toContent(faq),
         toJson(gallery_img), toJson(included), toJson(excluded), toJson(quick_view), toJson(price_packages),
@@ -265,7 +271,7 @@ router.put('/:id', async (req, res) => {
 // PATCH /api/tours/:id
 router.patch('/:id', async (req, res) => {
   try {
-    await ensureTourSeoColumns();
+    await ensureTourColumns();
     const { safeFields, rejected } = validatePatchFields('tours', req.body);
     if (!Object.keys(safeFields).length) {
       return res.status(400).json({ success: false, message: 'No valid fields provided', ...(rejected.length ? { rejected } : {}) });
@@ -278,6 +284,7 @@ router.patch('/:id', async (req, res) => {
     CONTENT_FIELDS.forEach(f => {
       if (safeFields[f] !== undefined) safeFields[f] = toContent(safeFields[f]);
     });
+    if (safeFields.title !== undefined) safeFields.title = sanitizeRichHtml(safeFields.title);
     ['overview', 'trip_note'].forEach(f => {
       if (safeFields[f] !== undefined) safeFields[f] = sanitizeRichHtml(safeFields[f]);
     });

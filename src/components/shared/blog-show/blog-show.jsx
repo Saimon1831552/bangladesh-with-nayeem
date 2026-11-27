@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { RichText, stripHtml } from '@/lib/richText';
 import { useRef, useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -27,7 +28,7 @@ function BlogCard({ blog }) {
       <div className="relative h-52 overflow-hidden">
         <Image
           src={blog.image_url}
-          alt={blog.title}
+          alt={stripHtml(blog.title)}
           fill
           sizes="(max-width:768px) 100vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -56,14 +57,19 @@ function BlogCard({ blog }) {
         </div>
 
         {/* Title */}
-        <h3 className="font-extrabold text-gray-900 text-lg mb-3 group-hover:text-green-700 transition-colors leading-snug">
-          {blog.title}
-        </h3>
+        <RichText
+          as="h3"
+          html={blog.title}
+          className="rich-html font-extrabold text-gray-900 text-lg mb-3 group-hover:text-green-700 transition-colors leading-snug"
+        />
 
         {/* Excerpt */}
-        <p className="text-gray-500 text-sm leading-relaxed flex-grow line-clamp-3">
-          {blog.excerpt?.trim()}
-        </p>
+        <RichText
+          as="div"
+          html={blog.excerpt?.trim()}
+          fallback=""
+          className="rich-html text-gray-500 text-sm leading-relaxed flex-grow line-clamp-3"
+        />
 
         {/* Footer */}
         <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">

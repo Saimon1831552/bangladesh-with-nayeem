@@ -2,6 +2,10 @@ const express = require('express');
 const router  = express.Router();
 const pool    = require('../db');
 const validatePatchFields = require('../utils/validatePatchFields');
+const { sanitizeOptional, ensureRichTextColumns } = require('../utils/richText');
+
+// Headline and review text hold formatted HTML from the admin editor.
+const ensureReviewColumns = () => ensureRichTextColumns(pool, 'reviews', { title: 'TEXT', body: 'TEXT' });
 
 // GET /api/reviews
 router.get('/', async (req, res) => {
@@ -54,13 +58,14 @@ router.post('/', async (req, res) => {
 
     if (!name || !rating) return res.status(400).json({ success: false, message: 'name and rating are required' });
     if (rating < 1 || rating > 5) return res.status(400).json({ success: false, message: 'rating must be between 1 and 5' });
+    await ensureReviewColumns();
 
     const [result] = await pool.query(
       `INSERT INTO reviews (tour_id, tour_name, name, country, initials, color_hex, bg_hex,
        review_date, rating, title, body, helpful_votes, is_verified)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [tour_id ?? null, tour_name, name, country, initials, color_hex, bg_hex,
-       review_date, rating, title, body, helpful_votes ?? 0, is_verified ?? 0]
+       review_date, rating, sanitizeOptional(title), sanitizeOptional(body), helpful_votes ?? 0, is_verified ?? 0]
     );
     res.status(201).json({ success: true, message: 'Review created', data: { id: result.insertId } });
   } catch (err) {
@@ -75,12 +80,13 @@ router.put('/:id', async (req, res) => {
       tour_id, tour_name, name, country, initials, color_hex,
       bg_hex, review_date, rating, title, body, helpful_votes, is_verified
     } = req.body;
+    await ensureReviewColumns();
 
     const [result] = await pool.query(
       `UPDATE reviews SET tour_id=?, tour_name=?, name=?, country=?, initials=?, color_hex=?,
        bg_hex=?, review_date=?, rating=?, title=?, body=?, helpful_votes=?, is_verified=? WHERE id=?`,
       [tour_id, tour_name, name, country, initials, color_hex, bg_hex,
-       review_date, rating, title, body, helpful_votes, is_verified, req.params.id]
+       review_date, rating, sanitizeOptional(title), sanitizeOptional(body), helpful_votes, is_verified, req.params.id]
     );
     if (!result.affectedRows) return res.status(404).json({ success: false, message: 'Review not found' });
     res.json({ success: true, message: 'Review updated' });
@@ -96,6 +102,9 @@ router.patch('/:id', async (req, res) => {
     if (!Object.keys(safeFields).length) {
       return res.status(400).json({ success: false, message: 'No valid fields provided', ...(rejected.length ? { rejected } : {}) });
     }
+
+    ['title', 'body'].forEach(f => { if (safeFields[f] !== undefined) safeFields[f] = sanitizeOptional(safeFields[f]); });
+    await ensureReviewColumns();
 
     const setClauses = Object.keys(safeFields).map(k => `${k} = ?`).join(', ');
     const values     = [...Object.values(safeFields), req.params.id];

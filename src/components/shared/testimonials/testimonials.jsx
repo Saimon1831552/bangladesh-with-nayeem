@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, memo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RichText } from '@/lib/richText';
 import {
   faStar,
   faQuoteLeft,
@@ -260,7 +261,7 @@ const ReviewCard = memo(function ReviewCard({ review, palette, delay = 0 }) {
       </div>
 
       {review.title && (
-        <h5 className="font-bold text-gray-700 text-xs md:text-sm mb-2 relative z-10">{review.title}</h5>
+        <RichText as="h5" className="rich-html font-bold text-gray-700 text-xs md:text-sm mb-2 relative z-10" html={review.title} />
       )}
 
       {/* <p className="text-gray-500 text-xs md:text-sm leading-relaxed flex-grow relative z-10 italic">

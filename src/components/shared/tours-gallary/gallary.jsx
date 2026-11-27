@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { stripHtml } from '@/lib/richText';
 import {
   faChevronLeft, faChevronRight, faXmark,
   faImages, faExpand,
@@ -20,7 +21,7 @@ async function fetchGallery() {
   return (json.data || []).map(g => ({
     src: g.image_url || FALLBACK_IMG,
     label: g.alt_text || g.tour_title || 'Bangladesh',
-    country: g.tour_title || '',
+    country: stripHtml(g.tour_title),
   }));
 }
 

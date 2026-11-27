@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { stripHtml } from '@/lib/richText';
 import {
   faChevronLeft, faChevronRight, faXmark,
   faImages, faExpand, faTriangleExclamation,
@@ -189,7 +190,7 @@ export default function Gallery({ images: initialImages }) {
       const json = await res.json();
       const mapped = (json.data || []).map((g) => ({
         src: g.image_url,
-        label: g.tour_title || g.alt_text || 'Bangladesh',
+        label: stripHtml(g.tour_title) || g.alt_text || 'Bangladesh',
         country: g.tour_title && g.alt_text ? g.alt_text : undefined,
       }));
       setImages(mapped);

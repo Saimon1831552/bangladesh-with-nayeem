@@ -1,5 +1,6 @@
 // page.jsx
 import Blogclient from "./Blogclient";
+import { stripHtml } from "@/lib/richText";
 
 async function getBlog(slug) {
   try {
@@ -23,14 +24,17 @@ export async function generateMetadata({ params }) {
   // redirects. A non-www canonical here tells Google a different URL is the
   // primary version of the same article.
   const url = `https://www.bangladeshwithnaim.com/blogs/${slug}`;
+  // Title and excerpt may contain formatting; search engines need plain text.
+  const title = stripHtml(blog.title);
+  const description = stripHtml(blog.excerpt);
   return {
-    title: blog.title,
-    description: blog.excerpt,
+    title,
+    description,
     alternates: { canonical: url },
     openGraph: {
       type: "article",
-      title: blog.title,
-      description: blog.excerpt,
+      title,
+      description,
       url,
       images: [{ url: blog.image_url, width: 1200, height: 630 }],
       publishedTime: blog.publish_date,
@@ -38,8 +42,8 @@ export async function generateMetadata({ params }) {
     },
     twitter: {
       card: "summary_large_image",
-      title: blog.title,
-      description: blog.excerpt,
+      title,
+      description,
       images: [blog.image_url],
     },
   };

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { RichText, stripHtml } from '@/lib/richText';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faClock, faInbox } from '@fortawesome/free-solid-svg-icons';
 
@@ -324,7 +325,7 @@ function BlogCard({ blog }) {
         <div className={`relative overflow-hidden ${blog.isFeatured ? 'md:w-1/2 aspect-square md:aspect-auto' : 'w-full aspect-video'}`}>
           <Image
             src={imgSrc}
-            alt={blog.title || 'Blog image'}
+            alt={stripHtml(blog.title) || 'Blog image'}
             fill
             sizes={blog.isFeatured ? '(max-width:768px) 100vw, 50vw' : '(max-width:768px) 100vw, 33vw'}
             className="object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -358,15 +359,19 @@ function BlogCard({ blog }) {
           </div>
 
           {/* Title */}
-          <h3 className={`font-bold text-gray-900 group-hover:text-green-700 transition-colors duration-300 leading-snug line-clamp-3 ${blog.isFeatured ? 'text-2xl md:text-3xl mb-4' : 'text-xl mb-3'}`}>
-            {blog.title}
-          </h3>
+          <RichText
+            as="h3"
+            html={blog.title}
+            className={`rich-html font-bold text-gray-900 group-hover:text-green-700 transition-colors duration-300 leading-snug line-clamp-3 ${blog.isFeatured ? 'text-2xl md:text-3xl mb-4' : 'text-xl mb-3'}`}
+          />
 
           {/* Excerpt */}
           {blog.excerpt && (
-            <p className={`text-gray-500 line-clamp-3 leading-relaxed grow ${blog.isFeatured ? 'text-base mb-8' : 'text-sm mb-6'}`}>
-              {blog.excerpt}
-            </p>
+            <RichText
+              as="div"
+              html={blog.excerpt}
+              className={`rich-html text-gray-500 line-clamp-3 leading-relaxed grow ${blog.isFeatured ? 'text-base mb-8' : 'text-sm mb-6'}`}
+            />
           )}
 
           {/* Footer */}
